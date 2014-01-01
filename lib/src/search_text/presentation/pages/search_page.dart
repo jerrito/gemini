@@ -30,8 +30,8 @@ class SearchTextPage extends StatefulWidget {
 class _SearchTextPage extends State<SearchTextPage> {
   final searchBloc = sl<SearchBloc>();
   final searchBloc2 = sl<SearchBloc>();
-  final form = GlobalKey<FormState>();
   final searchBloc3 = sl<SearchBloc>();
+  final form = GlobalKey<FormState>();
   List<Uint8List> all = [];
   List<String> imageExtensions = [];
   int imageLength = 0;
@@ -69,98 +69,151 @@ class _SearchTextPage extends State<SearchTextPage> {
             onPressed: () async {
               scaffoldKey.currentState?.openDrawer();
               searchBloc2.add(ReadSQLDataEvent());
+              // getIPAddress();
             },
             icon: const Icon(Icons.menu)),
         centerTitle: true,
       ),
       bottomSheet: Form(
         key: form,
-        child: BottomSheetTextfield(
-          validator: (value) {
-            if (value?.isEmpty ?? true) {
-              return "";
-            }
-            if (isTextImage) {
-              if (all.isEmpty) {
-                return "image is required";
-              }
-            }
-            return null;
-          },
-          // errorText: FormFieldValidator.toString(),
-          onChanged: (value) {
-            if (value!.isNotEmpty) {
-              isAvailble = false;
-            }
-            initText = value;
-          },
-          controller: controller,
-          onPressed: isAvailble
-              ? null
-              : () {
-                  if (form.currentState?.validate() == true &&
-                      controller.text.isNotEmpty) {
-                    Map<String, dynamic> params = {
-                      "text": controller.text,
-                    };
-                    Map<String, dynamic> paramsWithImage = {
-                      "text": controller.text,
-                      "images": all
-                    };
-                    switch (type) {
-                      case 4:
-                        searchBloc.add(
-                          SearchTextEvent(
-                            params: params,
-                          ),
-                        );
-                        break;
-
-                      case 2:
-                        searchBloc.add(
-                          ChatEvent(
-                            params: params,
-                          ),
-                        );
-                        break;
-
-                      case 3:
-                        searchBloc.add(
-                          SearchTextAndImageEvent(
-                            params: paramsWithImage,
-                          ),
-                        );
-                        break;
-                      case 1:
-                        searchBloc.add(
-                          GenerateStreamEvent(
-                            params: params,
-                          ),
-                        );
-                        break;
-                      case 5:
-                        searchBloc.add(
-                          GenerateContentEvent(
-                            params: params,
-                          ),
-                        );
-                      default:
-                        searchBloc.add(
-                          GenerateStreamEvent(
-                            params: params,
-                          ),
-                        );
-                        break;
+        child: Container(
+           color: Theme.of(context).brightness != Brightness.dark
+          ? Colors.white
+          : Colors.black,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: Sizes().height(context, 0.1),
+                width: Sizes().width(context, 0.8),
+                child: BottomSheetTextfield(
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return "";
                     }
-                  }
-                },
-
-          onTap: () {
-            searchBloc2.add(AddMultipleImageEvent(
-              noParams: NoParams(),
-            ));
-          },
-          isTextAndImage: isTextImage,
+                    if (isTextImage) {
+                      if (all.isEmpty) {
+                        return "image is required";
+                      }
+                    }
+                    return null;
+                  },
+                  // errorText: FormFieldValidator.toString(),
+                  onChanged: (value) {
+                    if (value!.isNotEmpty) {
+                      isAvailble = false;
+                    }
+                    initText = value;
+                  },
+                  controller: controller,
+                  onPressed: isAvailble
+                      ? null
+                      : () {
+                          if (form.currentState?.validate() == true &&
+                              controller.text.isNotEmpty) {
+                            Map<String, dynamic> params = {
+                              "text": controller.text,
+                            };
+                            Map<String, dynamic> paramsWithImage = {
+                              "text": controller.text,
+                              "images": all
+                            };
+                            switch (type) {
+                              case 4:
+                                searchBloc.add(
+                                  SearchTextEvent(
+                                    params: params,
+                                  ),
+                                );
+                                break;
+          
+                              case 2:
+                                searchBloc.add(
+                                  ChatEvent(
+                                    params: params,
+                                  ),
+                                );
+                                break;
+          
+                              case 3:
+                                searchBloc.add(
+                                  SearchTextAndImageEvent(
+                                    params: paramsWithImage,
+                                  ),
+                                );
+                                break;
+                              case 1:
+                                searchBloc.add(
+                                  GenerateStreamEvent(
+                                    params: params,
+                                  ),
+                                );
+                                break;
+                              case 5:
+                                searchBloc.add(
+                                  GenerateContentEvent(
+                                    params: params,
+                                  ),
+                                );
+                              default:
+                                searchBloc.add(
+                                  GenerateStreamEvent(
+                                    params: params,
+                                  ),
+                                );
+                                break;
+                            }
+                          }
+                        },
+          
+                  onTap: () {
+                    searchBloc2.add(AddMultipleImageEvent(
+                      noParams: NoParams(),
+                    ));
+                  },
+                  isTextAndImage: isTextImage,
+                ),
+              ),
+              Container(
+                decoration:BoxDecoration(
+                  color:Theme.of(context).brightness==Brightness.dark?
+                  Colors.black:Colors.white,
+                ),
+                child: BlocConsumer(
+                  bloc: searchBloc3,
+                  listener: (context, state) {
+                    if (state is IsSpeechTextEnabledLoaded) {
+                      searchBloc3.add(ListenSpeechTextEvent());
+                    }
+                    if (state is OnSpeechResultLoaded) {
+                      controller.text = state.result;
+                      setState(() {});
+                    }
+                    // if (state is ListenSpeechTextLoaded) {
+                    //   searchBloc3.onSpeechResult(result);
+                    // }
+                    if (state is IsSpeechTextEnabledLoaded) {
+                      searchBloc3.add(ListenSpeechTextEvent());
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is IsSpeechTextEnabledLoaded) {
+                      return IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.mic_external_on));
+                    }
+                    return GestureDetector(
+                      onLongPress: () =>
+                          searchBloc3.add(IsSpeechTextEnabledEvent()),
+                      onLongPressCancel: () =>
+                          searchBloc3.add(StopSpeechTextEvent()),
+                      child: const Icon(Icons.mic),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       body: Padding(
@@ -399,8 +452,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                     };
                     if (snapInfo.isEmpty) {
                       //TODO: seperate error from no internet
-                     // GenerativeAIException(); 10ff.net edclub keybr
-                     
+                      // GenerativeAIException(); 10ff.net edclub keybr
+
                       return Column(
                         children: [
                           Lottie.asset(noJson),

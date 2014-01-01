@@ -34,6 +34,6 @@ const model=mongoose.Schema({
     
 });
 
-const data=mongoose.model("gemini_user",model);
+const userModel=mongoose.model("gemini_user",model);
 
-module.exports=data;
+module.exports=userModel;

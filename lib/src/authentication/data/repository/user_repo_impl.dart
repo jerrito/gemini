@@ -5,8 +5,8 @@ import 'package:gemini/src/authentication/domain/entities/user.dart';
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
-  final NetworkInfoImpl networkInfo;
-  final UserRemoteDatasourceImpl userRemoteDatasource;
+  final NetworkInfo networkInfo;
+  final UserRemoteDatasource userRemoteDatasource;
 
   UserRepositoryImpl(
       {required this.userRemoteDatasource, required this.networkInfo});
@@ -76,10 +76,10 @@ class UserRepositoryImpl implements UserRepository {
      }
 
       @override
-     Future<Either<String, dynamic>> getUserFromToken(Map<String, dynamic> params) async{
+     Future<Either<String, User>> getUserFromToken(Map<String, dynamic> params) async{
       if (await networkInfo.isConnected) {
       try {
-        final response =await userRemoteDatasource.getOTP(params);
+        final response =await userRemoteDatasource.getUserFromToken(params);
         return Right(response);
       } catch (e) {
         return Left(e.toString());

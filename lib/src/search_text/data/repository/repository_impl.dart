@@ -7,6 +7,7 @@ import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/src/search_text/domain/repository/search_repository.dart';
 import 'package:gemini/src/sql_database/entities/text.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
   final NetworkInfo networkInfo;
@@ -110,6 +111,54 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<Either<String, List<TextEntity>?>> readData() async {
       try {
         final response = await searchLocalDatasource.readData();
+
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      
+    }
+  }
+
+  @override
+  Future<Either<String, bool>> isSpeechTextEnabled() async{
+     try {
+        final response = await searchLocalDatasource.isSpeechTextEnabled();
+
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      
+    }
+  }
+
+  @override
+  Future<Either<String, dynamic>> listenToSpeechText() async{
+     try {
+        final response = await searchLocalDatasource.listenToSpeechText();
+
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      
+    }
+    }
+
+  @override
+ Either<String,String>  onSpeechResult(SpeechRecognitionResult result) {
+    try {
+        final response =  searchLocalDatasource.onSpeechResult(result);
+
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      
+    }
+  }
+
+  @override
+  Future<Either<String, void>> stopSpeechText() async{
+    try {
+        final response = await searchLocalDatasource.stopSpeechText();
 
         return Right(response);
       } catch (e) {

@@ -1,0 +1,17 @@
+import 'dart:typed_data';
+
+import 'package:dartz/dartz.dart';
+import 'package:gemini/core/widgets/usecase/usecase.dart';
+import 'package:gemini/src/search_text/domain/repository/search_repository.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+
+class OnSpeechResult extends UseCases<void, SpeechRecognitionResult > {
+  final SearchRepository repository;
+
+  OnSpeechResult({required this.repository});
+
+  @override
+  Future<Either<String, String>> call(SpeechRecognitionResult params) async {
+    return  repository.onSpeechResult( params);
+  }
+}

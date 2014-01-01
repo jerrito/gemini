@@ -41,3 +41,22 @@ class ReadDataDetailsEvent extends SearchEvent{
    final Map<String, dynamic> params;
   ReadDataDetailsEvent({required this.params});
 }
+
+class IsSpeechTextEnabledEvent extends SearchEvent{
+  
+  IsSpeechTextEnabledEvent();
+}
+
+class ListenSpeechTextEvent extends SearchEvent{
+  
+  ListenSpeechTextEvent();
+}
+
+class StopSpeechTextEvent extends SearchEvent{
+  
+  StopSpeechTextEvent();
+}
+class OnSpeechResultEvent extends SearchEvent{
+  
+  OnSpeechResultEvent();
+}

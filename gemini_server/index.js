@@ -4,6 +4,9 @@ const mongoose=require("mongoose");
 const firebase=require("firebase/app");
 const cors=require("cors/");
 const bodyParser=require("body-parser");
+const authRouter=require("./routes/auth");
+const userModel=require("./models/user")
+const bcrypt=require("bcryptjs")
 
 
 const app=express();
@@ -14,7 +17,7 @@ const databaseUrl="mongodb+srv://jerrito0240:kI02PBzyF2U1WL9A@cluster0.gldghvy.m
 
 
 
-const port=5000;
+const port=4000;
 mongoose.connect(databaseUrl).then(()=>{
 console.log("Database connected successfully");
 }).catch((e)=>{
@@ -25,7 +28,8 @@ console.log("Database connected successfully");
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
-app.use(auth);
+// app.use(auth);
+// app.use(authRouter);
 
 firebase.initializeApp(
   {
@@ -34,6 +38,31 @@ firebase.initializeApp(
     projectId:"woww-b2885",
   }
 )
+
+app.post("/jerrito_gemini/signup",async(req,res)=>{
+  try{
+  const {name,email,password}=req.body;
+  
+  const emailAlreadyExist=await userModel.findOne({email})
+  console.log(req.body);
+  if(emailAlreadyExist){
+    return  res.status(400).json({msg:"Email already exist"});
+  }
+  const passwordHashed=await bcrypt.hash(password,8);
+
+  let user=  userModel({
+    userName:name,
+      email,
+  password:passwordHashed
+  })
+
+  const data= await user.save();
+  return res.status(200).json({msg:"Saved successfully"})
+  }
+  catch(e){
+   return   res.status(500).json({error:e.message});
+  }
+})
 
 app.post("/jerrito-gemini/otp/",async(req,res)=>{
 try{

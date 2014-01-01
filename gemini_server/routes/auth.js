@@ -88,9 +88,6 @@ authRouter.post("/jerrito_gemini/signup",async(req,res)=>{
     catch(e){
      return   res.status(500).json({error:e.message});
     }
-
-  
-
 })
 
 module.exports=authRouter;

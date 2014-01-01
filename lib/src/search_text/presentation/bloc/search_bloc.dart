@@ -6,12 +6,18 @@ import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/src/search_text/domain/usecase/add_multi_images.dart';
 import 'package:gemini/src/search_text/domain/usecase/chat.dart';
 import 'package:gemini/src/search_text/domain/usecase/generate_content.dart';
+import 'package:gemini/src/search_text/domain/usecase/is_speech_text_enabled.dart';
+import 'package:gemini/src/search_text/domain/usecase/listen_speech_text.dart';
+import 'package:gemini/src/search_text/domain/usecase/on_speech_result.dart';
 import 'package:gemini/src/search_text/domain/usecase/read_sql_data.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
+import 'package:gemini/src/search_text/domain/usecase/stop_speech_text.dart';
 import 'package:gemini/src/sql_database/entities/text.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:gemini/main.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 part "search_event.dart";
 part 'search_state.dart';
 
@@ -22,9 +28,17 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final GenerateContent generateContent;
   final Chat chat;
   final ReadData readSQLData;
+  // final OnSpeechResult onSpeechResult;
+  // final StopSpeechText stopSpeechText;
+  // final ListenSpeechText listenSpeechText;
+  // final SpeechTextEnabled isSpeechTextEnabled;
   final SearchRemoteDatasourceImpl remoteDatasourceImpl;
 
   SearchBloc({
+    // required this.onSpeechResult,
+    // required this.stopSpeechText,
+    // required this.listenSpeechText,
+    // required this.isSpeechTextEnabled,
     required this.searchText,
     required this.searchTextAndImage,
     required this.addMultipleImage,
@@ -137,9 +151,78 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     on<ReadDataDetailsEvent>((event, emit) {
       final response = readDataDetails(event.params);
-      emit(ReadDataDetailsLoaded(response));
+      emit(
+        ReadDataDetailsLoaded(
+          response,
+        ),
+      );
+    });
+
+    on<StopSpeechTextEvent>((event, emit) async {
+      await stopSpeechText();
+      emit(
+        StopSpeechTextLoaded(),
+      );
+    });
+
+    on<ListenSpeechTextEvent>((event, emit) async {
+      await _speechToText.listen(
+        onResult: (result) {
+          emit(
+            OnSpeechResultLoaded(
+              result: result.recognizedWords,
+            ),
+          );
+        },
+        listenOptions: SpeechListenOptions(listenMode: ListenMode.search),
+      );
+      
+      //emit(ListenSpeechTextLoaded());
+    });
+
+    // on<OnSpeechResultEvent>((event, emit) {
+    //   // final response = onSpeechResult.call();
+    //   //emit(OnSpeechResultLoaded(result: response));
+    // });
+
+    on<IsSpeechTextEnabledEvent>((event, emit) async {
+      final response = await isSpeechTextEnabled();
+      emit(IsSpeechTextEnabledLoaded(isSpeechTextEnabled: response));
     });
   }
+
+  final _speechToText = SpeechToText();
+
+  /// This has to happen only once per app
+  Future<bool> isSpeechTextEnabled() async {
+    final speechEnabled = await _speechToText.initialize();
+    return speechEnabled;
+  }
+
+  /// Each time to start a speech recognition session
+  Future<dynamic> listenToSpeechText() async {
+    final response = await _speechToText.listen(
+      onResult: onSpeechResult,
+      listenOptions: SpeechListenOptions(listenMode: ListenMode.search),
+    );
+    return response;
+  }
+
+  /// Manually stop the active speech recognition session
+  /// Note that there are also timeouts that each platform enforces
+  /// and the SpeechToText plugin supports setting timeouts on the
+  /// listen method.
+  Future<void> stopSpeechText() async {
+    return await _speechToText.stop();
+  }
+
+  /// This is the callback that the SpeechToText plugin calls when
+  /// the platform returns recognized words.
+  String onSpeechResult(SpeechRecognitionResult result) {
+    print(result.recognizedWords);
+    return result.recognizedWords;
+  }
+
   Stream<GenerateContentResponse> generateStream(Map<String, dynamic> params) {
     return remoteDatasourceImpl.generateContent(params);
   }

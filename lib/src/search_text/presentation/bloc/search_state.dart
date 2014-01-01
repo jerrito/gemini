@@ -52,12 +52,11 @@ class GenerateContentError extends SearchState {
   GenerateContentError({required this.errorMessage});
 }
 
-
 class AddMultipleImageLoading extends SearchState {}
 
 class AddMultipleImageLoaded extends SearchState {
   final Map<List<Uint8List>, List<String>> data;
-  
+
   AddMultipleImageLoaded({required this.data});
 }
 
@@ -66,33 +65,64 @@ class AddMultipleImageError extends SearchState {
   AddMultipleImageError({required this.errorMessage});
 }
 
-class GenerateStream extends SearchState{}
+class GenerateStream extends SearchState {}
 
-class GenerateStreamStop extends SearchState{}
+class GenerateStreamStop extends SearchState {}
 
-class ReadDataLoaded extends SearchState{
+class ReadDataLoaded extends SearchState {
   final List<TextEntity>? data;
 
   ReadDataLoaded({required this.data});
-
 }
 
 class ReadDataLoading extends SearchState {}
 
-
-class ReadDataError extends SearchState{
+class ReadDataError extends SearchState {
   final String errorMessage;
-   ReadDataError({required this.errorMessage});
+  ReadDataError({required this.errorMessage});
 }
 
-class ReadDataDetailsLoaded extends SearchState{
+class ReadDataDetailsLoaded extends SearchState {
+  final TextEntity? textEntity;
 
-final TextEntity? textEntity;
-
- ReadDataDetailsLoaded(this.textEntity);
+  ReadDataDetailsLoaded(this.textEntity);
 }
-  
-                    
-                     
-               
-            
+
+class IsSpeechTextEnabledError extends SearchState {
+  final String errorMessage;
+  IsSpeechTextEnabledError({required this.errorMessage});
+}
+
+class IsSpeechTextEnabledLoaded extends SearchState {
+  final bool isSpeechTextEnabled;
+  IsSpeechTextEnabledLoaded({required this.isSpeechTextEnabled});
+}
+
+class StopSpeechTextError extends SearchState {
+  final String errorMessage;
+  StopSpeechTextError({required this.errorMessage});
+}
+
+class StopSpeechTextLoaded extends SearchState {
+
+  StopSpeechTextLoaded();
+}
+
+class ListenSpeechTextError extends SearchState {
+  final String errorMessage;
+  ListenSpeechTextError({required this.errorMessage});
+}
+
+class OnSpeechResultError extends SearchState {
+  final String errorMessage;
+  OnSpeechResultError({required this.errorMessage});
+}
+
+class ListenSpeechTextLoaded extends SearchState {
+  ListenSpeechTextLoaded();
+}
+
+class OnSpeechResultLoaded extends SearchState {
+  final String result;
+  OnSpeechResultLoaded({required this.result});
+}

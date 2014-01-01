@@ -1,0 +1,19 @@
+import 'dart:typed_data';
+
+import 'dart:typed_data';
+
+import 'package:dartz/dartz.dart';
+import 'package:gemini/core/widgets/usecase/usecase.dart';
+import 'package:gemini/src/search_text/domain/repository/search_repository.dart';
+
+class SpeechTextEnabled extends UseCases<bool, NoParams> {
+  final SearchRepository repository;
+
+  SpeechTextEnabled({required this.repository});
+
+  @override
+  Future<Either<String, bool>> call(NoParams params) async {
+    return await repository.isSpeechTextEnabled();
+  }
+}
+

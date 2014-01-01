@@ -22,17 +22,46 @@ import 'package:gemini/src/search_text/domain/usecase/search_text.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 
-void initDependencies() {
-  initSearch();
+void initDependencies() async {
+  //auth
   initAuthentication();
+
+  //search
+  initSearch();
+
+  //! External
+
+  //http
+  sl.registerLazySingleton(() => http.Client());
+
+  //network
+  sl.registerLazySingleton(
+    () => NetworkInfoImpl(
+      dataConnectionChecker: sl(),
+    ),
+  );
+  sl.registerLazySingleton<NetworkInfo>(
+    () => NetworkInfoImpl(
+      dataConnectionChecker: sl(),
+    ),
+  );
+
+  //data connection
+  sl.registerLazySingleton(
+    () => DataConnectionChecker(),
+  );
+
+  //shared preferences
+  final sharedPreferences = await SharedPreferences.getInstance();
 }
 
 void initSearch() {
   //bloc
-
   sl.registerFactory(
     () => SearchBloc(
         searchText: sl(),
@@ -44,17 +73,18 @@ void initSearch() {
         readSQLData: sl()),
   );
 
+  sl.registerLazySingleton(
+    () => SearchRemoteDatasourceImpl(),
+  );
+
   //usecases
 
   sl.registerLazySingleton(
-    () => ReadData(searchRepository: sl()),
-  );
-
-  sl.registerLazySingleton<SearchRemoteDatasourceImpl>(
-    () => SearchRemoteDatasourceImpl(
-      networkInfo: sl(),
+    () => ReadData(
+      searchRepository: sl(),
     ),
   );
+
   sl.registerLazySingleton(
     () => SearchText(
       repository: sl(),
@@ -97,24 +127,22 @@ void initSearch() {
   //data source
 
   sl.registerLazySingleton<SearchRemoteDatasource>(
-    () => SearchRemoteDatasourceImpl(
-      networkInfo: sl(),
-    ),
+    () => SearchRemoteDatasourceImpl(),
   );
 
   sl.registerLazySingleton<SearchLocalDatasource>(
     () => SearchLocalDatasourceImpl(),
   );
 
-  sl.registerLazySingleton<NetworkInfo>(
-    () => NetworkInfoImpl(
-      dataConnectionChecker: sl(),
-    ),
-  );
+  // sl.registerLazySingleton<NetworkInfo>(
+  //   () => NetworkInfoImpl(
+  //     dataConnectionChecker: sl(),
+  //   ),
+  // );
 
-  sl.registerLazySingleton(
-    () => DataConnectionChecker(),
-  );
+  // sl.registerLazySingleton(
+  //   () => DataConnectionChecker(),
+  // );
 }
 
 void initAuthentication() {
@@ -133,7 +161,7 @@ void initAuthentication() {
 
   //usecases
 
-sl.registerLazySingleton(
+  sl.registerLazySingleton(
     () => GetUserFromToken(
       repository: sl(),
     ),
@@ -150,21 +178,25 @@ sl.registerLazySingleton(
       repository: sl(),
     ),
   );
-   sl.registerLazySingleton(
+
+  sl.registerLazySingleton(
     () => ConfirmToken(
       repository: sl(),
     ),
   );
+
   sl.registerLazySingleton(
     () => Signin(
       repository: sl(),
     ),
   );
+  
   sl.registerLazySingleton(
     () => Signup(
       repository: sl(),
     ),
   );
+
   //repository
 
   sl.registerLazySingleton<UserRepository>(
@@ -173,8 +205,11 @@ sl.registerLazySingleton(
       networkInfo: sl(),
     ),
   );
-  //datasources
+
+  // datasources
   sl.registerLazySingleton<UserRemoteDatasource>(
-    () => UserRemoteDatasourceImpl(),
+    () => UserRemoteDatasourceImpl(
+      client: sl(),
+    ),
   );
 }

@@ -18,7 +18,7 @@ Future<Either<String,dynamic>> verifyToken(Map<String, dynamic> params);
 Future<Either<String,dynamic>> getOTP(Map<String, dynamic> params);
 
 //get user from token
-Future<Either<String, dynamic>> getUserFromToken(Map<String, dynamic> params);
+Future<Either<String, User>> getUserFromToken(Map<String, dynamic> params);
 
 
 //confrm token

@@ -12,10 +12,10 @@ abstract class SearchRemoteDatasource {
 }
 
 class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
-  final NetworkInfo networkInfo;
+ // final NetworkInfo networkInfo;
   final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
 
-  SearchRemoteDatasourceImpl({required this.networkInfo});
+  SearchRemoteDatasourceImpl();
 
   @override
   Future searchText(Map<String, dynamic> params) async {
