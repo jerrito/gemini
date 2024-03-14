@@ -75,7 +75,7 @@ class SearchRepositoryImpl implements SearchRepository {
     if (await networkInfo.isConnected) {
       try {
         final response = searchRemoteDatasource.generateContent(params);
-        
+        print("object");
         print(response.first);
         yield Right(response);
       } catch (e) {

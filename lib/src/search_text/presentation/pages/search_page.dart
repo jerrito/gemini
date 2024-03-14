@@ -39,9 +39,8 @@ class _SearchTextPage extends State<SearchTextPage> {
       ),
       bottomSheet: Form(
         key: form,
-        child:  bottomSheetTextfield(
-             validator: (value) {
-            print(value);
+        child: bottomSheetTextfield(
+          validator: (value) {
             if (value?.isEmpty ?? true) {
               return "Field is required";
             }
@@ -52,84 +51,83 @@ class _SearchTextPage extends State<SearchTextPage> {
             }
             return null;
           },
-           // errorText: FormFieldValidator.toString(),
-            onChanged: (value) {
+          // errorText: FormFieldValidator.toString(),
+          onChanged: (value) {
             //  field.didChange(value);
 
-              // data = value!;
-            },
-            controller: controller,
-            context: context,
-            onPressed: () {
-              if (form.currentState?.validate() == true &&
-                  controller.text.isNotEmpty ) {
-                switch (type) {
-                  case 1:
-                    Map<String, dynamic> params = {
-                      "text": controller.text,
-                    };
-                    searchBloc.add(
-                      SearchTextEvent(
-                        params: params,
-                      ),
-                    );
-                    break;
+            // data = value!;
+          },
+          controller: controller,
+          context: context,
+          onPressed: () {
+            if (form.currentState?.validate() == true &&
+                controller.text.isNotEmpty) {
+              switch (type) {
+                case 1:
+                  Map<String, dynamic> params = {
+                    "text": controller.text,
+                  };
+                  searchBloc.add(
+                    SearchTextEvent(
+                      params: params,
+                    ),
+                  );
+                  break;
 
-                  case 2:
-                    Map<String, dynamic> paramsChat = {
-                      "chats": controller.text,
-                    };
-                    searchBloc.add(ChatEvent(params: paramsChat));
-                    break;
+                case 2:
+                  Map<String, dynamic> paramsChat = {
+                    "chats": controller.text,
+                  };
+                  searchBloc.add(ChatEvent(params: paramsChat));
+                  break;
 
-                  case 3:
-                    Map<String, dynamic> paramsWithImage = {
-                      "text": controller.text,
-                      "images": all
-                    };
-                    searchBloc.add(
-                      SearchTextAndImageEvent(
-                        params: paramsWithImage,
-                      ),
-                    );
-                    break;
-                  case 4:
-                    Map<String, dynamic> paramsWithImage = {
-                      "text": controller.text,
-                      "images": all
-                    };
-                    searchBloc.add(
-                      GenerateContentEvent(params: paramsWithImage),
-                    );
-                    break;
-                  default:
-                    Map<String, dynamic> params = {
-                      "text": controller.text,
-                    };
-                    searchBloc.add(
-                      SearchTextEvent(
-                        params: params,
-                      ),
-                    );
-                }
+                case 3:
+                  Map<String, dynamic> paramsWithImage = {
+                    "text": controller.text,
+                    "images": all
+                  };
+                  searchBloc.add(
+                    SearchTextAndImageEvent(
+                      params: paramsWithImage,
+                    ),
+                  );
+                  break;
+                case 4:
+                  Map<String, dynamic> paramsWithImage = {
+                    "text": controller.text,
+                    "images": all
+                  };
+                  searchBloc.add(
+                    GenerateContentEvent(params: paramsWithImage),
+                  );
+                  break;
+                default:
+                  Map<String, dynamic> params = {
+                    "text": controller.text,
+                  };
+                  searchBloc.add(
+                    SearchTextEvent(
+                      params: params,
+                    ),
+                  );
               }
-            },
+            }
+          },
 
-            onTap: () {
-              // final gemini = Gemini.instance;
+          onTap: () {
+            // final gemini = Gemini.instance;
 
-              // gemini.streamGenerateContent('Write a story on Gaza').listen((value) {
-              //   print(value.output);
-              // }).onError((e) {
-              //   // print('streamGenerateContent exception', error: e);
-              // });
+            // gemini.streamGenerateContent('Write a story on Gaza').listen((value) {
+            //   print(value.output);
+            // }).onError((e) {
+            //   // print('streamGenerateContent exception', error: e);
+            // });
 
-              searchBloc2.add(AddMultipleImageEvent(noParams: NoParams()));
-            },
-            isTextAndImage: isTextImage,
-          ),
+            searchBloc2.add(AddMultipleImageEvent(noParams: NoParams()));
+          },
+          isTextAndImage: isTextImage,
         ),
-      
+      ),
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: Sizes().width(
@@ -147,36 +145,41 @@ class _SearchTextPage extends State<SearchTextPage> {
               if (state is AddMultipleImageLoaded) {
                 all.clear();
                 //  info = "";
-                question = "";                
-                final dataGet = await Navigator.push(context,
-                    MaterialPageRoute(builder: (context) {
-                  return SearchimageTextfield(
-                    all: state.data,
-                    textData: controller.text,
-                  );
-                }),);
+                question = "";
+                final dataGet = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return SearchimageTextfield(
+                      all: state.data,
+                      textData: controller.text,
+                    );
+                  }),
+                );
 
                 controller.text = dataGet["text"];
                 for (int i = 0; i < state.data.length; i++) {
                   all.add(state.data[i]);
                 }
-                form.currentState?.save();
                 if (form.currentState?.validate() == true) {
                   print(dataGet);
-                  searchBloc.add(
-                    SearchTextAndImageEvent(
-                      params: dataGet,
-                    ),
-                  );
+                  if (type == 4) {
+                    searchBloc.add(GenerateContentEvent(params: dataGet));
+                  } else {
+                    searchBloc.add(
+                      SearchTextAndImageEvent(
+                        params: dataGet,
+                      ),
+                    );
+                  }
                 }
               }
               if (state is AddMultipleImageLoading) {
                 //all.clear();
               }
-              if (state is AddMultipleImageError) {
-                if (!context.mounted) return;
-                showErrorSnackbar(context, state.errorMessage);
-              }
+              // if (state is AddMultipleImageError) {
+              //   if (!context.mounted) return;
+              //   showErrorSnackbar(context, state.errorMessage);
+              // }
             },
             child: BlocConsumer(
                 bloc: searchBloc,
@@ -186,13 +189,12 @@ class _SearchTextPage extends State<SearchTextPage> {
                       state is GenerateContentLoaded) {
                     question = controller.text;
                     controller.text = "";
-                   // all.clear();
-                   // form.currentState?.validate();
+                    all.clear();
+                    // form.currentState?.validate();
                   }
                   if (state is SearchTextAndImageLoaded) {
                     question = controller.text;
                     controller.text = "";
-                    form.currentState?.save();
                   }
 
                   if (state is GenerateContentError) {
@@ -207,7 +209,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                     showErrorSnackbar(context, state.errorMessage);
                     controller.text = "";
                     question = controller.text;
-                    form.currentState?.save();
                   }
                   if (state is SearchTextError) {
                     if (!context.mounted) return;
@@ -250,7 +251,7 @@ class _SearchTextPage extends State<SearchTextPage> {
 
                     final data = state.data.first.toString();
 
-                    //  print(state.data.toString());
+                    print(state.data.last.toString());
                     // }) as StreamSubscription<dynamic>;
 
                     // data.listen((event) {
