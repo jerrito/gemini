@@ -8,7 +8,8 @@ showErrorSnackbar(
     SnackBar(
       backgroundColor: const Color.fromRGBO(205, 6, 16, 0.894),
       content: Text(
-        message,
+        message.length<=100?
+        message : "${message.substring(0,100)} ...",
         style: const TextStyle(
           color:Colors.white,
           fontSize: 16

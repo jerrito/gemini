@@ -47,6 +47,9 @@ class SearchRepositoryImpl implements SearchRepository {
         if (response == null) {
           return const Left("Invalid request");
         }
+        if (response.content == null || response.content.parts[0] == null) {
+          return const Left("Invalid request");
+        }
         return Right(response);
       } catch (e) {
         return Left(e.toString());
@@ -72,6 +75,7 @@ class SearchRepositoryImpl implements SearchRepository {
     if (await networkInfo.isConnected) {
       try {
         final response = searchRemoteDatasource.generateContent(params);
+        
         print(response.first);
         yield Right(response);
       } catch (e) {
@@ -88,6 +92,9 @@ class SearchRepositoryImpl implements SearchRepository {
       try {
         final response = await searchRemoteDatasource.chat(params);
         if (response == null) {
+          return const Left("Invalid request");
+        }
+        if (response.content == null || response.content.parts[0] == null) {
           return const Left("Invalid request");
         }
         return Right(response);

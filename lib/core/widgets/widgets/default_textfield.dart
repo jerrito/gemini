@@ -6,7 +6,7 @@ import 'package:gemini/core/spacing/whitspacing.dart';
 
 class DefaultTextfield extends StatefulWidget {
   final void Function(String?)? onChanged;
-  final  String? Function(String?)? validator;
+  final String? Function(String?)? validator;
   final void Function()? onTap;
   final TextEditingController? controller;
   final String? hintText, initialValue, errorText, label;
@@ -14,21 +14,21 @@ class DefaultTextfield extends StatefulWidget {
   final bool? enabled;
   final bool isTextAndImage;
   final TextInputType? textInputType;
-  const DefaultTextfield(
-      {super.key,
-      this.onChanged,
-       this.controller,
-      this.hintText,
-      this.textInputType,
-      this.errorText,
-      this.height,
-       this.label,
-      this.initialValue,
-      this.enabled,
-    required  this.isTextAndImage,
-      this.onTap,
-      this.validator,
-      });
+  const DefaultTextfield({
+    super.key,
+    this.onChanged,
+    this.controller,
+    this.hintText,
+    this.textInputType,
+    this.errorText,
+    this.height,
+    this.label,
+    this.initialValue,
+    this.enabled,
+    required this.isTextAndImage,
+    this.onTap,
+    this.validator,
+  });
 
   @override
   State<DefaultTextfield> createState() => _DefaultTextfieldState();
@@ -40,16 +40,18 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
     return SizedBox(
       height: widget.height,
       child: TextFormField(
-        validator:widget.validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: widget.validator,
         enabled: widget.enabled,
-       initialValue: widget.initialValue,
+        initialValue: widget.initialValue,
         keyboardType: widget.textInputType,
         controller: widget.controller,
         onChanged: widget.onChanged,
         decoration: InputDecoration(
-          suffixIcon:widget.isTextAndImage?
-           IconButton(
-            icon:const Icon(Icons.file_upload), onPressed:widget.onTap): const SizedBox(),
+          suffixIcon: widget.isTextAndImage
+              ? IconButton(
+                  icon: const Icon(Icons.file_upload), onPressed: widget.onTap)
+              : const SizedBox(),
           isDense: true,
           errorText: widget.errorText,
           contentPadding:
@@ -58,18 +60,15 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
           hintStyle: const TextStyle(color: Colors.grey),
           //label: Text(label!),
           border: OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(Sizes().height(context, 0.04)),
+            borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
             borderSide: const BorderSide(color: Colors.black26),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(Sizes().height(context, 0.04)),
+            borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
             borderSide: const BorderSide(color: Colors.black26),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(Sizes().height(context, 0.04)),
+            borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
             borderSide: const BorderSide(color: Colors.red),
           ),
         ),
@@ -89,7 +88,7 @@ class DefaultTextArea extends StatelessWidget {
   const DefaultTextArea({
     super.key,
     this.onChanged,
-     this.controller,
+    this.controller,
     this.hintText,
     this.errorText,
     this.label,
@@ -106,45 +105,44 @@ class DefaultTextArea extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label ?? ""),
-          Space().height(context, 0.004),
+        Space().height(context, 0.004),
         SizedBox(
-          height:100,width:double.infinity,
+          height: 100,
+          width: double.infinity,
           child: TextFormField(
-
-             focusNode:focusNode,
-             initialValue:initialValue,
+            focusNode: focusNode,
+            initialValue: initialValue,
             expands: true,
             maxLines: null,
             minLines: null,
-             keyboardType: textInputType,
-              controller: controller,
-              onChanged: onChanged,
-                onTapOutside:onTapOutSide,
-              decoration: InputDecoration(
-                
-                   isDense: true,
-                    errorText: errorText,
-                   contentPadding:const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                   hintText: hintText,
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    //label: Text(label!),
-                    border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(Sizes().height(context, 0.01)),
-                      borderSide: const BorderSide(color: Colors.black26),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(Sizes().height(context, 0.01)),
-                      borderSide: const BorderSide(color: Colors.black26),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(Sizes().height(context, 0.01)),
-                      borderSide: const BorderSide(color: Colors.red),
-                    ),
-                  ),
-          
+            keyboardType: textInputType,
+            controller: controller,
+            onChanged: onChanged,
+            onTapOutside: onTapOutSide,
+            decoration: InputDecoration(
+              isDense: true,
+              errorText: errorText,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              hintText: hintText,
+              hintStyle: const TextStyle(color: Colors.grey),
+              //label: Text(label!),
+              border: OutlineInputBorder(
+                borderRadius:
+                    BorderRadius.circular(Sizes().height(context, 0.01)),
+                borderSide: const BorderSide(color: Colors.black26),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius:
+                    BorderRadius.circular(Sizes().height(context, 0.01)),
+                borderSide: const BorderSide(color: Colors.black26),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius:
+                    BorderRadius.circular(Sizes().height(context, 0.01)),
+                borderSide: const BorderSide(color: Colors.red),
+              ),
+            ),
           ),
         ),
         Space().height(context, 0.02)

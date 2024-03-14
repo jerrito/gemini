@@ -24,7 +24,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   final form = GlobalKey<FormState>();
   final searchBloc3 = sl<SearchBloc>();
   List<Uint8List> all = [];
-  String data = "How can I help you today?";
+  String info = "How can I help you today?";
   int type = 1;
   bool isTextImage = false;
   String? question;
@@ -39,12 +39,9 @@ class _SearchTextPage extends State<SearchTextPage> {
       ),
       bottomSheet: Form(
         key: form,
-        child: FormField<String>(
-          onSaved: (value) {
-            value=controller.text ;
-          },
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          validator: (value) {
+        child:  bottomSheetTextfield(
+             validator: (value) {
+            print(value);
             if (value?.isEmpty ?? true) {
               return "Field is required";
             }
@@ -55,18 +52,17 @@ class _SearchTextPage extends State<SearchTextPage> {
             }
             return null;
           },
-          builder: (field) => bottomSheetTextfield(
-            //validator: ,
-            errorText: field.errorText,
+           // errorText: FormFieldValidator.toString(),
             onChanged: (value) {
-              field.didChange(value);
+            //  field.didChange(value);
 
               // data = value!;
             },
             controller: controller,
             context: context,
             onPressed: () {
-              if (form.currentState?.validate() == true) {
+              if (form.currentState?.validate() == true &&
+                  controller.text.isNotEmpty ) {
                 switch (type) {
                   case 1:
                     Map<String, dynamic> params = {
@@ -133,29 +129,32 @@ class _SearchTextPage extends State<SearchTextPage> {
             isTextAndImage: isTextImage,
           ),
         ),
-      ),
+      
       body: Padding(
         padding: EdgeInsets.symmetric(
-            horizontal: Sizes().width(context, 0.04),
-            vertical: Sizes().height(context, 0.02)),
+          horizontal: Sizes().width(
+            context,
+            0.04,
+          ),
+          vertical: Sizes().height(
+            context,
+            0.02,
+          ),
+        ),
         child: BlocListener(
             bloc: searchBloc2,
             listener: (context, state) async {
               if (state is AddMultipleImageLoaded) {
                 all.clear();
-                data = "";
-                question = "";
-                // for (int i = 0; i < state.data.length; i++) {
-                //   all.add(state.data[i]);
-                // }
-
+                //  info = "";
+                question = "";                
                 final dataGet = await Navigator.push(context,
                     MaterialPageRoute(builder: (context) {
                   return SearchimageTextfield(
                     all: state.data,
                     textData: controller.text,
                   );
-                }));
+                }),);
 
                 controller.text = dataGet["text"];
                 for (int i = 0; i < state.data.length; i++) {
@@ -177,7 +176,6 @@ class _SearchTextPage extends State<SearchTextPage> {
               if (state is AddMultipleImageError) {
                 if (!context.mounted) return;
                 showErrorSnackbar(context, state.errorMessage);
-                print("error ${state.errorMessage}");
               }
             },
             child: BlocConsumer(
@@ -185,15 +183,16 @@ class _SearchTextPage extends State<SearchTextPage> {
                 listener: (context, state) {
                   if (state is ChatLoaded ||
                       state is SearchTextLoaded ||
-                      state is GenerateContentLoaded ||
-                      state is SearchTextAndImageLoaded) {
+                      state is GenerateContentLoaded) {
                     question = controller.text;
                     controller.text = "";
-                    all.clear();
-                    form.currentState?.validate();
+                   // all.clear();
+                   // form.currentState?.validate();
                   }
                   if (state is SearchTextAndImageLoaded) {
-                    // controller.text=;
+                    question = controller.text;
+                    controller.text = "";
+                    form.currentState?.save();
                   }
 
                   if (state is GenerateContentError) {
@@ -204,8 +203,11 @@ class _SearchTextPage extends State<SearchTextPage> {
                     question = controller.text;
                   }
                   if (state is SearchTextAndImageError) {
+                    if (!context.mounted) return;
+                    showErrorSnackbar(context, state.errorMessage);
                     controller.text = "";
                     question = controller.text;
+                    form.currentState?.save();
                   }
                   if (state is SearchTextError) {
                     if (!context.mounted) return;
@@ -308,7 +310,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Center(child: Text(data))],
+                    children: [Center(child: Text(info))],
                   );
                 })),
       ),
