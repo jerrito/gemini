@@ -31,7 +31,11 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   @override
   Future<dynamic> searchTextAndImage(Map<String, dynamic> params) async {
     final prompt = ai.TextPart(params["text"]);
-    final imageParts = [
+    final imageParts =
+        // params["images"].map(
+        //   (e)=>ai.DataPart('image/${params["ext"][e]}', params["image"][e])
+        // ).toList();
+        [
       ai.DataPart('image/${params["ext"]}', params["image"]),
     ];
     final response = await model.generateContent([
@@ -44,11 +48,16 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   Stream<dynamic> generateContent(Map<String, dynamic> params) async* {
     final controller = StreamController<String>.broadcast();
 
-    final data = gemini.streamGenerateContent(params["text"]).listen((event) {
-      controller.add(event.output!);
-    });
+    final content = [ai.Content.text(params["text"])];
+    final response = model.generateContentStream(content);
+
+    await for (final chunk in response) {
+      print(chunk.text);
+      controller.add(chunk.text!);
+    }
+
     // print(controller.stream.first.then((value) => print(value.toString())));
-    yield* controller.stream;
+    yield* response;
   }
 
   @override

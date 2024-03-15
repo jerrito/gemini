@@ -56,7 +56,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     });
 
     on<GenerateContentEvent>((event, emit) async {
-
       // StreamController s;
       await emit.forEach(
         generateContent.generateContent(event.params),
@@ -70,12 +69,17 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               errorMessage: error,
             ),
             (response) {
+              print(response);
+    //            await for (final chunk in response) {
+    //   controller.add(chunk.text!);
+    //   print(chunk.text);
+    // }
               // response.listen((event) {
               //   print(event.output);
               //   // print("event.outputs");
               //   controller.add(event.output!);
               // });
-              return GenerateContentLoaded(data: response);
+              return GenerateContentLoaded(data: response.text);
             },
           );
         },

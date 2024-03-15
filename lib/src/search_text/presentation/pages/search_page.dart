@@ -24,7 +24,8 @@ class _SearchTextPage extends State<SearchTextPage> {
   final form = GlobalKey<FormState>();
   final searchBloc3 = sl<SearchBloc>();
   List<Uint8List> all = [];
-  List<String> ext = [];
+  List<String> imageExtensions = [];
+  List<num> imageLength = [];
   String info = "How can I help you today?";
   int type = 1;
   bool isTextImage = false;
@@ -95,8 +96,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   break;
                 case 4:
                   Map<String, dynamic> paramsWithImage = {
-                    "text": controller.text,
-                    "images": all
+                    "text": controller.text,                
                   };
                   searchBloc.add(
                     GenerateContentEvent(params: paramsWithImage),
@@ -115,14 +115,7 @@ class _SearchTextPage extends State<SearchTextPage> {
             }
           },
 
-          onTap: () {
-            // final gemini = Gemini.instance;
-
-            // gemini.streamGenerateContent('Write a story on Gaza').listen((value) {
-            //   print(value.output);
-            // }).onError((e) {
-            //   // print('streamGenerateContent exception', error: e);
-            // });
+          onTap: () {         
 
             searchBloc2.add(AddMultipleImageEvent(noParams: NoParams()));
           },
@@ -145,14 +138,17 @@ class _SearchTextPage extends State<SearchTextPage> {
             listener: (context, state) async {
               if (state is AddMultipleImageLoaded) {
                 all.clear();
-                ext.clear();
+                imageExtensions.clear();
+                imageLength.clear();
                 //  info = "";
                 question = "";
 
                  for (int i = 0; i < state.data.length; i++) {
                   all.addAll(state.data.keys.elementAt(i));
-                  ext.addAll(state.data.values.elementAt(i));
+                  imageExtensions.addAll(state.data.values.elementAt(i));
                 }
+               // imageLength=all.length;
+
                 final dataGet = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) {
@@ -166,21 +162,20 @@ class _SearchTextPage extends State<SearchTextPage> {
                 controller.text = dataGet["text"];
                
                 if (form.currentState?.validate() == true) {
-                  if (type == 4) {
-                    searchBloc.add(GenerateContentEvent(params: dataGet));
-                  } else {
-                    print(ext[0]);
+                 
+                    print(imageExtensions[0]);
                     print(all[0]);
                     searchBloc.add(
                       SearchTextAndImageEvent(
                         params: {
                           "text": controller.text,
-                          "ext": ext[0],
+                          "ext": imageExtensions[0],
                           "image": all[0],
+                         // "images": imageLength,
                         },
                       ),
                     );
-                  }
+                  
                 }
               }
               if (state is AddMultipleImageLoading) {
@@ -255,7 +250,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   if (state is GenerateContentLoaded) {
                     // StreamController s = StreamController();
 
-                    final data = state.data.first.toString();
+                    final data = state.data.toString();
 
                     // }) as StreamSubscription<dynamic>;
 
@@ -345,7 +340,7 @@ class _SearchTextPage extends State<SearchTextPage> {
             SearchTypeWidget(
               onPressed: () {
                 type = 4;
-                isTextImage = true;
+                isTextImage = false;
                 Navigator.pop(context);
                 setState(() {});
               },
