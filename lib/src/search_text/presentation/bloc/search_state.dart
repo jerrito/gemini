@@ -56,7 +56,7 @@ class GenerateContentError extends SearchState {
 class AddMultipleImageLoading extends SearchState {}
 
 class AddMultipleImageLoaded extends SearchState {
-  final List<Uint8List> data;
+  final Map<List<Uint8List>, List<String>> data;
   
   AddMultipleImageLoaded({required this.data});
 }

@@ -24,6 +24,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   final form = GlobalKey<FormState>();
   final searchBloc3 = sl<SearchBloc>();
   List<Uint8List> all = [];
+  List<String> ext = [];
   String info = "How can I help you today?";
   int type = 1;
   bool isTextImage = false;
@@ -144,30 +145,39 @@ class _SearchTextPage extends State<SearchTextPage> {
             listener: (context, state) async {
               if (state is AddMultipleImageLoaded) {
                 all.clear();
+                ext.clear();
                 //  info = "";
                 question = "";
+
+                 for (int i = 0; i < state.data.length; i++) {
+                  all.addAll(state.data.keys.elementAt(i));
+                  ext.addAll(state.data.values.elementAt(i));
+                }
                 final dataGet = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) {
                     return SearchimageTextfield(
-                      all: state.data,
+                      all:all,
                       textData: controller.text,
                     );
                   }),
                 );
 
                 controller.text = dataGet["text"];
-                for (int i = 0; i < state.data.length; i++) {
-                  all.add(state.data[i]);
-                }
+               
                 if (form.currentState?.validate() == true) {
-                  print(dataGet);
                   if (type == 4) {
                     searchBloc.add(GenerateContentEvent(params: dataGet));
                   } else {
+                    print(ext[0]);
+                    print(all[0]);
                     searchBloc.add(
                       SearchTextAndImageEvent(
-                        params: dataGet,
+                        params: {
+                          "text": controller.text,
+                          "ext": ext[0],
+                          "image": all[0],
+                        },
                       ),
                     );
                   }
@@ -176,10 +186,6 @@ class _SearchTextPage extends State<SearchTextPage> {
               if (state is AddMultipleImageLoading) {
                 //all.clear();
               }
-              // if (state is AddMultipleImageError) {
-              //   if (!context.mounted) return;
-              //   showErrorSnackbar(context, state.errorMessage);
-              // }
             },
             child: BlocConsumer(
                 bloc: searchBloc,
@@ -251,7 +257,6 @@ class _SearchTextPage extends State<SearchTextPage> {
 
                     final data = state.data.first.toString();
 
-                    print(state.data.last.toString());
                     // }) as StreamSubscription<dynamic>;
 
                     // data.listen((event) {
@@ -272,7 +277,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     );
                   }
                   if (state is SearchTextAndImageLoaded) {
-                    final data = state.data.content.parts.last.text;
+                    final data = state.data;
 
                     return SingleChildScrollView(
                       child: Column(

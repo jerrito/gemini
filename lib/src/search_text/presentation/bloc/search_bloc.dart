@@ -35,7 +35,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchTextAndImageEvent>((event, emit) async {
       emit(SearchTextAndImageLoading());
 
-      final response = await searchText.call(event.params);
+      final response = await searchTextAndImage.call(event.params);
 
       emit(response.fold(
           (error) => SearchTextAndImageError(errorMessage: error),
@@ -70,7 +70,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               errorMessage: error,
             ),
             (response) {
-               print(response.toString());
               // response.listen((event) {
               //   print(event.output);
               //   // print("event.outputs");

@@ -47,9 +47,9 @@ class SearchRepositoryImpl implements SearchRepository {
         if (response == null) {
           return const Left("Invalid request");
         }
-        if (response.content == null || response.content.parts[0] == null) {
-          return const Left("Invalid request");
-        }
+        // if (response.content == null || response.content.parts[0] == null) {
+        //   return const Left("Invalid request");
+        // }
         return Right(response);
       } catch (e) {
         return Left(e.toString());
@@ -60,7 +60,7 @@ class SearchRepositoryImpl implements SearchRepository {
   }
 
   @override
-  Future<Either<String, List<Uint8List>>> addMultipleImages() async {
+  Future<Either<String, Map<List<Uint8List>, List<String>>>> addMultipleImages() async {
     try {
       final response = await searchLocalDatasource.images();
       return Right(response);
@@ -75,8 +75,7 @@ class SearchRepositoryImpl implements SearchRepository {
     if (await networkInfo.isConnected) {
       try {
         final response = searchRemoteDatasource.generateContent(params);
-        print("object");
-        print(response.first);
+       
         yield Right(response);
       } catch (e) {
         yield Left(e.toString());
