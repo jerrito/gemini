@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/widgets/usecase/usecase.dart';
@@ -61,6 +62,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         generateContent.generateContent(event.params),
         onData: (data) {
           // String name="";
+          final controller = StreamController<String>.broadcast();
+
           emit(GenerateContentLoading());
           // Stream<dynamic>  dataGet;
 
@@ -70,15 +73,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
             ),
             (response) {
               print(response);
-    //            await for (final chunk in response) {
-    //   controller.add(chunk.text!);
-    //   print(chunk.text);
-    // }
-              // response.listen((event) {
-              //   print(event.output);
-              //   // print("event.outputs");
-              //   controller.add(event.output!);
-              // });
+              //            await for (final chunk in response) {
+              controller.add(response.text!);
+              //   print(chunk.text);
+              // }
+              response.listen((event) {
+                print(event.output);
+                // print("event.outputs");
+                controller.add(event.output!);
+              });
               return GenerateContentLoaded(data: response.text);
             },
           );

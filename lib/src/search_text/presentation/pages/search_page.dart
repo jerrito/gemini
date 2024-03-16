@@ -8,6 +8,7 @@ import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/core/widgets/widgets/bottom_sheet.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
+import 'package:gemini/src/search_text/presentation/pages/search_stream.dart';
 import 'package:gemini/src/search_text/presentation/widgets/search_image_type.dart';
 import 'package:gemini/src/search_text/presentation/widgets/search_type.dart';
 import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
@@ -96,7 +97,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   break;
                 case 4:
                   Map<String, dynamic> paramsWithImage = {
-                    "text": controller.text,                
+                    "text": controller.text,
                   };
                   searchBloc.add(
                     GenerateContentEvent(params: paramsWithImage),
@@ -115,8 +116,7 @@ class _SearchTextPage extends State<SearchTextPage> {
             }
           },
 
-          onTap: () {         
-
+          onTap: () {
             searchBloc2.add(AddMultipleImageEvent(noParams: NoParams()));
           },
           isTextAndImage: isTextImage,
@@ -143,39 +143,37 @@ class _SearchTextPage extends State<SearchTextPage> {
                 //  info = "";
                 question = "";
 
-                 for (int i = 0; i < state.data.length; i++) {
+                for (int i = 0; i < state.data.length; i++) {
                   all.addAll(state.data.keys.elementAt(i));
                   imageExtensions.addAll(state.data.values.elementAt(i));
                 }
-               // imageLength=all.length;
+                // imageLength=all.length;
 
                 final dataGet = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) {
                     return SearchimageTextfield(
-                      all:all,
+                      all: all,
                       textData: controller.text,
                     );
                   }),
                 );
 
                 controller.text = dataGet["text"];
-               
+
                 if (form.currentState?.validate() == true) {
-                 
-                    print(imageExtensions[0]);
-                    print(all[0]);
-                    searchBloc.add(
-                      SearchTextAndImageEvent(
-                        params: {
-                          "text": controller.text,
-                          "ext": imageExtensions[0],
-                          "image": all[0],
-                         // "images": imageLength,
-                        },
-                      ),
-                    );
-                  
+                  print(imageExtensions[0]);
+                  print(all[0]);
+                  searchBloc.add(
+                    SearchTextAndImageEvent(
+                      params: {
+                        "text": controller.text,
+                        "ext": imageExtensions[0],
+                        "image": all[0],
+                        // "images": imageLength,
+                      },
+                    ),
+                  );
                 }
               }
               if (state is AddMultipleImageLoading) {
@@ -341,8 +339,13 @@ class _SearchTextPage extends State<SearchTextPage> {
               onPressed: () {
                 type = 4;
                 isTextImage = false;
-                Navigator.pop(context);
-                setState(() {});
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SearchStreamPage(),
+                  ),
+                );
+               // setState(() {});
               },
               label: "Generate content",
             ),

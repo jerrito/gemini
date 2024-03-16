@@ -51,12 +51,12 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
     final content = [ai.Content.text(params["text"])];
     final response = model.generateContentStream(content);
 
-    await for (final chunk in response) {
-      print(chunk.text);
-      controller.add(chunk.text!);
-    }
+    // await for (final chunk in response) {
+    //   print(chunk.text);
+    // controller.add(response..text!);
+    // }
 
-    // print(controller.stream.first.then((value) => print(value.toString())));
+     print(controller.stream.first.then((value) => print(value.toString())));
     yield* response;
   }
 
