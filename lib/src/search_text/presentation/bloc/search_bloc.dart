@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/widgets/usecase/usecase.dart';
+import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/src/search_text/domain/usecase/add_multi_images.dart';
 import 'package:gemini/src/search_text/domain/usecase/chat.dart';
 import 'package:gemini/src/search_text/domain/usecase/generate_content.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 part "search_event.dart";
 part 'search_state.dart';
 
@@ -16,6 +18,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final AddMultipleImages addMultipleImage;
   final GenerateContent generateContent;
   final Chat chat;
+  final SearchRemoteDatasourceImpl remoteDatasourceImpl;
 
   SearchBloc({
     required this.searchText,
@@ -23,6 +26,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     required this.addMultipleImage,
     required this.generateContent,
     required this.chat,
+    required this.remoteDatasourceImpl,
   }) : super(SearchInitState()) {
     on<SearchTextEvent>((event, emit) async {
       emit(SearchTextLoading());
@@ -72,22 +76,27 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               errorMessage: error,
             ),
             (response) {
-              print(response);
+            
               //            await for (final chunk in response) {
-              controller.add(response.text!);
+            // controller.add(response.text!);
               //   print(chunk.text);
               // }
               response.listen((event) {
-                print(event.output);
                 // print("event.outputs");
-                controller.add(event.output!);
+                controller.add(event.text!);
               });
-              return GenerateContentLoaded(data: response.text);
+              return GenerateContentLoaded(data: controller.stream);
             },
           );
         },
       );
     });
+
+    on<GenerateStreamEvent>((event, emit) {
+      emit(GenerateStream());
+    });
+    
+    
 
     on<ChatEvent>((event, emit) async {
       emit(ChatLoading());
@@ -101,4 +110,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
     });
   }
+Stream<GenerateContentResponse>  generateStream(Map<String, dynamic> params) {    
+      return remoteDatasourceImpl.generateContent(params);
+    }
 }

@@ -25,7 +25,10 @@ class AddMultipleImageEvent extends SearchEvent {
 
 class ChatEvent extends SearchEvent {
   final Map<String, dynamic> params;
-
   ChatEvent({required this.params});
+}
 
+class GenerateStreamEvent extends SearchEvent {
+  final Map<String, dynamic> params;
+  GenerateStreamEvent({required this.params});
 }

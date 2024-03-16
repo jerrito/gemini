@@ -8,7 +8,6 @@ import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/core/widgets/widgets/bottom_sheet.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
-import 'package:gemini/src/search_text/presentation/pages/search_stream.dart';
 import 'package:gemini/src/search_text/presentation/widgets/search_image_type.dart';
 import 'package:gemini/src/search_text/presentation/widgets/search_type.dart';
 import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
@@ -27,12 +26,19 @@ class _SearchTextPage extends State<SearchTextPage> {
   List<Uint8List> all = [];
   List<String> imageExtensions = [];
   List<num> imageLength = [];
+
+  List<String> snapInfo = [];
   String info = "How can I help you today?";
   int type = 1;
   bool isTextImage = false;
   String? question;
   String name = "";
   final controller = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,7 +72,7 @@ class _SearchTextPage extends State<SearchTextPage> {
             if (form.currentState?.validate() == true &&
                 controller.text.isNotEmpty) {
               switch (type) {
-                case 1:
+                case 4:
                   Map<String, dynamic> params = {
                     "text": controller.text,
                   };
@@ -95,12 +101,12 @@ class _SearchTextPage extends State<SearchTextPage> {
                     ),
                   );
                   break;
-                case 4:
+                case 1:
                   Map<String, dynamic> paramsWithImage = {
                     "text": controller.text,
                   };
                   searchBloc.add(
-                    GenerateContentEvent(params: paramsWithImage),
+                    GenerateStreamEvent(params: paramsWithImage),
                   );
                   break;
                 default:
@@ -126,7 +132,7 @@ class _SearchTextPage extends State<SearchTextPage> {
         padding: EdgeInsets.symmetric(
           horizontal: Sizes().width(
             context,
-            0.04,
+            0.02,
           ),
           vertical: Sizes().height(
             context,
@@ -162,8 +168,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                 controller.text = dataGet["text"];
 
                 if (form.currentState?.validate() == true) {
-                  print(imageExtensions[0]);
-                  print(all[0]);
                   searchBloc.add(
                     SearchTextAndImageEvent(
                       params: {
@@ -230,7 +234,45 @@ class _SearchTextPage extends State<SearchTextPage> {
                       child: CircularProgressIndicator(),
                     );
                   }
+                  if (state is GenerateStream) {
+                    final params = {"text": controller.text};
 
+                    return StreamBuilder(
+                        stream: searchBloc.generateStream(params),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            snapInfo.clear();
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            final data = snapshot.error;
+                            controller.text = "";
+                            return showErrorSnackbar(context, data.toString());
+                          }
+                          if (snapshot.hasData) {
+                            snapshot.data?.promptFeedback?.blockReasonMessage;
+                            final data = snapshot.data?.text ?? snapshot.data?.promptFeedback?.blockReasonMessage;
+                            snapInfo.add(data!);
+                            return ListView.builder(
+                              // controller: ScrollController(keepScrollOffset: true),
+                              // shrinkWrap: true,
+                              //physics: const NeverScrollableScrollPhysics(),
+                              itemCount: snapInfo.length,
+                              itemBuilder: (context, index) {
+                                final dataFromSnap = snapInfo[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Text(dataFromSnap),
+                                );
+                              },
+                            );
+                          }
+                          return const SizedBox();
+                        });
+                  }
                   if (state is ChatLoaded) {
                     final data = state.data.content.parts.last.text;
                     return SingleChildScrollView(
@@ -240,6 +282,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           Text(question ?? ""),
                           Space().height(context, 0.02),
                           Text(data),
+                          Space().height(context, 0.03),
                         ],
                       ),
                     );
@@ -265,6 +308,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           // ),
                           Space().height(context, 0.02),
                           Text(data),
+                          Space().height(context, 0.03),
                         ],
                       ),
                     );
@@ -287,6 +331,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           // ),
                           Space().height(context, 0.02),
                           Text(data.toString()),
+                          Space().height(context, 0.03),
                         ],
                       ),
                     );
@@ -301,7 +346,10 @@ class _SearchTextPage extends State<SearchTextPage> {
                         children: [
                           Text(question ?? ""),
                           Space().height(context, 0.02),
-                          Text(data.toString()),
+                          Text(
+                            data.toString(),
+                          ),
+                          Space().height(context, 0.03),
                         ],
                       ),
                     );
@@ -319,7 +367,7 @@ class _SearchTextPage extends State<SearchTextPage> {
             Space().height(context, 0.05),
             SearchTypeWidget(
               onPressed: () {
-                type = 1;
+                type = 4;
                 isTextImage = false;
                 Navigator.pop(context);
                 setState(() {});
@@ -337,15 +385,11 @@ class _SearchTextPage extends State<SearchTextPage> {
             ),
             SearchTypeWidget(
               onPressed: () {
-                type = 4;
+                type = 1;
                 isTextImage = false;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SearchStreamPage(),
-                  ),
-                );
-               // setState(() {});
+                Navigator.pop(context);
+                setState(() {});
+                
               },
               label: "Generate content",
             ),

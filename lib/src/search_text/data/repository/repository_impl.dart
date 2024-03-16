@@ -5,6 +5,7 @@ import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
 import 'package:gemini/src/search_text/data/datasource/local_ds.dart';
 import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/src/search_text/domain/repository/search_repository.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
   final NetworkInfo networkInfo;
@@ -68,7 +69,7 @@ class SearchRepositoryImpl implements SearchRepository {
   }
 
   @override
-  Stream<Either<String, dynamic>> generateContent(
+  Stream<Either<String,Stream<GenerateContentResponse>>> generateContent(
       Map<String, dynamic> params) async* {
     if (await networkInfo.isConnected) {
       try {

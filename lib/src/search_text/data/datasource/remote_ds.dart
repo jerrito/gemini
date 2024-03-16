@@ -8,14 +8,15 @@ import "package:google_generative_ai/google_generative_ai.dart" as ai;
 abstract class SearchRemoteDatasource {
   Future<dynamic> searchText(Map<String, dynamic> params);
   Future<dynamic> searchTextAndImage(Map<String, dynamic> params);
-  Stream<dynamic> generateContent(Map<String, dynamic> params);
+  Stream<ai.GenerateContentResponse> generateContent(
+      Map<String, dynamic> params);
   Future<dynamic> chat(Map<String, dynamic> params);
 }
 
 class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   final NetworkInfo networkInfo;
   final gemini = Gemini.instance;
-  final model = ai.GenerativeModel(model: 'gemini-pro-vision', apiKey: apiKey);
+  final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
 
   SearchRemoteDatasourceImpl({required this.networkInfo});
 
@@ -45,19 +46,14 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   }
 
   @override
-  Stream<dynamic> generateContent(Map<String, dynamic> params) async* {
-    final controller = StreamController<String>.broadcast();
+  Stream<ai.GenerateContentResponse> generateContent(
+      Map<String, dynamic> params) async* {
+    
+      final content = [ai.Content.text(params["text"])];
+      final response = model.generateContentStream(content);
 
-    final content = [ai.Content.text(params["text"])];
-    final response = model.generateContentStream(content);
-
-    // await for (final chunk in response) {
-    //   print(chunk.text);
-    // controller.add(response..text!);
-    // }
-
-     print(controller.stream.first.then((value) => print(value.toString())));
-    yield* response;
+      yield* response.asBroadcastStream();
+    //throw Exception();
   }
 
   @override

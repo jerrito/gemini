@@ -24,10 +24,17 @@ void initDependencies() {
       addMultipleImage: sl(),
       generateContent: sl(),
       chat: sl(),
+      remoteDatasourceImpl: sl()
     ),
   );
 
   //usecases
+
+  sl.registerLazySingleton<SearchRemoteDatasourceImpl>(
+    () => SearchRemoteDatasourceImpl(
+      networkInfo: sl(),
+    ),
+  );
   sl.registerLazySingleton(
     () => SearchText(
       repository: sl(),

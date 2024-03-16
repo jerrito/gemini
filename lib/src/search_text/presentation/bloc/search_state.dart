@@ -65,3 +65,7 @@ class AddMultipleImageError extends SearchState {
   final String errorMessage;
   AddMultipleImageError({required this.errorMessage});
 }
+
+class GenerateStream extends SearchState{
+  
+}

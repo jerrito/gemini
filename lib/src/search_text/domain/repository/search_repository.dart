@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 abstract class SearchRepository {
   Future<Either<String, dynamic>> searchText(Map<String, dynamic> params);
@@ -9,5 +10,5 @@ abstract class SearchRepository {
       Map<String, dynamic> params);
   Future<Either<String, Map<List<Uint8List>, List<String>>>> addMultipleImages();
 
-  Stream<Either<String,dynamic>> generateContent(Map<String, dynamic> params);
+  Stream<Either<String,Stream<GenerateContentResponse>>> generateContent(Map<String, dynamic> params);
 }
