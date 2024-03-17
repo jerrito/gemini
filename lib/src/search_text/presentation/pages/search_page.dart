@@ -71,11 +71,15 @@ class _SearchTextPage extends State<SearchTextPage> {
           onPressed: () {
             if (form.currentState?.validate() == true &&
                 controller.text.isNotEmpty) {
+              Map<String, dynamic> params = {
+                "text": controller.text,
+              };
+              Map<String, dynamic> paramsWithImage = {
+                "text": controller.text,
+                "images": all
+              };
               switch (type) {
                 case 4:
-                  Map<String, dynamic> params = {
-                    "text": controller.text,
-                  };
                   searchBloc.add(
                     SearchTextEvent(
                       params: params,
@@ -84,17 +88,14 @@ class _SearchTextPage extends State<SearchTextPage> {
                   break;
 
                 case 2:
-                  Map<String, dynamic> paramsChat = {
-                    "chats": controller.text,
-                  };
-                  searchBloc.add(ChatEvent(params: paramsChat));
+                  searchBloc.add(
+                    ChatEvent(
+                      params: params,
+                    ),
+                  );
                   break;
 
                 case 3:
-                  Map<String, dynamic> paramsWithImage = {
-                    "text": controller.text,
-                    "images": all
-                  };
                   searchBloc.add(
                     SearchTextAndImageEvent(
                       params: paramsWithImage,
@@ -102,31 +103,33 @@ class _SearchTextPage extends State<SearchTextPage> {
                   );
                   break;
                 case 1:
-                  Map<String, dynamic> paramsWithImage = {
-                    "text": controller.text,
-                  };
                   searchBloc.add(
-                    GenerateStreamEvent(params: paramsWithImage),
-                  );
-                  break;
-                case 5:
-                  Map<String, dynamic> paras = {"text": controller.text};
-                  searchBloc.add(GenerateContentEvent(params: paras));
-                default:
-                  Map<String, dynamic> params = {
-                    "text": controller.text,
-                  };
-                  searchBloc.add(
-                    SearchTextEvent(
+                    GenerateStreamEvent(
                       params: params,
                     ),
                   );
+                  break;
+                case 5:
+                  searchBloc.add(
+                    GenerateContentEvent(
+                      params: params,
+                    ),
+                  );
+                default:
+                  searchBloc.add(
+                    GenerateStreamEvent(
+                      params: params,
+                    ),
+                  );
+                  break;
               }
             }
           },
 
           onTap: () {
-            searchBloc2.add(AddMultipleImageEvent(noParams: NoParams()));
+            searchBloc2.add(AddMultipleImageEvent(
+              noParams: NoParams(),
+            ));
           },
           isTextAndImage: isTextImage,
         ),
@@ -291,7 +294,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                                     },
                                   ),
                                 ),
-                                Space().height(context, 0.15),
+                                Space().height(context, 0.1),
                               ],
                             );
                           }
@@ -311,7 +314,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                             },
                           ),
                         ),
-                        Space().height(context, 0.25),
+                        Space().height(context, 0.1),
                       ],
                     );
                   }
@@ -406,35 +409,33 @@ class _SearchTextPage extends State<SearchTextPage> {
       drawer: Drawer(
         child: Column(
           children: [
-            Space().height(context, 0.05),
+            Space().height(context, 0.15),
             SearchTypeWidget(
-              onPressed: () {
-                type = 4;
-                isTextImage = false;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Text",
-            ),
-            SearchTypeWidget(
-              onPressed: () {
-                type = 3;
-                isTextImage = true;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Text with image",
-            ),
-            SearchTypeWidget(
+              color:type==1? Colors.lightBlueAccent: Colors.black,
+              icon: Icons.stream ,
               onPressed: () {
                 type = 1;
                 isTextImage = false;
                 Navigator.pop(context);
                 setState(() {});
               },
-              label: "Generate content",
-            ),
+              label: "Stream content",
+            ),           
             SearchTypeWidget(
+               color:type==3? Colors.lightBlueAccent: Colors.black,
+               icon: Icons.image_search ,
+              onPressed: () {
+                type = 3;
+                isTextImage = true;
+                Navigator.pop(context);
+                setState(() {});
+              },
+              label: "Search image",
+            ),
+            
+            SearchTypeWidget(
+               color:type==2? Colors.lightBlueAccent: Colors.black,
+               icon: Icons.chat ,
               onPressed: () {
                 type = 2;
                 isTextImage = false;
@@ -444,14 +445,25 @@ class _SearchTextPage extends State<SearchTextPage> {
               label: "Chat",
             ),
             SearchTypeWidget(
+               color:type==4? Colors.lightBlueAccent: Colors.black,
+               icon: Icons.text_format ,
               onPressed: () {
-                type = 5;
+                type = 4;
                 isTextImage = false;
                 Navigator.pop(context);
                 setState(() {});
               },
-              label: "Generate content bloc",
+              label: "Await text",
             ),
+            // SearchTypeWidget(
+            //   onPressed: () {
+            //     type = 5;
+            //     isTextImage = false;
+            //     Navigator.pop(context);
+            //     setState(() {});
+            //   },
+            //   label: "Generate content bloc",
+            //),
           ],
         ),
       ),

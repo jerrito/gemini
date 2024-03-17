@@ -17,14 +17,14 @@ required  bool isTextAndImage
   return Container(
     color: Colors.white,
     padding: EdgeInsets.symmetric(
-      horizontal: Sizes().width(context, 0.04),
-      vertical: Sizes().width(context, 0.04),
+     // horizontal: Sizes().width(context, 0.02),
+      vertical: Sizes().width(context, 0.02),
     ),
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         SizedBox(
-          width: Sizes().width(context, 0.7),
+          width: Sizes().width(context, 0.75),
           child: DefaultTextfield(
             validator: validator,
             errorText:errorText ,
