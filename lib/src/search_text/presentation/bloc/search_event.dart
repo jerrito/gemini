@@ -32,3 +32,5 @@ class GenerateStreamEvent extends SearchEvent {
   final Map<String, dynamic> params;
   GenerateStreamEvent({required this.params});
 }
+
+class GenerateStreamStopEvent extends SearchEvent{}

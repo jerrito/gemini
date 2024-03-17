@@ -50,10 +50,20 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
       Map<String, dynamic> params) async* {
     
       final content = [ai.Content.text(params["text"])];
-      final response = model.generateContentStream(content);
-
+    
+      final response = model.generateContentStream(content,
+      safetySettings: [
+        ai.SafetySetting( ai.HarmCategory.dangerousContent,
+         ai.HarmBlockThreshold.none)
+      ]);
+    
       yield* response.asBroadcastStream();
-    //throw Exception();
+    
+    // else{
+    // throw ai.GenerativeAIException(
+    //   "Invalid input"
+    // );
+    // }
   }
 
   @override

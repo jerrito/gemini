@@ -76,16 +76,16 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               errorMessage: error,
             ),
             (response) {
-            
-              //            await for (final chunk in response) {
-            // controller.add(response.text!);
-              //   print(chunk.text);
-              // }
+              //              await for (final chunk in response) {
+              // controller.add(response.text!);
+              //     print(chunk.text);
+              //   }
               response.listen((event) {
-                // print("event.outputs");
+                print(event.text);
                 controller.add(event.text!);
               });
-              return GenerateContentLoaded(data: controller.stream);
+              return GenerateContentLoaded(
+                  data: response.first.then((value) => print(value.text)));
             },
           );
         },
@@ -95,8 +95,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<GenerateStreamEvent>((event, emit) {
       emit(GenerateStream());
     });
-    
-    
+
+    on<GenerateStreamStopEvent>((event, emit) {
+      emit(GenerateStreamStop());
+    });
 
     on<ChatEvent>((event, emit) async {
       emit(ChatLoading());
@@ -110,7 +112,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
     });
   }
-Stream<GenerateContentResponse>  generateStream(Map<String, dynamic> params) {    
-      return remoteDatasourceImpl.generateContent(params);
-    }
+  Stream<GenerateContentResponse> generateStream(Map<String, dynamic> params) {
+    return remoteDatasourceImpl.generateContent(params);
+  }
 }

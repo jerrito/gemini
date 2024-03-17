@@ -109,6 +109,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                     GenerateStreamEvent(params: paramsWithImage),
                   );
                   break;
+                case 5:
+                  Map<String, dynamic> paras = {"text": controller.text};
+                  searchBloc.add(GenerateContentEvent(params: paras));
                 default:
                   Map<String, dynamic> params = {
                     "text": controller.text,
@@ -247,19 +250,32 @@ class _SearchTextPage extends State<SearchTextPage> {
                               child: CircularProgressIndicator(),
                             );
                           }
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            searchBloc.add(GenerateStreamStopEvent());
+                          }
                           if (snapshot.hasError) {
                             final data = snapshot.error;
                             controller.text = "";
-                            return showErrorSnackbar(context, data.toString());
+                            return SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(question ?? ""),
+                                  Space().height(context, 0.02),
+                                  Text(data.toString()),
+                                  Space().height(context, 0.03),
+                                ],
+                              ),
+                            );
                           }
                           if (snapshot.hasData) {
-                            snapshot.data?.promptFeedback?.blockReasonMessage;
-                            final data = snapshot.data?.text ?? snapshot.data?.promptFeedback?.blockReasonMessage;
+                            final data = snapshot.data?.text ??
+                                snapshot
+                                    .data?.promptFeedback?.blockReasonMessage;
                             snapInfo.add(data!);
-                            return ListView.builder(
-                              // controller: ScrollController(keepScrollOffset: true),
-                              // shrinkWrap: true,
-                              //physics: const NeverScrollableScrollPhysics(),
+                            return ListView.builder(                  
                               itemCount: snapInfo.length,
                               itemBuilder: (context, index) {
                                 final dataFromSnap = snapInfo[index];
@@ -272,6 +288,18 @@ class _SearchTextPage extends State<SearchTextPage> {
                           }
                           return const SizedBox();
                         });
+                  }
+                  if (state is GenerateStreamStop) {
+                    return   ListView.builder(                  
+                              itemCount: snapInfo.length,
+                              itemBuilder: (context, index) {
+                                final dataFromSnap = snapInfo[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Text(dataFromSnap),
+                                );
+                              },
+                            );
                   }
                   if (state is ChatLoaded) {
                     final data = state.data.content.parts.last.text;
@@ -389,7 +417,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                 isTextImage = false;
                 Navigator.pop(context);
                 setState(() {});
-                
               },
               label: "Generate content",
             ),
@@ -401,6 +428,15 @@ class _SearchTextPage extends State<SearchTextPage> {
                 setState(() {});
               },
               label: "Chat",
+            ),
+            SearchTypeWidget(
+              onPressed: () {
+                type = 5;
+                isTextImage = false;
+                Navigator.pop(context);
+                setState(() {});
+              },
+              label: "Generate content bloc",
             ),
           ],
         ),
