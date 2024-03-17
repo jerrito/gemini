@@ -16,7 +16,6 @@ abstract class SearchRemoteDatasource {
 class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   final NetworkInfo networkInfo;
   final gemini = Gemini.instance;
-  final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
 
   SearchRemoteDatasourceImpl({required this.networkInfo});
 
@@ -31,6 +30,7 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
 
   @override
   Future<dynamic> searchTextAndImage(Map<String, dynamic> params) async {
+      final model = ai.GenerativeModel(model: 'gemini-pro-vision', apiKey: apiKey);
     final prompt = ai.TextPart(params["text"]);
     final imageParts =
         // params["images"].map(
@@ -48,7 +48,7 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   @override
   Stream<ai.GenerateContentResponse> generateContent(
       Map<String, dynamic> params) async* {
-    
+      final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
       final content = [ai.Content.text(params["text"])];
     
       final response = model.generateContentStream(content,

@@ -192,11 +192,15 @@ class _SearchTextPage extends State<SearchTextPage> {
                 listener: (context, state) {
                   if (state is ChatLoaded ||
                       state is SearchTextLoaded ||
-                      state is GenerateContentLoaded) {
+                      state is GenerateContentLoaded ||
+                      state is GenerateStreamStop) {
                     question = controller.text;
                     controller.text = "";
                     all.clear();
                     // form.currentState?.validate();
+                  }
+                  if (state is GenerateStream) {
+                    question = controller.text;
                   }
                   if (state is SearchTextAndImageLoaded) {
                     question = controller.text;
@@ -275,31 +279,41 @@ class _SearchTextPage extends State<SearchTextPage> {
                                 snapshot
                                     .data?.promptFeedback?.blockReasonMessage;
                             snapInfo.add(data!);
-                            return ListView.builder(                  
-                              itemCount: snapInfo.length,
-                              itemBuilder: (context, index) {
-                                final dataFromSnap = snapInfo[index];
-                                return Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: Text(dataFromSnap),
-                                );
-                              },
+                            return Column(
+                              children: [
+                                Text(question!),
+                                Flexible(
+                                  child: ListView.builder(
+                                    itemCount: snapInfo.length,
+                                    itemBuilder: (context, index) {
+                                      final dataFromSnap = snapInfo[index];
+                                      return Text(dataFromSnap);
+                                    },
+                                  ),
+                                ),
+                                Space().height(context, 0.15),
+                              ],
                             );
                           }
                           return const SizedBox();
                         });
                   }
                   if (state is GenerateStreamStop) {
-                    return   ListView.builder(                  
-                              itemCount: snapInfo.length,
-                              itemBuilder: (context, index) {
-                                final dataFromSnap = snapInfo[index];
-                                return Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: Text(dataFromSnap),
-                                );
-                              },
-                            );
+                    return Column(
+                      children: [
+                        Text(question!),
+                        Flexible(
+                          child: ListView.builder(
+                            itemCount: snapInfo.length,
+                            itemBuilder: (context, index) {
+                              final dataFromSnap = snapInfo[index];
+                              return Text(dataFromSnap);
+                            },
+                          ),
+                        ),
+                        Space().height(context, 0.25),
+                      ],
+                    );
                   }
                   if (state is ChatLoaded) {
                     final data = state.data.content.parts.last.text;
