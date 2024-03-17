@@ -320,6 +320,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   }
                   if (state is ChatLoaded) {
                     final data = state.data.content.parts.last.text;
+
                     return SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -383,6 +384,12 @@ class _SearchTextPage extends State<SearchTextPage> {
                   }
                   if (state is SearchTextLoaded) {
                     final data = state.data.content.parts[0].text;
+                    final params = {
+                      "text_id": 1,
+                      "text_topic": question,
+                      "text_data": data,
+                    };
+                    searchBloc.addData(params);
                     // final dataDeduct = data.length;
                     //print(dataDeduct);
                     return SingleChildScrollView(
@@ -411,8 +418,8 @@ class _SearchTextPage extends State<SearchTextPage> {
           children: [
             Space().height(context, 0.15),
             SearchTypeWidget(
-              color:type==1? Colors.lightBlueAccent: Colors.black,
-              icon: Icons.stream ,
+              color: type == 1 ? Colors.lightBlueAccent : Colors.black,
+              icon: Icons.stream,
               onPressed: () {
                 type = 1;
                 isTextImage = false;
@@ -420,10 +427,10 @@ class _SearchTextPage extends State<SearchTextPage> {
                 setState(() {});
               },
               label: "Stream content",
-            ),           
+            ),
             SearchTypeWidget(
-               color:type==3? Colors.lightBlueAccent: Colors.black,
-               icon: Icons.image_search ,
+              color: type == 3 ? Colors.lightBlueAccent : Colors.black,
+              icon: Icons.image_search,
               onPressed: () {
                 type = 3;
                 isTextImage = true;
@@ -432,21 +439,22 @@ class _SearchTextPage extends State<SearchTextPage> {
               },
               label: "Search image",
             ),
-            
+
             SearchTypeWidget(
-               color:type==2? Colors.lightBlueAccent: Colors.black,
-               icon: Icons.chat ,
-              onPressed: () {
-                type = 2;
-                isTextImage = false;
-                Navigator.pop(context);
-                setState(() {});
+              color: type == 2 ? Colors.lightBlueAccent : Colors.black,
+              icon: Icons.chat,
+              onPressed: () async {
+                // type = 2;
+                // isTextImage = false;
+                // Navigator.pop(context);
+                // setState(() {});
+               print( await searchBloc.readData());
               },
               label: "Chat",
             ),
             SearchTypeWidget(
-               color:type==4? Colors.lightBlueAccent: Colors.black,
-               icon: Icons.text_format ,
+              color: type == 4 ? Colors.lightBlueAccent : Colors.black,
+              icon: Icons.text_format,
               onPressed: () {
                 type = 4;
                 isTextImage = false;

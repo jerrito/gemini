@@ -8,7 +8,10 @@ import 'package:gemini/src/search_text/domain/usecase/chat.dart';
 import 'package:gemini/src/search_text/domain/usecase/generate_content.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
+import 'package:gemini/src/sql_database/database/text_database.dart';
+import 'package:gemini/src/sql_database/entities/text.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:gemini/main.dart';
 part "search_event.dart";
 part 'search_state.dart';
 
@@ -114,5 +117,30 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
   Stream<GenerateContentResponse> generateStream(Map<String, dynamic> params) {
     return remoteDatasourceImpl.generateContent(params);
+  }
+
+  Future addData(Map<String, dynamic> params) async {
+     AppDatabase database =
+        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+
+    final personDao = database.textDao;
+    final textEntity = TextEntity(
+        textId: params["text_id"],
+        textTopic: params["text_topic"],
+        textData: params["text_data"]);
+
+   return await personDao.insertData(textEntity);
+   // final result = await personDao.getTextData();
+  }
+
+   Future<List<TextEntity>> readData() async {
+     AppDatabase database =
+        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+
+    final textData = database.textDao;
+    
+
+   return await textData.getAllTextData();
+   // final result = await personDao.getTextData();
   }
 }

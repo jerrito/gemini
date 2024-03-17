@@ -9,7 +9,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 
 
 
-part 'database.g.dart'; // the generated code will be there
+part 'text_database.g.dart'; // the generated code will be there
 
 @Database(version: 1, entities: [TextEntity])
 abstract class AppDatabase extends FloorDatabase {

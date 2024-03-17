@@ -2,12 +2,12 @@ import "package:floor/floor.dart";
 import "package:gemini/src/sql_database/entities/text.dart";
 
 abstract class TextDao {
-  @Query("SELECT * FROM Text")
+  @Query("SELECT * FROM TextEntity")
   Future<List<TextEntity>> getAllTextData();
 
-  @Query("SELECT * FROM Text WHERE id= :id")
+  @Query("SELECT * FROM TextEntity WHERE id= :id")
   Stream<TextEntity?> getTextData();
 
-  @insert
+  @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertData(TextEntity textEntity);
 }
