@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
@@ -142,5 +143,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
    return await textData.getAllTextData();
    // final result = await personDao.getTextData();
+  }
+
+  Future<void> copyText(Map<String,dynamic> params)async{
+  await Clipboard.setData(ClipboardData(text: params["text"]));
   }
 }

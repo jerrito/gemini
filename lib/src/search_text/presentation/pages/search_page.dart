@@ -304,7 +304,17 @@ class _SearchTextPage extends State<SearchTextPage> {
                   if (state is GenerateStreamStop) {
                     return Column(
                       children: [
-                        Text(question!),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(question ?? ""),
+                            IconButton(
+                              icon:  Icon(Icons.copy),
+                              onPressed:()async{
+                                searchBloc.copyText({"text":snapInfo[0]});
+                              })
+                            ],
+                          ),
                         Flexible(
                           child: ListView.builder(
                             itemCount: snapInfo.length,
@@ -325,7 +335,17 @@ class _SearchTextPage extends State<SearchTextPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(question ?? ""),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(question ?? ""),
+                            IconButton(
+                              icon:  Icon(Icons.copy),
+                              onPressed:()async{
+                                searchBloc.copyText({"text":data});
+                              })
+                            ],
+                          ),
                           Space().height(context, 0.02),
                           Text(data),
                           Space().height(context, 0.03),
@@ -366,7 +386,17 @@ class _SearchTextPage extends State<SearchTextPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(question ?? ""),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(question ?? ""),
+                            IconButton(
+                              icon:  Icon(Icons.copy),
+                              onPressed:()async{
+                                searchBloc.copyText({"text":data});
+                              })
+                            ],
+                          ),
                           if (all.isNotEmpty)
                             Column(
                                 children: List.generate(all.length, (index) {
@@ -388,6 +418,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                       "text_id": 1,
                       "text_topic": question,
                       "text_data": data,
+                      "text": data,
                     };
                     searchBloc.addData(params);
                     // final dataDeduct = data.length;
@@ -396,7 +427,17 @@ class _SearchTextPage extends State<SearchTextPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(question ?? ""),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(question ?? ""),
+                            IconButton(
+                              icon:  Icon(Icons.copy),
+                              onPressed:()async{
+                                searchBloc.copyText(params);
+                              })
+                            ],
+                          ),
                           Space().height(context, 0.02),
                           Text(
                             data.toString(),
