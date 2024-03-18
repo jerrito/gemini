@@ -2,7 +2,7 @@ import "package:floor/floor.dart";
 
 @entity
 class TextEntity {
-  @primaryKey
+  @PrimaryKey(autoGenerate:true)
   final int textId;
 
   final String textTopic, textData;

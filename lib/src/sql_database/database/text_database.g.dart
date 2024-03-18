@@ -61,6 +61,8 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
+  TextDao? _textDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -83,15 +85,54 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TextEntity` (`textId` INTEGER NOT NULL, `textTopic` TEXT NOT NULL, `textData` TEXT NOT NULL, PRIMARY KEY (`textId`))');
+            'CREATE TABLE IF NOT EXISTS `TextEntity` (`textId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `textTopic` TEXT NOT NULL, `textData` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
     );
     return sqfliteDatabaseFactory.openDatabase(path, options: databaseOptions);
   }
-  
+
   @override
-  // TODO: implement textDao
-  TextDao get textDao => throw UnimplementedError();
+  TextDao get textDao {
+    return _textDaoInstance ??= _$TextDao(database, changeListener);
+  }
+}
+
+class _$TextDao extends TextDao {
+  _$TextDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _textEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'TextEntity',
+            (TextEntity item) => <String, Object?>{
+                  'textId': item.textId,
+                  'textTopic': item.textTopic,
+                  'textData': item.textData
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<TextEntity> _textEntityInsertionAdapter;
+
+  @override
+  Future<List<TextEntity>> getAllTextData() async {
+    return _queryAdapter.queryList('SELECT * FROM TextEntity',
+        mapper: (Map<String, Object?> row) => TextEntity(
+            textId: row['textId'] as int,
+            textTopic: row['textTopic'] as String,
+            textData: row['textData'] as String));
+  }
+
+  @override
+  Future<void> insertData(TextEntity textEntity) async {
+    await _textEntityInsertionAdapter.insert(
+        textEntity, OnConflictStrategy.replace);
+  }
 }

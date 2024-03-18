@@ -5,10 +5,14 @@ import 'package:gemini/locator.dart';
 import 'package:gemini/src/search_text/presentation/pages/search_page.dart';
 import 'package:gemini/src/sql_database/database/text_database.dart';
 
-void main() async{
+AppDatabase? database;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   Gemini.init(apiKey: apiKey);
   initDependencies();
-  
+   database =
+      await $FloorAppDatabase.databaseBuilder('app_database.db').build();
   runApp(const MyApp());
 }
 

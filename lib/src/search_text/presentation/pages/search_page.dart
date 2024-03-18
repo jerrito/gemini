@@ -192,7 +192,7 @@ class _SearchTextPage extends State<SearchTextPage> {
             },
             child: BlocConsumer(
                 bloc: searchBloc,
-                listener: (context, state) {
+                listener: (context, state) async {
                   if (state is ChatLoaded ||
                       state is SearchTextLoaded ||
                       state is GenerateContentLoaded ||
@@ -200,6 +200,17 @@ class _SearchTextPage extends State<SearchTextPage> {
                     question = controller.text;
                     controller.text = "";
                     all.clear();
+                    await searchBloc.readData();
+                    if (state is SearchTextLoaded) {
+                      final new_id = await searchBloc.readData();
+                      final data = state.data.content.parts[0].text;
+                      final params = {
+                        "textId": new_id!.last.textId+1,
+                        "textTopic": question,
+                        "textData": data,
+                      };
+                      searchBloc.addData(params);
+                    }
                     // form.currentState?.validate();
                   }
                   if (state is GenerateStream) {
@@ -305,16 +316,16 @@ class _SearchTextPage extends State<SearchTextPage> {
                     return Column(
                       children: [
                         Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(question ?? ""),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(question ?? ""),
                             IconButton(
-                              icon:  Icon(Icons.copy),
-                              onPressed:()async{
-                                searchBloc.copyText({"text":snapInfo[0]});
-                              })
-                            ],
-                          ),
+                                icon: Icon(Icons.copy),
+                                onPressed: () async {
+                                  searchBloc.copyText({"text": snapInfo[0]});
+                                })
+                          ],
+                        ),
                         Flexible(
                           child: ListView.builder(
                             itemCount: snapInfo.length,
@@ -339,16 +350,16 @@ class _SearchTextPage extends State<SearchTextPage> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(question ?? ""),
-                            IconButton(
-                              icon:  Icon(Icons.copy),
-                              onPressed:()async{
-                                searchBloc.copyText({"text":data});
-                              })
+                              IconButton(
+                                  icon: Icon(Icons.copy),
+                                  onPressed: () async {
+                                    searchBloc.copyText({"text": data});
+                                  })
                             ],
                           ),
                           Space().height(context, 0.02),
                           Text(data),
-                          Space().height(context, 0.03),
+                          Space().height(context, 0.1),
                         ],
                       ),
                     );
@@ -374,7 +385,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           // ),
                           Space().height(context, 0.02),
                           Text(data),
-                          Space().height(context, 0.03),
+                          Space().height(context, 0.1),
                         ],
                       ),
                     );
@@ -390,11 +401,11 @@ class _SearchTextPage extends State<SearchTextPage> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(question ?? ""),
-                            IconButton(
-                              icon:  Icon(Icons.copy),
-                              onPressed:()async{
-                                searchBloc.copyText({"text":data});
-                              })
+                              IconButton(
+                                  icon: Icon(Icons.copy),
+                                  onPressed: () async {
+                                    searchBloc.copyText({"text": data});
+                                  })
                             ],
                           ),
                           if (all.isNotEmpty)
@@ -407,7 +418,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           // ),
                           Space().height(context, 0.02),
                           Text(data.toString()),
-                          Space().height(context, 0.03),
+                          Space().height(context, 0.1),
                         ],
                       ),
                     );
@@ -415,12 +426,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                   if (state is SearchTextLoaded) {
                     final data = state.data.content.parts[0].text;
                     final params = {
-                      "text_id": 1,
-                      "text_topic": question,
-                      "text_data": data,
                       "text": data,
                     };
-                    searchBloc.addData(params);
                     // final dataDeduct = data.length;
                     //print(dataDeduct);
                     return SingleChildScrollView(
@@ -431,18 +438,18 @@ class _SearchTextPage extends State<SearchTextPage> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(question ?? ""),
-                            IconButton(
-                              icon:  Icon(Icons.copy),
-                              onPressed:()async{
-                                searchBloc.copyText(params);
-                              })
+                              IconButton(
+                                  icon: Icon(Icons.copy),
+                                  onPressed: () async {
+                                    searchBloc.copyText(params);
+                                  })
                             ],
                           ),
                           Space().height(context, 0.02),
                           Text(
                             data.toString(),
                           ),
-                          Space().height(context, 0.03),
+                          Space().height(context, 0.1),
                         ],
                       ),
                     );
@@ -478,20 +485,22 @@ class _SearchTextPage extends State<SearchTextPage> {
                 Navigator.pop(context);
                 setState(() {});
               },
-              label: "Search image",
+              label: "Search text with image",
             ),
 
             SearchTypeWidget(
               color: type == 2 ? Colors.lightBlueAccent : Colors.black,
               icon: Icons.chat,
               onPressed: () async {
-                // type = 2;
-                // isTextImage = false;
-                // Navigator.pop(context);
-                // setState(() {});
-               print( await searchBloc.readData());
+                type = 2;
+                isTextImage = false;
+                Navigator.pop(context);
+                setState(() {});
+                await searchBloc
+                    .readData()
+                    .then((value) => print(value?[2].textData));
               },
-              label: "Chat",
+              label: "Chat with bot",
             ),
             SearchTypeWidget(
               color: type == 4 ? Colors.lightBlueAccent : Colors.black,
@@ -502,7 +511,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                 Navigator.pop(context);
                 setState(() {});
               },
-              label: "Await text",
+              label: "Await content",
             ),
             // SearchTypeWidget(
             //   onPressed: () {

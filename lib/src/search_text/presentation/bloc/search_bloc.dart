@@ -121,27 +121,26 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   Future addData(Map<String, dynamic> params) async {
-     AppDatabase database =
-        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+     
 
-    final personDao = database.textDao;
+    final personDao = database?.textDao;
     final textEntity = TextEntity(
-        textId: params["text_id"],
-        textTopic: params["text_topic"],
-        textData: params["text_data"]);
+        textId: params["textId"],
+        textTopic: params["textTopic"],
+        textData: params["textData"]);
 
-   return await personDao.insertData(textEntity);
+   return await personDao?.insertData(textEntity);
    // final result = await personDao.getTextData();
   }
 
-   Future<List<TextEntity>> readData() async {
-     AppDatabase database =
-        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+   Future<List<TextEntity>?> readData() async {
+    // AppDatabase database =
+       // await $FloorAppDatabase.databaseBuilder('app_database.db').build();
 
-    final textData = database.textDao;
+    final textData = database?.textDao;
     
 
-   return await textData.getAllTextData();
+   return await textData?.getAllTextData();
    // final result = await personDao.getTextData();
   }
 
