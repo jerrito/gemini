@@ -2,6 +2,7 @@
 
 // required package imports
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:floor/floor.dart';
 import 'package:gemini/src/sql_database/dao/text_dao.dart';
 import 'package:gemini/src/sql_database/entities/text.dart';

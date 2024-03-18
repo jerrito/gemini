@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TextEntity` (`textId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `textTopic` TEXT NOT NULL, `textData` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `TextEntity` (`textId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `textTopic` TEXT NOT NULL, `textData` TEXT NOT NULL, `imageData` BLOB)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -110,7 +110,8 @@ class _$TextDao extends TextDao {
             (TextEntity item) => <String, Object?>{
                   'textId': item.textId,
                   'textTopic': item.textTopic,
-                  'textData': item.textData
+                  'textData': item.textData,
+                  'imageData': item.imageData
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -127,7 +128,8 @@ class _$TextDao extends TextDao {
         mapper: (Map<String, Object?> row) => TextEntity(
             textId: row['textId'] as int,
             textTopic: row['textTopic'] as String,
-            textData: row['textData'] as String));
+            textData: row['textData'] as String,
+            imageData: row['imageData'] as Uint8List?));
   }
 
   @override

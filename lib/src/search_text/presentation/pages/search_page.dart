@@ -193,32 +193,67 @@ class _SearchTextPage extends State<SearchTextPage> {
             child: BlocConsumer(
                 bloc: searchBloc,
                 listener: (context, state) async {
-                  if (state is ChatLoaded ||
-                      state is SearchTextLoaded ||
-                      state is GenerateContentLoaded ||
-                      state is GenerateStreamStop) {
+                  if (state is SearchTextLoaded) {
+                    all.clear();
                     question = controller.text;
                     controller.text = "";
+                    final newId = await searchBloc.readData();
+                    final data = state.data.content.parts[0].text;
+                    final params = {
+                      "textId":  newId!.isNotEmpty ? newId.last.textId+1 : 0 + 1,
+                      "textTopic": question,
+                      "textData": data,
+                    };
+                    searchBloc.addData(params);
+                  }
+                  // form.currentState?.validate();
+
+                  if (state is ChatLoaded) {
                     all.clear();
-                    await searchBloc.readData();
-                    if (state is SearchTextLoaded) {
-                      final new_id = await searchBloc.readData();
-                      final data = state.data.content.parts[0].text;
-                      final params = {
-                        "textId": new_id!.last.textId+1,
-                        "textTopic": question,
-                        "textData": data,
-                      };
-                      searchBloc.addData(params);
-                    }
-                    // form.currentState?.validate();
-                  }
-                  if (state is GenerateStream) {
                     question = controller.text;
+                    controller.text = "";
+                    final newId = await searchBloc.readData();
+                    final data = state.data.content.parts[0].text;
+                    final params = {
+                      "textId":  newId!.isNotEmpty ? newId.last.textId +1 : 0 + 1,
+                      "textTopic": question,
+                      "textData": data,
+                    };
+                    searchBloc.addData(params);
                   }
+
+                  if (state is GenerateStreamStop) {
+                    all.clear();
+                    question = controller.text;
+                    controller.text = "";
+                    String? aa;
+
+                    final newId = await searchBloc.readData();
+                    //for (int a = 0; a < snapInfo.length; a++) {
+                      aa = snapInfo[0];
+                   // }
+                    print(aa);
+                    print(snapInfo);
+                    final params = {
+                      "textId": newId!.isNotEmpty ? newId.last.textId+1 : 0 + 1,
+                      "textTopic": question,
+                      "textData": aa,
+                    };
+                    searchBloc.addData(params);
+                  }
+
                   if (state is SearchTextAndImageLoaded) {
                     question = controller.text;
                     controller.text = "";
+                    final newId = await searchBloc.readData();
+                    final data = state.data.content.parts[0].text;
+                    final params = {
+                      "textId":  newId!.isNotEmpty ? newId.last.textId+1 : 0 + 1,
+                      "textTopic": question,
+                      "textData": data,
+                      "imageData": all[0],
+                    };
+                    searchBloc.addData(params);
                   }
 
                   if (state is GenerateContentError) {
@@ -295,7 +330,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                             snapInfo.add(data!);
                             return Column(
                               children: [
-                                Text(question!),
+                                Text(question ?? ""),
                                 Flexible(
                                   child: ListView.builder(
                                     itemCount: snapInfo.length,
@@ -320,7 +355,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           children: [
                             Text(question ?? ""),
                             IconButton(
-                                icon: Icon(Icons.copy),
+                                icon: const Icon(Icons.copy),
                                 onPressed: () async {
                                   searchBloc.copyText({"text": snapInfo[0]});
                                 })
@@ -351,7 +386,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                             children: [
                               Text(question ?? ""),
                               IconButton(
-                                  icon: Icon(Icons.copy),
+                                  icon: const Icon(Icons.copy),
                                   onPressed: () async {
                                     searchBloc.copyText({"text": data});
                                   })
@@ -402,7 +437,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                             children: [
                               Text(question ?? ""),
                               IconButton(
-                                  icon: Icon(Icons.copy),
+                                  icon: const Icon(Icons.copy),
                                   onPressed: () async {
                                     searchBloc.copyText({"text": data});
                                   })
@@ -498,7 +533,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                 setState(() {});
                 await searchBloc
                     .readData()
-                    .then((value) => print(value?[2].textData));
+                    .then((value) => print(value?[0].textData));
               },
               label: "Chat with bot",
             ),
