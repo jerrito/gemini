@@ -26,7 +26,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   final searchBloc3 = sl<SearchBloc>();
   List<Uint8List> all = [];
   List<String> imageExtensions = [];
-  List<num> imageLength = [];
+  int imageLength = 0;
 
   List<String> snapInfo = [];
   String info = "How can I help you today?";
@@ -34,6 +34,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   bool isTextImage = false;
   String? question;
   String name = "";
+  String joinedSnapInfo = "";
   final controller = TextEditingController();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   @override
@@ -45,7 +46,7 @@ class _SearchTextPage extends State<SearchTextPage> {
 
   @override
   Widget build(BuildContext context) {
-    
+
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -53,10 +54,10 @@ class _SearchTextPage extends State<SearchTextPage> {
         leading: IconButton(
             onPressed: () async {
               scaffoldKey.currentState?.openDrawer();
-              data = await searchBloc.readData();
-              print(data?.first);                 
+                searchBloc2.add(ReadSQLDataEvent());
+             
             },
-            icon: Icon(Icons.menu)),
+            icon: const Icon(Icons.menu)),
         centerTitle: true,
       ),
       bottomSheet: Form(
@@ -164,7 +165,7 @@ class _SearchTextPage extends State<SearchTextPage> {
               if (state is AddMultipleImageLoaded) {
                 all.clear();
                 imageExtensions.clear();
-                imageLength.clear();
+                imageLength=0;
                 //  info = "";
                 question = "";
 
@@ -172,7 +173,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   all.addAll(state.data.keys.elementAt(i));
                   imageExtensions.addAll(state.data.values.elementAt(i));
                 }
-                // imageLength=all.length;
+                 imageLength=all.length;
 
                 final dataGet = await Navigator.push(
                   context,
@@ -191,9 +192,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                     SearchTextAndImageEvent(
                       params: {
                         "text": controller.text,
-                        "ext": imageExtensions[0],
-                        "image": all[0],
-                        // "images": imageLength,
+                        "ext": imageExtensions,
+                        "image": all,
+                         "images": imageLength,
                       },
                     ),
                   );
@@ -241,7 +242,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     all.clear();
                     question = controller.text;
                     controller.text = "";
-                    String joinedSnapInfo = "";
+                    
 
                     final newId = await searchBloc.readData();
                     //for (int a = 0; a < snapInfo.length; a++) {
@@ -367,17 +368,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   if (state is GenerateStreamStop) {
                     return Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(question ?? ""),
-                            IconButton(
-                                icon: const Icon(Icons.copy),
-                                onPressed: () async {
-                                  searchBloc.copyText({"text": snapInfo[0]});
-                                })
-                          ],
-                        ),
+                        Text(question ?? ""),
                         Flexible(
                           child: ListView.builder(
                             itemCount: snapInfo.length,
@@ -387,6 +378,11 @@ class _SearchTextPage extends State<SearchTextPage> {
                             },
                           ),
                         ),
+                        IconButton(
+                                  icon: const Icon(Icons.copy),
+                                  onPressed: () async {
+                                    searchBloc.copyText({"text":  joinedSnapInfo });
+                                  }),
                         Space().height(context, 0.1),
                       ],
                     );
@@ -398,50 +394,20 @@ class _SearchTextPage extends State<SearchTextPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(question ?? ""),
-                              IconButton(
+                          Text(question ?? ""),
+                          Space().height(context, 0.02),
+                          Text(data),
+                          IconButton(
                                   icon: const Icon(Icons.copy),
                                   onPressed: () async {
                                     searchBloc.copyText({"text": data});
-                                  })
-                            ],
-                          ),
-                          Space().height(context, 0.02),
-                          Text(data),
+                                  }),
                           Space().height(context, 0.1),
                         ],
                       ),
                     );
                   }
 
-                  if (state is GenerateContentLoaded) {
-                    // StreamController s = StreamController();
-
-                    final data = state.data.toString();
-
-                    // }) as StreamSubscription<dynamic>;
-
-                    // data.listen((event) {
-                    //     print(event.toString());
-                    //   });
-                    return SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(question ?? ""),
-                          // Image.asset(
-                          //   all[0].
-                          // ),
-                          Space().height(context, 0.02),
-                          Text(data),
-                          Space().height(context, 0.1),
-                        ],
-                      ),
-                    );
-                  }
                   if (state is SearchTextAndImageLoaded) {
                     final data = state.data;
 
@@ -449,27 +415,20 @@ class _SearchTextPage extends State<SearchTextPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(question ?? ""),
-                              IconButton(
-                                  icon: const Icon(Icons.copy),
-                                  onPressed: () async {
-                                    searchBloc.copyText({"text": data});
-                                  })
-                            ],
-                          ),
+                          Text(question ?? ""),
                           if (all.isNotEmpty)
                             Column(
                                 children: List.generate(all.length, (index) {
                               return Image.memory(all[index]);
                             })),
-                          // Image.asset(
-                          //   all[0].
-                          // ),
+                      
                           Space().height(context, 0.02),
                           Text(data.toString()),
+                          IconButton(
+                                  icon: const Icon(Icons.copy),
+                                  onPressed: () async {
+                                    searchBloc.copyText({"text": data});
+                                  }),
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -490,17 +449,19 @@ class _SearchTextPage extends State<SearchTextPage> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(question ?? ""),
-                              IconButton(
-                                  icon: Icon(Icons.copy),
-                                  onPressed: () async {
-                                    searchBloc.copyText(params);
-                                  })
+                              
                             ],
                           ),
                           Space().height(context, 0.02),
                           Text(
                             data.toString(),
                           ),
+                           IconButton(
+                                  icon:const Icon(Icons.copy),
+                                  onPressed: () async {
+                                    searchBloc.copyText(params);
+                                  })
+                        ,
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -513,19 +474,18 @@ class _SearchTextPage extends State<SearchTextPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(data!.textTopic),
-                              IconButton(
-                                  icon: const Icon(Icons.copy),
-                                  onPressed: () async {
-                                    searchBloc.copyText({"text": data});
-                                  })
-                            ],
-                          ),
+                          Text(data!.textTopic),
+                          Space().height(context, 0.02),
+                          //  if (data.imageData!.isNotEmpty)
+                          //   Image.memory(data.imageData!)
+                          //   ,
                           Space().height(context, 0.02),
                           Text(data.textData),
+                           IconButton(
+                                  icon:const Icon(Icons.copy),
+                                  onPressed: () async {
+                                    searchBloc.copyText({"text": data});
+                                  }),
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -594,34 +554,53 @@ class _SearchTextPage extends State<SearchTextPage> {
             ),
             const Text("History",
                 style: TextStyle(decoration: TextDecoration.underline)),
-            Flexible(
-              child: ListView.builder(
-                itemCount: data!.isEmpty ? 0 : data!.length - 1,
-                itemBuilder: (context, index) {
+            BlocConsumer(
+                bloc: searchBloc2,
+                builder: (context, state) {
+
                   
-                  final datas = data?[index];
-                  return TextButton(
-                    style: const ButtonStyle(
-                        foregroundColor:
-                            MaterialStatePropertyAll(Colors.black)),
-                    onPressed: () {
-                      final params = {
-                        "textData": datas?.textData,
-                        "textTopic": datas?.textTopic,
-                        "textId": datas?.textId,
-                        //"image": datas?.imageData,
-                        // "images": imageLength,
-                      };
-                      searchBloc.add(
-                        ReadDataDetailsEvent(params: params),
-                      );
-                      Navigator.pop(context);
-                    },
-                    child: Text(datas?.textTopic ?? ""),
+                  if(state is ReadDataLoading){
+                    return const Center(child: CircularProgressIndicator(),);
+                  }
+
+                  if(state is ReadDataLoaded){
+                  final response= state.data;
+                 return Flexible(
+                    child: ListView.builder(
+                      reverse: true,
+                      itemCount: response!.isEmpty ? 0 : response.length ,
+                      itemBuilder: (context, index) {
+                        final datas = response[index];
+                        return TextButton(
+                          style: const ButtonStyle(
+                              foregroundColor:
+                                  MaterialStatePropertyAll(Colors.black)),
+                          onPressed: () {
+                            final params = {
+                              "textData": datas.textData,
+                              "textTopic": datas.textTopic,
+                              "textId": datas.textId,
+                              //"image": datas?.imageData,
+                              // "images": imageLength,
+                            };
+                            searchBloc.add(
+                              ReadDataDetailsEvent(params: params),
+                            );
+                            Navigator.pop(context);
+                          },
+                          child: Text(datas.textTopic),
+                        );
+                      },
+                    ),
                   );
-                },
-              ),
-            )
+                  }
+                  return const SizedBox();
+                }, listener: (BuildContext context, Object? state) { 
+                  if(state is ReadDataError){
+                     showErrorSnackbar(context, state.errorMessage);
+
+                  }
+                 },)
           ],
         ),
       ),

@@ -119,6 +119,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
     });
     on<ReadSQLDataEvent>((event, emit) async {
+      emit(ReadDataLoading());
       final response = await readSQLData.call(NoParams());
       emit(
         response.fold(
@@ -130,11 +131,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
     });
 
-    on<ReadDataDetailsEvent>((event, emit)  {
+    on<ReadDataDetailsEvent>((event, emit) {
       final response = readDataDetails(event.params);
-      emit(
-       ReadDataDetailsLoaded( response)
-      );
+      emit(ReadDataDetailsLoaded(response));
     });
   }
   Stream<GenerateContentResponse> generateStream(Map<String, dynamic> params) {
@@ -157,13 +156,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     return await textData?.getAllTextData();
   }
 
-   TextEntity? readDataDetails(Map<String, dynamic> params) {
-    final textData = TextEntity( textId: params["textId"],
+  TextEntity? readDataDetails(Map<String, dynamic> params) {
+    final textData = TextEntity(
+        textId: params["textId"],
         textTopic: params["textTopic"],
         textData: params["textData"]);
-    return  textData;
+    return textData;
   }
-
 
   Future<void> copyText(Map<String, dynamic> params) async {
     await Clipboard.setData(ClipboardData(text: params["text"]));

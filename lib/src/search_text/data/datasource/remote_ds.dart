@@ -1,4 +1,5 @@
 import "dart:async";
+import "dart:convert";
 
 import "package:flutter_gemini/flutter_gemini.dart";
 import "package:gemini/core/api/api_key.dart";
@@ -30,15 +31,22 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
 
   @override
   Future<dynamic> searchTextAndImage(Map<String, dynamic> params) async {
-      final model = ai.GenerativeModel(model: 'gemini-pro-vision', apiKey: apiKey);
+    final model =
+        ai.GenerativeModel(model: 'gemini-pro-vision', apiKey: apiKey);
     final prompt = ai.TextPart(params["text"]);
     final imageParts =
         // params["images"].map(
         //   (e)=>ai.DataPart('image/${params["ext"][e]}', params["image"][e])
         // ).toList();
         [
-      ai.DataPart('image/${params["ext"]}', params["image"]),
+      // ai.DataPart('image/${params["ext"]}', params["image"]),
     ];
+    for (int i = 0; i < params["images"]; i++) {
+      imageParts
+          .add(ai.DataPart('image/${params["ext"][i]}', params["image"][i]));
+    }
+
+    print(imageParts.length);
     final response = await model.generateContent([
       ai.Content.multi([prompt, ...imageParts])
     ]);
@@ -48,17 +56,16 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   @override
   Stream<ai.GenerateContentResponse> generateContent(
       Map<String, dynamic> params) async* {
-      final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
-      final content = [ai.Content.text(params["text"])];
-    
-      final response = model.generateContentStream(content,
-      safetySettings: [
-        ai.SafetySetting( ai.HarmCategory.dangerousContent,
-         ai.HarmBlockThreshold.none)
-      ]);
-    
-      yield* response.asBroadcastStream();
-    
+    final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
+    final content = [ai.Content.text(params["text"])];
+
+    final response = model.generateContentStream(content, safetySettings: [
+      ai.SafetySetting(
+          ai.HarmCategory.dangerousContent, ai.HarmBlockThreshold.none)
+    ]);
+
+    yield* response.asBroadcastStream();
+
     // else{
     // throw ai.GenerativeAIException(
     //   "Invalid input"
