@@ -34,3 +34,5 @@ class GenerateStreamEvent extends SearchEvent {
 }
 
 class GenerateStreamStopEvent extends SearchEvent{}
+
+class ReadSQLDataEvent extends SearchEvent{}

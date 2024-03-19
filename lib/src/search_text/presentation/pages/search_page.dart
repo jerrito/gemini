@@ -11,6 +11,7 @@ import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
 import 'package:gemini/src/search_text/presentation/widgets/search_image_type.dart';
 import 'package:gemini/src/search_text/presentation/widgets/search_type.dart';
 import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
+import 'package:gemini/src/sql_database/entities/text.dart';
 
 class SearchTextPage extends StatefulWidget {
   const SearchTextPage({super.key});
@@ -34,16 +35,25 @@ class _SearchTextPage extends State<SearchTextPage> {
   String? question;
   String name = "";
   final controller = TextEditingController();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     super.initState();
   }
 
+  List<TextEntity>? data;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: const Text("Jerrito Gemini AI"),
+        leading: IconButton(
+            onPressed: () async {
+              scaffoldKey.currentState?.openDrawer();
+              data = await searchBloc.readData();
+            },
+            icon: Icon(Icons.menu)),
         centerTitle: true,
       ),
       bottomSheet: Form(
@@ -200,7 +210,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                     final newId = await searchBloc.readData();
                     final data = state.data.content.parts[0].text;
                     final params = {
-                      "textId":  newId!.isNotEmpty ? newId.last.textId+1 : 0 + 1,
+                      "textId":
+                          newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
                       "textTopic": question,
                       "textData": data,
                     };
@@ -215,7 +226,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                     final newId = await searchBloc.readData();
                     final data = state.data.content.parts[0].text;
                     final params = {
-                      "textId":  newId!.isNotEmpty ? newId.last.textId +1 : 0 + 1,
+                      "textId":
+                          newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
                       "textTopic": question,
                       "textData": data,
                     };
@@ -226,18 +238,19 @@ class _SearchTextPage extends State<SearchTextPage> {
                     all.clear();
                     question = controller.text;
                     controller.text = "";
-                    String? aa;
+                    String joinedSnapInfo = "";
 
                     final newId = await searchBloc.readData();
                     //for (int a = 0; a < snapInfo.length; a++) {
-                      aa = snapInfo[0];
-                   // }
-                    print(aa);
-                    print(snapInfo);
+                    joinedSnapInfo = snapInfo.join("");
+                    // }
+                    print(joinedSnapInfo);
+
                     final params = {
-                      "textId": newId!.isNotEmpty ? newId.last.textId+1 : 0 + 1,
+                      "textId":
+                          newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
                       "textTopic": question,
-                      "textData": aa,
+                      "textData": joinedSnapInfo,
                     };
                     searchBloc.addData(params);
                   }
@@ -248,7 +261,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                     final newId = await searchBloc.readData();
                     final data = state.data.content.parts[0].text;
                     final params = {
-                      "textId":  newId!.isNotEmpty ? newId.last.textId+1 : 0 + 1,
+                      "textId":
+                          newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
                       "textTopic": question,
                       "textData": data,
                       "imageData": all[0],
@@ -522,7 +536,6 @@ class _SearchTextPage extends State<SearchTextPage> {
               },
               label: "Search text with image",
             ),
-
             SearchTypeWidget(
               color: type == 2 ? Colors.lightBlueAccent : Colors.black,
               icon: Icons.chat,
@@ -548,15 +561,28 @@ class _SearchTextPage extends State<SearchTextPage> {
               },
               label: "Await content",
             ),
-            // SearchTypeWidget(
-            //   onPressed: () {
-            //     type = 5;
-            //     isTextImage = false;
-            //     Navigator.pop(context);
-            //     setState(() {});
-            //   },
-            //   label: "Generate content bloc",
-            //),
+            const Divider(
+              thickness: 2,
+            ),
+           const Text("History",style: TextStyle(decoration: TextDecoration.underline)),
+
+            Flexible(
+              child: ListView.builder(
+                itemCount:data!.isEmpty ?0: data!.length - 1,
+                itemBuilder: (context, index) {
+                  final datas = data?[index];
+                  return TextButton(
+                    style: ButtonStyle(
+                        foregroundColor:
+                            MaterialStateProperty.all(Colors.black)),
+                    onPressed: () {
+                      print(datas?.textData);
+                    },
+                    child: Text(datas?.textTopic ?? ""),
+                  );
+                },
+              ),
+            )
           ],
         ),
       ),

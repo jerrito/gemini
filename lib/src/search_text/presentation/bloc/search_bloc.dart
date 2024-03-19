@@ -7,6 +7,7 @@ import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/src/search_text/domain/usecase/add_multi_images.dart';
 import 'package:gemini/src/search_text/domain/usecase/chat.dart';
 import 'package:gemini/src/search_text/domain/usecase/generate_content.dart';
+import 'package:gemini/src/search_text/domain/usecase/read_sql_data.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
 import 'package:gemini/src/sql_database/database/text_database.dart';
@@ -22,6 +23,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final AddMultipleImages addMultipleImage;
   final GenerateContent generateContent;
   final Chat chat;
+  final ReadData readSQLData;
   final SearchRemoteDatasourceImpl remoteDatasourceImpl;
 
   SearchBloc({
@@ -30,6 +32,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     required this.addMultipleImage,
     required this.generateContent,
     required this.chat,
+    required this.readSQLData,
     required this.remoteDatasourceImpl,
   }) : super(SearchInitState()) {
     on<SearchTextEvent>((event, emit) async {
@@ -115,36 +118,39 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         ),
       );
     });
+    on<ReadSQLDataEvent>((event, emit) async {
+      final response = await readSQLData.call(NoParams());
+      emit(
+        response.fold(
+          (error) => ReadDataError(errorMessage: error),
+          (response) => ReadDataLoaded(
+            data: response,
+          ),
+        ),
+      );
+    });
   }
   Stream<GenerateContentResponse> generateStream(Map<String, dynamic> params) {
     return remoteDatasourceImpl.generateContent(params);
   }
 
   Future addData(Map<String, dynamic> params) async {
-     
-
     final personDao = database?.textDao;
     final textEntity = TextEntity(
         textId: params["textId"],
         textTopic: params["textTopic"],
         textData: params["textData"]);
 
-   return await personDao?.insertData(textEntity);
-   // final result = await personDao.getTextData();
+    return await personDao?.insertData(textEntity);
+    // final result = await personDao.getTextData();
   }
 
-   Future<List<TextEntity>?> readData() async {
-    // AppDatabase database =
-       // await $FloorAppDatabase.databaseBuilder('app_database.db').build();
-
+  Future<List<TextEntity>?> readData() async {
     final textData = database?.textDao;
-    
-
-   return await textData?.getAllTextData();
-   // final result = await personDao.getTextData();
+    return await textData?.getAllTextData();
   }
 
-  Future<void> copyText(Map<String,dynamic> params)async{
-  await Clipboard.setData(ClipboardData(text: params["text"]));
+  Future<void> copyText(Map<String, dynamic> params) async {
+    await Clipboard.setData(ClipboardData(text: params["text"]));
   }
 }

@@ -7,6 +7,7 @@ import 'package:gemini/src/search_text/domain/repository/search_repository.dart'
 import 'package:gemini/src/search_text/domain/usecase/add_multi_images.dart';
 import 'package:gemini/src/search_text/domain/usecase/chat.dart';
 import 'package:gemini/src/search_text/domain/usecase/generate_content.dart';
+import 'package:gemini/src/search_text/domain/usecase/read_sql_data.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
@@ -24,11 +25,18 @@ void initDependencies() {
       addMultipleImage: sl(),
       generateContent: sl(),
       chat: sl(),
-      remoteDatasourceImpl: sl()
+      remoteDatasourceImpl: sl(),
+      readSQLData: sl()
     ),
   );
 
   //usecases
+
+ sl.registerLazySingleton(
+    () => ReadData(
+      searchRepository: sl()
+    ),
+  );
 
   sl.registerLazySingleton<SearchRemoteDatasourceImpl>(
     () => SearchRemoteDatasourceImpl(

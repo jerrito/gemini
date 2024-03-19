@@ -67,4 +67,17 @@ class AddMultipleImageError extends SearchState {
 }
 
 class GenerateStream extends SearchState{}
+
 class GenerateStreamStop extends SearchState{}
+
+class ReadDataLoaded extends SearchState{
+  final List<TextEntity>? data;
+
+  ReadDataLoaded({required this.data});
+
+}
+
+class ReadDataError extends SearchState{
+  final String errorMessage;
+   ReadDataError({required this.errorMessage});
+}
