@@ -41,9 +41,11 @@ class _SearchTextPage extends State<SearchTextPage> {
     super.initState();
   }
 
-  List<TextEntity>? data;
+  List<TextEntity>? data = [];
+
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -52,6 +54,7 @@ class _SearchTextPage extends State<SearchTextPage> {
             onPressed: () async {
               scaffoldKey.currentState?.openDrawer();
               data = await searchBloc.readData();
+              print(data?.first);                 
             },
             icon: Icon(Icons.menu)),
         centerTitle: true,
@@ -259,7 +262,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     question = controller.text;
                     controller.text = "";
                     final newId = await searchBloc.readData();
-                    final data = state.data.content.parts[0].text;
+                    final data = state.data;
                     final params = {
                       "textId":
                           newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
@@ -503,6 +506,31 @@ class _SearchTextPage extends State<SearchTextPage> {
                       ),
                     );
                   }
+                  if (state is ReadDataDetailsLoaded) {
+                    final data = state.textEntity;
+
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(data!.textTopic),
+                              IconButton(
+                                  icon: const Icon(Icons.copy),
+                                  onPressed: () async {
+                                    searchBloc.copyText({"text": data});
+                                  })
+                            ],
+                          ),
+                          Space().height(context, 0.02),
+                          Text(data.textData),
+                          Space().height(context, 0.1),
+                        ],
+                      ),
+                    );
+                  }
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -564,19 +592,30 @@ class _SearchTextPage extends State<SearchTextPage> {
             const Divider(
               thickness: 2,
             ),
-           const Text("History",style: TextStyle(decoration: TextDecoration.underline)),
-
+            const Text("History",
+                style: TextStyle(decoration: TextDecoration.underline)),
             Flexible(
               child: ListView.builder(
-                itemCount:data!.isEmpty ?0: data!.length - 1,
+                itemCount: data!.isEmpty ? 0 : data!.length - 1,
                 itemBuilder: (context, index) {
+                  
                   final datas = data?[index];
                   return TextButton(
-                    style: ButtonStyle(
+                    style: const ButtonStyle(
                         foregroundColor:
-                            MaterialStateProperty.all(Colors.black)),
+                            MaterialStatePropertyAll(Colors.black)),
                     onPressed: () {
-                      print(datas?.textData);
+                      final params = {
+                        "textData": datas?.textData,
+                        "textTopic": datas?.textTopic,
+                        "textId": datas?.textId,
+                        //"image": datas?.imageData,
+                        // "images": imageLength,
+                      };
+                      searchBloc.add(
+                        ReadDataDetailsEvent(params: params),
+                      );
+                      Navigator.pop(context);
                     },
                     child: Text(datas?.textTopic ?? ""),
                   );

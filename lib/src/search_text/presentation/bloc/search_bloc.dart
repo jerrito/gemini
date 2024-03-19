@@ -129,6 +129,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         ),
       );
     });
+
+    on<ReadDataDetailsEvent>((event, emit)  {
+      final response = readDataDetails(event.params);
+      emit(
+       ReadDataDetailsLoaded( response)
+      );
+    });
   }
   Stream<GenerateContentResponse> generateStream(Map<String, dynamic> params) {
     return remoteDatasourceImpl.generateContent(params);
@@ -149,6 +156,14 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     final textData = database?.textDao;
     return await textData?.getAllTextData();
   }
+
+   TextEntity? readDataDetails(Map<String, dynamic> params) {
+    final textData = TextEntity( textId: params["textId"],
+        textTopic: params["textTopic"],
+        textData: params["textData"]);
+    return  textData;
+  }
+
 
   Future<void> copyText(Map<String, dynamic> params) async {
     await Clipboard.setData(ClipboardData(text: params["text"]));

@@ -36,3 +36,8 @@ class GenerateStreamEvent extends SearchEvent {
 class GenerateStreamStopEvent extends SearchEvent{}
 
 class ReadSQLDataEvent extends SearchEvent{}
+
+class ReadDataDetailsEvent extends SearchEvent{
+   final Map<String, dynamic> params;
+  ReadDataDetailsEvent({required this.params});
+}

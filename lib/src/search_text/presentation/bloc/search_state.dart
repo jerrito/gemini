@@ -81,3 +81,10 @@ class ReadDataError extends SearchState{
   final String errorMessage;
    ReadDataError({required this.errorMessage});
 }
+
+class ReadDataDetailsLoaded extends SearchState{
+
+final TextEntity? textEntity;
+
+ ReadDataDetailsLoaded(this.textEntity);
+}
