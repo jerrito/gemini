@@ -15,7 +15,9 @@ Widget bottomSheetTextfield({
 required  bool isTextAndImage
 }) {
   return Container(
-    color: Colors.white,
+    color: Theme.of(context).brightness !=Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
     padding: EdgeInsets.symmetric(
      // horizontal: Sizes().width(context, 0.02),
       vertical: Sizes().width(context, 0.02),

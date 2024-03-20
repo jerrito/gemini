@@ -53,6 +53,9 @@ class _SearchTextPage extends State<SearchTextPage> {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
+        backgroundColor:Theme.of(context).brightness !=Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
         title: const Text("Jerrito Gemini AI"),
         leading: IconButton(
             onPressed: () async {
@@ -547,7 +550,9 @@ class _SearchTextPage extends State<SearchTextPage> {
           children: [
             Space().height(context, 0.07),
             SearchTypeWidget(
-              color: type == 1 ? Colors.lightBlueAccent : Colors.black,
+              color: type == 1 ? Colors.lightBlueAccent :Theme.of(context).brightness ==Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
               icon: Icons.stream,
               onPressed: () {
                 type = 1;
@@ -558,7 +563,9 @@ class _SearchTextPage extends State<SearchTextPage> {
               label: "Stream content",
             ),
             SearchTypeWidget(
-              color: type == 3 ? Colors.lightBlueAccent : Colors.black,
+              color: type == 3 ? Colors.lightBlueAccent :Theme.of(context).brightness ==Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
               icon: Icons.image_search,
               onPressed: () {
                 type = 3;
@@ -569,7 +576,10 @@ class _SearchTextPage extends State<SearchTextPage> {
               label: "Search text with image",
             ),
             SearchTypeWidget(
-              color: type == 2 ? Colors.lightBlueAccent : Colors.black,
+              color: type == 2 ? Colors.lightBlueAccent :
+            Theme.of(context).brightness ==Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
               icon: Icons.chat,
               onPressed: () async {
                 type = 2;
@@ -580,7 +590,9 @@ class _SearchTextPage extends State<SearchTextPage> {
               label: "Chat with bot",
             ),
             SearchTypeWidget(
-              color: type == 4 ? Colors.lightBlueAccent : Colors.black,
+              color: type == 4 ? Colors.lightBlueAccent : Theme.of(context).brightness ==Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
               icon: Icons.text_format,
               onPressed: () {
                 type = 4;

@@ -22,10 +22,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      
       themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       darkTheme: ThemeData(
+        brightness: Brightness.dark,
+         textTheme: Theme.of(context).textTheme.apply(
+                      fontFamily: "Kodchasan",
+                      decorationColor: 
+                           Colors.white,
+                      bodyColor:
+                           Colors.white,
+                      displayColor: 
+                           Colors.white),
      useMaterial3: true,
         fontFamily: "Kodchasan"
       ),
