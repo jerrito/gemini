@@ -108,16 +108,13 @@ class SearchRepositoryImpl implements SearchRepository {
 
   @override
   Future<Either<String, List<TextEntity>?>> readData() async {
-    if (await networkInfo.isConnected) {
       try {
         final response = await searchLocalDatasource.readData();
 
         return Right(response);
       } catch (e) {
         return Left(e.toString());
-      }
-    } else {
-      return Left(networkInfo.noNetworkMessage);
+      
     }
   }
 }

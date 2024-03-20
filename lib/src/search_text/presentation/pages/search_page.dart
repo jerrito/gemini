@@ -8,6 +8,8 @@ import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/core/widgets/widgets/bottom_sheet.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
+import 'package:gemini/src/search_text/presentation/widgets/buttons_below.dart';
+import 'package:gemini/src/search_text/presentation/widgets/history_shimmer.dart';
 import 'package:gemini/src/search_text/presentation/widgets/search_image_type.dart';
 import 'package:gemini/src/search_text/presentation/widgets/search_type.dart';
 import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
@@ -33,6 +35,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   int type = 1;
   bool isTextImage = false;
   String? question;
+  String repeatQuestion = "";
   String name = "";
   String joinedSnapInfo = "";
   final controller = TextEditingController();
@@ -46,7 +49,6 @@ class _SearchTextPage extends State<SearchTextPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -54,8 +56,7 @@ class _SearchTextPage extends State<SearchTextPage> {
         leading: IconButton(
             onPressed: () async {
               scaffoldKey.currentState?.openDrawer();
-                searchBloc2.add(ReadSQLDataEvent());
-             
+              searchBloc2.add(ReadSQLDataEvent());
             },
             icon: const Icon(Icons.menu)),
         centerTitle: true,
@@ -165,7 +166,7 @@ class _SearchTextPage extends State<SearchTextPage> {
               if (state is AddMultipleImageLoaded) {
                 all.clear();
                 imageExtensions.clear();
-                imageLength=0;
+                imageLength = 0;
                 //  info = "";
                 question = "";
 
@@ -173,7 +174,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   all.addAll(state.data.keys.elementAt(i));
                   imageExtensions.addAll(state.data.values.elementAt(i));
                 }
-                 imageLength=all.length;
+                imageLength = all.length;
 
                 final dataGet = await Navigator.push(
                   context,
@@ -194,7 +195,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                         "text": controller.text,
                         "ext": imageExtensions,
                         "image": all,
-                         "images": imageLength,
+                        "images": imageLength,
                       },
                     ),
                   );
@@ -216,7 +217,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     final params = {
                       "textId":
                           newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                      "textTopic": question,
+                      "textTopic": question ?? repeatQuestion,
                       "textData": data,
                     };
                     searchBloc.addData(params);
@@ -232,7 +233,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     final params = {
                       "textId":
                           newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                      "textTopic": question,
+                      "textTopic": question ?? repeatQuestion,
                       "textData": data,
                     };
                     searchBloc.addData(params);
@@ -242,18 +243,14 @@ class _SearchTextPage extends State<SearchTextPage> {
                     all.clear();
                     question = controller.text;
                     controller.text = "";
-                    
 
                     final newId = await searchBloc.readData();
-                    //for (int a = 0; a < snapInfo.length; a++) {
                     joinedSnapInfo = snapInfo.join("");
-                    // }
-                    print(joinedSnapInfo);
-
+                  
                     final params = {
                       "textId":
                           newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                      "textTopic": question,
+                      "textTopic": question ?? repeatQuestion,
                       "textData": joinedSnapInfo,
                     };
                     searchBloc.addData(params);
@@ -267,7 +264,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     final params = {
                       "textId":
                           newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                      "textTopic": question,
+                      "textTopic": question ?? repeatQuestion,
                       "textData": data,
                       "imageData": all[0],
                     };
@@ -309,7 +306,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                     );
                   }
                   if (state is GenerateStream) {
-                    final params = {"text": controller.text};
+                    question = controller.text;
+                    final params = {"text": question};
 
                     return StreamBuilder(
                         stream: searchBloc.generateStream(params),
@@ -333,7 +331,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(question ?? ""),
+                                  Text((question!.isNotEmpty? question! : repeatQuestion)),
                                   Space().height(context, 0.02),
                                   Text(data.toString()),
                                   Space().height(context, 0.03),
@@ -348,7 +346,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                             snapInfo.add(data!);
                             return Column(
                               children: [
-                                Text(question ?? ""),
+                               // Text(question!.isNotEmpty? question! : repeatQuestion),
                                 Flexible(
                                   child: ListView.builder(
                                     itemCount: snapInfo.length,
@@ -366,9 +364,15 @@ class _SearchTextPage extends State<SearchTextPage> {
                         });
                   }
                   if (state is GenerateStreamStop) {
+                    String copyTextData =
+                        joinedSnapInfo + (question!.isNotEmpty? question! : repeatQuestion);
+
+                    final params = {
+                      "text": copyTextData,
+                    };
                     return Column(
                       children: [
-                        Text(question ?? ""),
+                        Text(question!.isNotEmpty? question! : repeatQuestion),
                         Flexible(
                           child: ListView.builder(
                             itemCount: snapInfo.length,
@@ -378,30 +382,47 @@ class _SearchTextPage extends State<SearchTextPage> {
                             },
                           ),
                         ),
-                        IconButton(
-                                  icon: const Icon(Icons.copy),
-                                  onPressed: () async {
-                                    searchBloc.copyText({"text":  joinedSnapInfo });
-                                  }),
+                        ButtonsBelowResult(
+                            onCopy: () async {
+                              searchBloc.copyText(params);
+                            },
+                            onRetry: () {
+                              repeatQuestion = question!;
+                              searchBloc.add(SearchTextEvent(
+                                  params: {"text": repeatQuestion}));
+                            },
+                          ),
+                        
                         Space().height(context, 0.1),
                       ],
                     );
                   }
                   if (state is ChatLoaded) {
                     final data = state.data.content.parts.last.text;
+                    String copyTextData =
+                        data.toString() + (question!.isNotEmpty? question! : repeatQuestion);
 
+                    final params = {
+                      "text": copyTextData,
+                    };
                     return SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(question ?? ""),
+                          Text(question!.isNotEmpty? question! : repeatQuestion),
                           Space().height(context, 0.02),
                           Text(data),
-                          IconButton(
-                                  icon: const Icon(Icons.copy),
-                                  onPressed: () async {
-                                    searchBloc.copyText({"text": data});
-                                  }),
+                          ButtonsBelowResult(
+                            onCopy: () async {
+                              searchBloc.copyText(params);
+                            },
+                            onRetry: () {
+                              repeatQuestion = question!;
+                              searchBloc.add(SearchTextEvent(
+                                  params: {"text": repeatQuestion}));
+                            },
+                          ),
+                         
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -410,25 +431,35 @@ class _SearchTextPage extends State<SearchTextPage> {
 
                   if (state is SearchTextAndImageLoaded) {
                     final data = state.data;
+                    String copyTextData =
+                        data.toString() + (question!.isNotEmpty? question! : repeatQuestion);
 
+                    final params = {
+                      "text": copyTextData,
+                    };
                     return SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(question ?? ""),
+                          Text((question!.isNotEmpty? question! : repeatQuestion)),
                           if (all.isNotEmpty)
                             Column(
                                 children: List.generate(all.length, (index) {
                               return Image.memory(all[index]);
                             })),
-                      
                           Space().height(context, 0.02),
                           Text(data.toString()),
-                          IconButton(
-                                  icon: const Icon(Icons.copy),
-                                  onPressed: () async {
-                                    searchBloc.copyText({"text": data});
-                                  }),
+                          ButtonsBelowResult(
+                            onCopy: () async {
+                              searchBloc.copyText(params);
+                            },
+                            onRetry: () {
+                              repeatQuestion = question!;
+                              searchBloc.add(SearchTextEvent(
+                                  params: {"text": repeatQuestion}));
+                            },
+                          ),
+                         
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -436,11 +467,12 @@ class _SearchTextPage extends State<SearchTextPage> {
                   }
                   if (state is SearchTextLoaded) {
                     final data = state.data.content.parts[0].text;
+                    String copyTextData =
+                        data.toString() + (question!.isNotEmpty? question! : repeatQuestion);
+
                     final params = {
-                      "text": data,
+                      "text": copyTextData,
                     };
-                    // final dataDeduct = data.length;
-                    //print(dataDeduct);
                     return SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -448,20 +480,23 @@ class _SearchTextPage extends State<SearchTextPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Text(question ?? ""),
-                              
+                              Text(question ?? repeatQuestion),
                             ],
                           ),
                           Space().height(context, 0.02),
                           Text(
                             data.toString(),
                           ),
-                           IconButton(
-                                  icon:const Icon(Icons.copy),
-                                  onPressed: () async {
-                                    searchBloc.copyText(params);
-                                  })
-                        ,
+                          ButtonsBelowResult(
+                            onCopy: () async {
+                              searchBloc.copyText(params);
+                            },
+                            onRetry: () {
+                              repeatQuestion = question!;
+                              searchBloc.add(SearchTextEvent(
+                                  params: {"text": repeatQuestion}));
+                            },
+                          ),
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -481,11 +516,18 @@ class _SearchTextPage extends State<SearchTextPage> {
                           //   ,
                           Space().height(context, 0.02),
                           Text(data.textData),
-                           IconButton(
-                                  icon:const Icon(Icons.copy),
-                                  onPressed: () async {
-                                    searchBloc.copyText({"text": data});
-                                  }),
+                          ButtonsBelowResult(
+                            onCopy: () async {
+                              searchBloc.copyText({"text": data.textData});
+                            },
+                            onRetry: () {
+                              //: TODO add type of event to database
+                               repeatQuestion = question!;
+                              searchBloc.add(SearchTextEvent(
+                                  params: {"text": repeatQuestion}));
+                            },
+                          ),
+
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -501,7 +543,7 @@ class _SearchTextPage extends State<SearchTextPage> {
       drawer: Drawer(
         child: Column(
           children: [
-            Space().height(context, 0.15),
+            Space().height(context, 0.07),
             SearchTypeWidget(
               color: type == 1 ? Colors.lightBlueAccent : Colors.black,
               icon: Icons.stream,
@@ -532,9 +574,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                 isTextImage = false;
                 Navigator.pop(context);
                 setState(() {});
-                await searchBloc
-                    .readData()
-                    .then((value) => print(value?[0].textData));
               },
               label: "Chat with bot",
             ),
@@ -552,30 +591,34 @@ class _SearchTextPage extends State<SearchTextPage> {
             const Divider(
               thickness: 2,
             ),
-            const Text("History",
-                style: TextStyle(decoration: TextDecoration.underline)),
+            const Center(
+              child: Text("History",
+                  style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w500,
+                      decoration: TextDecoration.underline)),
+            ),
             BlocConsumer(
-                bloc: searchBloc2,
-                builder: (context, state) {
+              bloc: searchBloc2,
+              builder: (context, state) {
+                if (state is ReadDataLoading) {
+                  //  print("dd");
+                  return const HistoryShimmer();
+                }
 
-                  
-                  if(state is ReadDataLoading){
-                    return const Center(child: CircularProgressIndicator(),);
-                  }
-
-                  if(state is ReadDataLoaded){
-                  final response= state.data;
-                 return Flexible(
+                if (state is ReadDataLoaded) {
+                  final response = state.data;
+                  //print(response);
+                  return Flexible(
                     child: ListView.builder(
                       reverse: true,
-                      itemCount: response!.isEmpty ? 0 : response.length ,
+                      itemCount: response!.isEmpty ? 0 : response.length,
                       itemBuilder: (context, index) {
                         final datas = response[index];
-                        return TextButton(
-                          style: const ButtonStyle(
-                              foregroundColor:
-                                  MaterialStatePropertyAll(Colors.black)),
-                          onPressed: () {
+
+                        //: TODO make widget slider to delete
+                        return GestureDetector(
+                          onTap: () {
                             final params = {
                               "textData": datas.textData,
                               "textTopic": datas.textTopic,
@@ -588,19 +631,29 @@ class _SearchTextPage extends State<SearchTextPage> {
                             );
                             Navigator.pop(context);
                           },
-                          child: Text(datas.textTopic),
+                          child: Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: Sizes().height(context, 0.01),
+                                horizontal: Sizes().width(context, 0.02),
+                              ),
+                              child: Center(
+                                  child: Text(
+                                      style: const TextStyle(
+                                          fontSize: 16, letterSpacing: 1.2),
+                                      datas.textTopic))),
                         );
                       },
                     ),
                   );
-                  }
-                  return const SizedBox();
-                }, listener: (BuildContext context, Object? state) { 
-                  if(state is ReadDataError){
-                     showErrorSnackbar(context, state.errorMessage);
-
-                  }
-                 },)
+                }
+                return const SizedBox();
+              },
+              listener: (BuildContext context, Object? state) {
+                if (state is ReadDataError) {
+                  showErrorSnackbar(context, state.errorMessage);
+                }
+              },
+            )
           ],
         ),
       ),

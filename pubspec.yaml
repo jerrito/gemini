@@ -46,6 +46,8 @@ dependencies:
   google_generative_ai: ^0.2.2
   floor: ^1.4.2
   sqflite: ^2.3.2
+  shimmer: ^3.0.0
+  lottie: ^3.1.0
   
 
 dev_dependencies:
@@ -91,10 +93,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: Kodchasan
+      fonts:
+        - asset: lib/assets/fonts/Kodchasan-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
