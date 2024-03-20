@@ -9,6 +9,9 @@ abstract class TextDao {
   // @Query("SELECT * FROM TextEntity WHERE textId= :textId")
   // Stream<TextEntity?> getTextData();
 
+  @delete
+  Future<void> deleteData(TextEntity textEntity);
+
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertData(TextEntity textEntity);
 }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/widgets/usecase/usecase.dart';
@@ -10,7 +9,6 @@ import 'package:gemini/src/search_text/domain/usecase/generate_content.dart';
 import 'package:gemini/src/search_text/domain/usecase/read_sql_data.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
-import 'package:gemini/src/sql_database/database/text_database.dart';
 import 'package:gemini/src/sql_database/entities/text.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:gemini/main.dart';
@@ -88,11 +86,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               //     print(chunk.text);
               //   }
               response.listen((event) {
-                print(event.text);
+                // print(event.text);
                 controller.add(event.text!);
               });
               return GenerateContentLoaded(
-                  data: response.first.then((value) => print(value.text)));
+                  data: response
+                  .first.then((value) => value.text));
             },
           );
         },
@@ -149,6 +148,16 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     return await personDao?.insertData(textEntity);
     // final result = await personDao.getTextData();
+  }
+
+  Future deleteData(Map<String,dynamic> params)async{
+    final textDao=database?.textDao;
+    final textEntity=TextEntity(
+        textId: params["textId"],
+        textTopic: params["textTopic"],
+        textData: params["textData"]);
+
+    return await textDao?.deleteData(textEntity);
   }
 
   Future<List<TextEntity>?> readData() async {

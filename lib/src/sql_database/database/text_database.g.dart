@@ -112,6 +112,16 @@ class _$TextDao extends TextDao {
                   'textTopic': item.textTopic,
                   'textData': item.textData,
                   'imageData': item.imageData
+                }),
+        _textEntityDeletionAdapter = DeletionAdapter(
+            database,
+            'TextEntity',
+            ['textId'],
+            (TextEntity item) => <String, Object?>{
+                  'textId': item.textId,
+                  'textTopic': item.textTopic,
+                  'textData': item.textData,
+                  'imageData': item.imageData
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -121,6 +131,8 @@ class _$TextDao extends TextDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<TextEntity> _textEntityInsertionAdapter;
+
+  final DeletionAdapter<TextEntity> _textEntityDeletionAdapter;
 
   @override
   Future<List<TextEntity>> getAllTextData() async {
@@ -136,5 +148,10 @@ class _$TextDao extends TextDao {
   Future<void> insertData(TextEntity textEntity) async {
     await _textEntityInsertionAdapter.insert(
         textEntity, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> deleteData(TextEntity textEntity) async {
+    await _textEntityDeletionAdapter.delete(textEntity);
   }
 }

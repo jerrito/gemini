@@ -1,5 +1,5 @@
 import "dart:async";
-import "dart:convert";
+
 
 import "package:flutter_gemini/flutter_gemini.dart";
 import "package:gemini/core/api/api_key.dart";
@@ -45,8 +45,6 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
       imageParts
           .add(ai.DataPart('image/${params["ext"][i]}', params["image"][i]));
     }
-
-    print(imageParts.length);
     final response = await model.generateContent([
       ai.Content.multi([prompt, ...imageParts])
     ]);
@@ -76,10 +74,11 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   @override
   Future chat(Map<String, dynamic> params) async {
     return await gemini.chat(
+      modelName:"models/gemini-pro",
       [
         Content(parts: [
           Parts(
-            text: params["chats"],
+            text: params["text"],
           ),
         ], role: 'user'),
       ],
