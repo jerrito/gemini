@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gemini/assets/animations/animations.dart';
 import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/core/widgets/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/usecase/usecase.dart';
@@ -16,6 +17,7 @@ import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
 import 'package:gemini/src/sql_database/entities/text.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:lottie/lottie.dart';
 
 class SearchTextPage extends StatefulWidget {
   const SearchTextPage({super.key});
@@ -71,7 +73,7 @@ class _SearchTextPage extends State<SearchTextPage> {
         child: bottomSheetTextfield(
           validator: (value) {
             if (value?.isEmpty ?? true) {
-              return "Field is required";
+              return "";
             }
             if (isTextImage) {
               if (all.isEmpty) {
@@ -191,6 +193,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   }),
                 );
 
+                //TODO: chec val
                 controller.text = dataGet["text"];
 
                 if (form.currentState?.validate() == true) {
@@ -224,6 +227,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                       "textTopic":
                           (question!.isNotEmpty ? question! : repeatQuestion),
                       "textData": data,
+                      "dateTime": DateTime.now().toString(),
+                      "eventType": 4,
                     };
                     searchBloc.addData(params);
                   }
@@ -240,6 +245,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                       "textTopic":
                           (question!.isNotEmpty ? question! : repeatQuestion),
                       "textData": data,
+                      "dateTime": DateTime.now().toString(),
+                      "eventType": 3,
                     };
                     searchBloc.addData(params);
                   }
@@ -256,6 +263,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                       "textTopic":
                           (question!.isNotEmpty ? question! : repeatQuestion),
                       "textData": joinedSnapInfo,
+                      "dateTime": DateTime.now().toString(),
+                      "eventType": 1,
                     };
                     searchBloc.addData(params);
                   }
@@ -263,6 +272,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   if (state is SearchTextAndImageLoaded) {
                     final newId = await searchBloc.readData();
                     final data = state.data;
+                    print(all[0]);
                     final params = {
                       "textId":
                           newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
@@ -270,6 +280,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                           (question!.isNotEmpty ? question! : repeatQuestion),
                       "textData": data,
                       "imageData": all[0],
+                      "dateTime": DateTime.now().toString(),
+                      "eventType": 2,
                     };
                     searchBloc.addData(params);
                   }
@@ -303,12 +315,16 @@ class _SearchTextPage extends State<SearchTextPage> {
                   if (state is SearchTextAndImageLoading ||
                       state is SearchTextLoading ||
                       state is ChatLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
+                    return Center(
+                      child: Lottie.asset(
+                        aiJson,
+                      ),
                     );
                   }
                   if (state is GenerateStream) {
                     final params = {"text": question};
+
+                    //TODO: Check network
 
                     return StreamBuilder(
                         stream: searchBloc.generateStream(params),
@@ -316,8 +332,10 @@ class _SearchTextPage extends State<SearchTextPage> {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             snapInfo.clear();
-                            return const Center(
-                              child: CircularProgressIndicator(),
+                            return Center(
+                              child: Lottie.asset(
+                                aiJson,
+                              ),
                             );
                           }
 
@@ -332,9 +350,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text((question!.isNotEmpty
+                                  Text(question!.isNotEmpty
                                       ? question!
-                                      : repeatQuestion)),
+                                      : repeatQuestion),
                                   Space().height(context, 0.02),
                                   Text(data.toString()),
                                   Space().height(context, 0.03),
@@ -367,8 +385,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                         });
                   }
                   if (state is GenerateStreamStop) {
-                    String copyTextData = joinedSnapInfo +
-                        (question!.isNotEmpty ? question! : repeatQuestion);
+                    String copyTextData =
+                        (question!.isNotEmpty ? question! : repeatQuestion) +
+                            joinedSnapInfo;
 
                     final params = {
                       "text": copyTextData,
@@ -385,24 +404,27 @@ class _SearchTextPage extends State<SearchTextPage> {
                             },
                           ),
                         ),
-                        ButtonsBelowResult(
-                          onCopy: () async {
-                            searchBloc.copyText(params);
-                          },
-                          onRetry: () {
-                            repeatQuestion = question!;
-                            searchBloc.add(SearchTextEvent(
-                                params: {"text": repeatQuestion}));
-                          },
-                        ),
+                        ButtonsBelowResult(onCopy: () async {
+                          searchBloc.copyText(params);
+                        }, onRetry: () {
+                          repeatQuestion = question!;
+                          searchBloc.add(SearchTextEvent(
+                              params: {"text": repeatQuestion}));
+                        }, onShare: () async {
+                          await Share.share((question!.isNotEmpty
+                                  ? question!
+                                  : repeatQuestion) +
+                              joinedSnapInfo);
+                        }),
                         Space().height(context, 0.1),
                       ],
                     );
                   }
                   if (state is ChatLoaded) {
                     final data = state.data.content.parts.last.text;
-                    String copyTextData = data.toString() +
-                        (question!.isNotEmpty ? question! : repeatQuestion);
+                    String copyTextData =
+                        (question!.isNotEmpty ? question! : repeatQuestion) +
+                            data.toString();
 
                     final params = {
                       "text": copyTextData,
@@ -416,16 +438,18 @@ class _SearchTextPage extends State<SearchTextPage> {
                               : repeatQuestion),
                           Space().height(context, 0.02),
                           Text(data),
-                          ButtonsBelowResult(
-                            onCopy: () async {
-                              searchBloc.copyText(params);
-                            },
-                            onRetry: () {
-                              repeatQuestion = question!;
-                              searchBloc.add(SearchTextEvent(
-                                  params: {"text": repeatQuestion}));
-                            },
-                          ),
+                          ButtonsBelowResult(onCopy: () async {
+                            searchBloc.copyText(params);
+                          }, onRetry: () {
+                            repeatQuestion = question!;
+                            searchBloc.add(SearchTextEvent(
+                                params: {"text": repeatQuestion}));
+                          }, onShare: () async {
+                            await Share.share((question!.isNotEmpty
+                                    ? question!
+                                    : repeatQuestion) +
+                                data);
+                          }),
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -454,16 +478,18 @@ class _SearchTextPage extends State<SearchTextPage> {
                             })),
                           Space().height(context, 0.02),
                           Text(data.toString()),
-                          ButtonsBelowResult(
-                            onCopy: () async {
-                              searchBloc.copyText(params);
-                            },
-                            onRetry: () {
-                              repeatQuestion = question!;
-                              searchBloc.add(SearchTextEvent(
-                                  params: {"text": repeatQuestion}));
-                            },
-                          ),
+                          ButtonsBelowResult(onCopy: () async {
+                            searchBloc.copyText(params);
+                          }, onRetry: () {
+                            repeatQuestion = question!;
+                            searchBloc.add(SearchTextEvent(
+                                params: {"text": repeatQuestion}));
+                          }, onShare: () async {
+                            await Share.share((question!.isNotEmpty
+                                    ? question!
+                                    : repeatQuestion) +
+                                data);
+                          }),
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -471,8 +497,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                   }
                   if (state is SearchTextLoaded) {
                     final data = state.data.content.parts[0].text;
-                    String copyTextData = data.toString() +
-                        (question!.isNotEmpty ? question! : repeatQuestion);
+                    String copyTextData =
+                        (question!.isNotEmpty ? question! : repeatQuestion) +
+                            data.toString();
 
                     final params = {
                       "text": copyTextData,
@@ -481,28 +508,22 @@ class _SearchTextPage extends State<SearchTextPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(question!.isNotEmpty
-                                  ? question!
-                                  : repeatQuestion),
-                            ],
-                          ),
+                          Text(question!.isNotEmpty
+                              ? question!
+                              : repeatQuestion),
                           Space().height(context, 0.02),
                           Text(
                             data.toString(),
                           ),
-                          ButtonsBelowResult(
-                            onCopy: () async {
-                              searchBloc.copyText(params);
-                            },
-                            onRetry: () {
-                              repeatQuestion = question!;
-                              searchBloc.add(SearchTextEvent(
-                                  params: {"text": repeatQuestion}));
-                            },
-                          ),
+                          ButtonsBelowResult(onCopy: () async {
+                            searchBloc.copyText(params);
+                          }, onRetry: () {
+                            repeatQuestion = question!;
+                            searchBloc.add(SearchTextEvent(
+                                params: {"text": repeatQuestion}));
+                          }, onShare: () async {
+                            await Share.share(copyTextData);
+                          }),
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -510,6 +531,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                   }
                   if (state is ReadDataDetailsLoaded) {
                     final data = state.textEntity;
+                    print(data?.imageData);
+                    print(data?.eventType);
+                    print(data?.dateTime);
 
                     return SingleChildScrollView(
                       child: Column(
@@ -517,23 +541,19 @@ class _SearchTextPage extends State<SearchTextPage> {
                         children: [
                           Text(data!.textTopic),
                           Space().height(context, 0.02),
-                          //  if (data.imageData!.isNotEmpty)
-                          //   Image.memory(data.imageData!)
-                          //   ,
+                          if (data.imageData != null)
+                            Image.memory(data.imageData!),
                           Space().height(context, 0.02),
                           Text(data.textData),
-                          ButtonsBelowResult(
-                            onCopy: () async {
-                              searchBloc.copyText({"text": data.textData});
-                            },
-                            onRetry: () {
-                              //: TODO add type of event to database
-                              repeatQuestion = question!;
-                              searchBloc.add(SearchTextEvent(
-                                  params: {"text": repeatQuestion}));
-                            },
-                          ),
-
+                          ButtonsBelowResult(onCopy: () async {
+                            searchBloc.copyText({"text": data.textData});
+                          }, onRetry: () {
+                            repeatQuestion = question!;
+                            searchBloc.add(SearchTextEvent(
+                                params: {"text": repeatQuestion}));
+                          }, onShare: () async {
+                            await Share.share(data.textTopic + data.textData);
+                          }),
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -630,129 +650,145 @@ class _SearchTextPage extends State<SearchTextPage> {
 
                 if (state is ReadDataLoaded) {
                   final response = state.data;
-                  //print(response);
-                  //TODO: show no history animation
-                  return Flexible(
-                    child: ListView.builder(
-                      //reverse: true,
-                      itemCount: response!.isEmpty ? 0 : response.length,
-                      itemBuilder: (contedeleteDataxt, index) {
-                        final datas = response[index];
-                        final params = {
-                          "textId": datas.textId,
-                          "textTopic": datas.textTopic,
-                          "textData": datas.textData,
-                          "imageData": datas.imageData,
-                        };
-                        // TODO: make widget slider to delete
-                        return Slidable(
-                          // Specify a key if the Slidable is dismissible.
-                          key: const ValueKey(0),
-                          startActionPane: ActionPane(
-                            // A motion is a widget used to control how the pane animates.
-                            motion: const ScrollMotion(),
-
-                            // A pane can dismiss the Slidable.
-                            // dismissible: DismissiblePane(onDismissed: () {}),
-
-                            // All actions are defined in the children parameter.
-                            children: [
-                              // A SlidableAction can have an icon and/or a label.
-                              SlidableAction(
-                                // An action can be bigger than the others.
-                                flex: 1,
-                                onPressed: (context) async{
-                                   await  Share.share(datas.textTopic+datas.textData);
-                                if (!context.mounted) return;
-                                  Navigator.pop(context);
-                                },
-                                backgroundColor:
-                                    const Color.fromARGB(255, 73, 229, 6),
-                                foregroundColor: Colors.white,
-                                icon: Icons.share,
-                                label: 'Share',
-                              ),
-                              SlidableAction(
-                                onPressed: (context) async {
-                                  await searchBloc2.deleteData(params);
-                                  if (!context.mounted) return;
-                                  Navigator.pop(context);
-                                },
-                                backgroundColor:
-                                    const Color.fromARGB(255, 222, 11, 11),
-                                foregroundColor:
-                                    const Color.fromRGBO(255, 255, 255, 1),
-                                icon: Icons.delete,
-                                label: 'Delete',
-                              ),
-                            ],
-                          ),
-
-                          // The end action pane is the one at the right or the bottom side.
-                          endActionPane: ActionPane(
-                            motion: const ScrollMotion(),
-                            children: [
-                              SlidableAction(
-                                // An action can be bigger than the others.
-                                flex: 1,
-                                onPressed: (context)  await  Share.share(datas.textTopic+datas.textData);
-                                if (!context.mounted) return;
-                                  Navigator.pop(context);async{
-                                await  Share.share(datas.textTopic+datas.textData);
-                                if (!context.mounted) return;
-                                  Navigator.pop(context);
-                                },
-                                backgroundColor:
-                                    const Color.fromARGB(255, 73, 229, 6),
-                                foregroundColor: Colors.white,
-                                icon: Icons.share,
-                                label: 'Share',
-                              ),
-                              SlidableAction(
-                                // An action can be bigger than the others.
-                                flex: 1,
-                                onPressed: (context) async {
-                                  await searchBloc2.deleteData(params);
-                                  if (!context.mounted) return;
-                                  Navigator.pop(context);
-                                },
-                                backgroundColor:
-                                    const Color.fromARGB(255, 229, 6, 6),
-                                foregroundColor: Colors.white,
-                                icon: Icons.delete_forever,
-                                label: 'Delete',
-                              ),
-                            ],
-                          ),
-                          child: GestureDetector(
-                            onTap: () {
+                  return response!.isEmpty
+                      ? Lottie.asset(historyJson)
+                      : Flexible(
+                          child: ListView.builder(
+                            reverse: true,
+                            shrinkWrap: true,
+                            itemCount: response.isEmpty ? 0 : response.length,
+                            itemBuilder: (contedeleteDataxt, index) {
+                              final datas = response[index];
+                              print(datas.eventType);
+                              print(datas.textId);
+                              print(datas.dateTime);
                               final params = {
-                                "textData": datas.textData,
-                                "textTopic": datas.textTopic,
                                 "textId": datas.textId,
-                                //"image": datas?.imageData,
-                                // "images": imageLength,
+                                "textTopic": datas.textTopic,
+                                "textData": datas.textData,
+                                "imageData": datas.imageData,
+                                "eventType": datas.eventType,
+                                "dateTime": datas.dateTime,
                               };
-                              searchBloc.add(
-                                ReadDataDetailsEvent(params: params),
-                              );
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: Sizes().height(context, 0.015),
-                                  horizontal: Sizes().width(context, 0.02),
+                              return Slidable(
+                                // Specify a key if the Slidable is dismissible.
+                                key: const ValueKey(0),
+                                startActionPane: ActionPane(
+                                  // A motion is a widget used to control how the pane animates.
+                                  motion: const ScrollMotion(),
+
+                                  // A pane can dismiss the Slidable.
+                                  // dismissible: DismissiblePane(onDismissed: () {}),
+
+                                  // All actions are defined in the children parameter.
+                                  children: [
+                                    // A SlidableAction can have an icon and/or a label.
+                                    SlidableAction(
+                                      // An action can be bigger than the others.
+                                      flex: 1,
+                                      onPressed: (context) async {
+                                        await Share.share(
+                                            datas.textTopic + datas.textData);
+                                        if (!context.mounted) return;
+                                        Navigator.pop(context);
+                                      },
+                                      backgroundColor:
+                                          const Color.fromARGB(255, 73, 229, 6),
+                                      foregroundColor: Colors.white,
+                                      icon: Icons.share,
+                                      label: 'Share',
+                                    ),
+                                    SlidableAction(
+                                      onPressed: (context) async {
+                                        await searchBloc2.deleteData(params);
+                                        if (!context.mounted) return;
+                                        Navigator.pop(context);
+                                      },
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 222, 11, 11),
+                                      foregroundColor: const Color.fromRGBO(
+                                          255, 255, 255, 1),
+                                      icon: Icons.delete,
+                                      label: 'Delete',
+                                    ),
+                                  ],
                                 ),
-                                child: Center(
-                                    child: Text(
-                                        style: const TextStyle(
-                                            fontSize: 16, letterSpacing: 1.2),
-                                        datas.textTopic))),
+
+                                // The end action pane is the one at the right or the bottom side.
+                                endActionPane: ActionPane(
+                                  motion: const ScrollMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      // An action can be bigger than the others.
+                                      flex: 1,
+                                      onPressed: (context) async {
+                                        await Share.share(
+                                            datas.textTopic + datas.textData);
+                                        if (!context.mounted) return;
+                                        Navigator.pop(context);
+                                      },
+                                      backgroundColor:
+                                          const Color.fromARGB(255, 73, 229, 6),
+                                      foregroundColor: Colors.white,
+                                      icon: Icons.share,
+                                      label: 'Share',
+                                    ),
+                                    SlidableAction(
+                                      // An action can be bigger than the others.
+                                      flex: 1,
+                                      onPressed: (context) async {
+                                        await searchBloc2.deleteData(params);
+                                        if (!context.mounted) return;
+                                        Navigator.pop(context);
+                                      },
+                                      backgroundColor:
+                                          const Color.fromARGB(255, 229, 6, 6),
+                                      foregroundColor: Colors.white,
+                                      icon: Icons.delete_forever,
+                                      label: 'Delete',
+                                    ),
+                                  ],
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    
+                                    searchBloc.add(
+                                      ReadDataDetailsEvent(params: params),
+                                    );
+                                    Navigator.pop(context);
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: Sizes().height(context, 0.005),
+                                      horizontal: Sizes().width(context, 0.02),
+                                    ),
+                                    child: Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                                Sizes().height(context, 0.01)),
+                                            color:
+                                                Theme.of(context).brightness ==
+                                                        Brightness.dark
+                                                    ? Colors.black
+                                                    : Colors.black12),
+                                        padding: EdgeInsets.symmetric(
+                                          vertical:
+                                              Sizes().height(context, 0.015),
+                                          horizontal:
+                                              Sizes().width(context, 0.02),
+                                        ),
+                                        child: Center(
+                                            child: Text(
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    letterSpacing: 1.2),
+                                                datas.textTopic))),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         );
-                      },
-                    ),
-                  );
                 }
                 return const SizedBox();
               },

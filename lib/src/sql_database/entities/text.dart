@@ -9,12 +9,17 @@ class TextEntity {
 
   final String textTopic, textData;
 
+  final int? eventType;
+
+  final String? dateTime;
+
   final Uint8List? imageData;
 
-  const TextEntity({
-    required this.textId,
-    required this.textTopic,
-    required this.textData,
-    this.imageData,
-  });
+  const TextEntity(
+      {required this.textId,
+      required this.textTopic,
+      required this.textData,
+      this.imageData,
+      this.dateTime,
+      this.eventType});
 }

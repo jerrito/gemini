@@ -1,6 +1,5 @@
 import "dart:async";
 
-
 import "package:flutter_gemini/flutter_gemini.dart";
 import "package:gemini/core/api/api_key.dart";
 import "package:gemini/core/widgets/network_info.dart/network_info.dart";
@@ -63,10 +62,11 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
     ]);
 
     yield* response.asBroadcastStream();
+   
 
     // else{
     // throw ai.GenerativeAIException(
-    //   "Invalid input"
+    //    await response.first.then((value) => value.promptFeedback!.blockReasonMessage);
     // );
     // }
   }
@@ -74,7 +74,7 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   @override
   Future chat(Map<String, dynamic> params) async {
     return await gemini.chat(
-      modelName:"models/gemini-pro",
+      modelName: "models/gemini-pro",
       [
         Content(parts: [
           Parts(

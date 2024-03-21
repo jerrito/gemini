@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+// ignore_for_file: library_private_types_in_public_api
+
 part of 'text_database.dart';
 
 // **************************************************************************
@@ -85,7 +87,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TextEntity` (`textId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `textTopic` TEXT NOT NULL, `textData` TEXT NOT NULL, `imageData` BLOB)');
+            'CREATE TABLE IF NOT EXISTS `TextEntity` (`textId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `textTopic` TEXT NOT NULL, `textData` TEXT NOT NULL, `eventType` INTEGER, `dateTime` TEXT, `imageData` BLOB)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -111,6 +113,8 @@ class _$TextDao extends TextDao {
                   'textId': item.textId,
                   'textTopic': item.textTopic,
                   'textData': item.textData,
+                  'eventType': item.eventType,
+                  'dateTime': item.dateTime,
                   'imageData': item.imageData
                 }),
         _textEntityDeletionAdapter = DeletionAdapter(
@@ -121,6 +125,8 @@ class _$TextDao extends TextDao {
                   'textId': item.textId,
                   'textTopic': item.textTopic,
                   'textData': item.textData,
+                  'eventType': item.eventType,
+                  'dateTime': item.dateTime,
                   'imageData': item.imageData
                 });
 
@@ -141,7 +147,9 @@ class _$TextDao extends TextDao {
             textId: row['textId'] as int,
             textTopic: row['textTopic'] as String,
             textData: row['textData'] as String,
-            imageData: row['imageData'] as Uint8List?));
+            imageData: row['imageData'] as Uint8List?,
+            dateTime: row['dateTime'] as String?,
+            eventType: row['eventType'] as int?));
   }
 
   @override
