@@ -61,11 +61,15 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
           //label: Text(label!),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-            borderSide: const BorderSide(color: Colors.black26),
+            borderSide:  BorderSide(color: Theme.of(context).brightness ==Brightness.dark
+                          ? Colors.white
+                          : Colors.black,),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-            borderSide: const BorderSide(color: Colors.black26),
+            borderSide:  BorderSide(color: Theme.of(context).brightness ==Brightness.dark
+                          ? Colors.white
+                          : Colors.black,),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
