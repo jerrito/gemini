@@ -11,9 +11,10 @@ import 'package:gemini/locator.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
 import 'package:gemini/src/search_text/presentation/widgets/buttons_below.dart';
 import 'package:gemini/src/search_text/presentation/widgets/history_shimmer.dart';
-import 'package:gemini/src/search_text/presentation/widgets/search_image_type.dart';
+import 'package:gemini/src/search_text/presentation/pages/confirm_image_with_text.dart';
 import 'package:gemini/src/search_text/presentation/widgets/search_type.dart';
 import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
+import 'package:gemini/src/search_text/presentation/widgets/slidable_action.dart';
 import 'package:gemini/src/sql_database/entities/text.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:share_plus/share_plus.dart';
@@ -186,27 +187,27 @@ class _SearchTextPage extends State<SearchTextPage> {
                 final dataGet = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) {
-                    return SearchimageTextfield(
+                    return ConfirmImageWithTextPage(
                       all: all,
                       textData: controller.text,
                     );
                   }),
                 );
 
-                //TODO: chec val
-                controller.text = dataGet["text"];
-
-                if (form.currentState?.validate() == true) {
-                  searchBloc.add(
-                    SearchTextAndImageEvent(
-                      params: {
-                        "text": controller.text,
-                        "ext": imageExtensions,
-                        "image": all,
-                        "images": imageLength,
-                      },
-                    ),
-                  );
+                if (dataGet != null) {
+                  controller.text = dataGet["text"];
+                  if (form.currentState?.validate() == true) {
+                    searchBloc.add(
+                      SearchTextAndImageEvent(
+                        params: {
+                          "text": controller.text,
+                          "ext": imageExtensions,
+                          "image": all,
+                          "images": imageLength,
+                        },
+                      ),
+                    );
+                  }
                 }
               }
               if (state is AddMultipleImageLoading) {
@@ -253,7 +254,7 @@ class _SearchTextPage extends State<SearchTextPage> {
 
                   if (state is GenerateStreamStop) {
                     all.clear();
-
+                    if(snapInfo.isNotEmpty){
                     final newId = await searchBloc.readData();
                     joinedSnapInfo = snapInfo.join("");
 
@@ -267,12 +268,12 @@ class _SearchTextPage extends State<SearchTextPage> {
                       "eventType": 1,
                     };
                     searchBloc.addData(params);
+                    }
                   }
 
                   if (state is SearchTextAndImageLoaded) {
                     final newId = await searchBloc.readData();
                     final data = state.data;
-                    print(all[0]);
                     final params = {
                       "textId":
                           newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
@@ -345,6 +346,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           }
                           if (snapshot.hasError) {
                             final data = snapshot.error;
+                            print(data);
 
                             return SingleChildScrollView(
                               child: Column(
@@ -385,6 +387,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                         });
                   }
                   if (state is GenerateStreamStop) {
+                    print("done");
                     String copyTextData =
                         (question!.isNotEmpty ? question! : repeatQuestion) +
                             joinedSnapInfo;
@@ -392,7 +395,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                     final params = {
                       "text": copyTextData,
                     };
-                    return Column(
+                  if(snapInfo.isEmpty){
+                  return const Text("No internet");}
+                  else{  return Column(
                       children: [
                         Text(question!.isNotEmpty ? question! : repeatQuestion),
                         Flexible(
@@ -419,6 +424,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                         Space().height(context, 0.1),
                       ],
                     );
+                    }
                   }
                   if (state is ChatLoaded) {
                     final data = state.data.content.parts.last.text;
@@ -531,10 +537,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                   }
                   if (state is ReadDataDetailsLoaded) {
                     final data = state.textEntity;
-                    print(data?.imageData);
-                    print(data?.eventType);
-                    print(data?.dateTime);
-
                     return SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,7 +550,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           ButtonsBelowResult(onCopy: () async {
                             searchBloc.copyText({"text": data.textData});
                           }, onRetry: () {
-                            repeatQuestion = question!;
+                            repeatQuestion = data.textTopic;
                             searchBloc.add(SearchTextEvent(
                                 params: {"text": repeatQuestion}));
                           }, onShare: () async {
@@ -657,11 +659,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                             reverse: true,
                             shrinkWrap: true,
                             itemCount: response.isEmpty ? 0 : response.length,
-                            itemBuilder: (contedeleteDataxt, index) {
+                            itemBuilder: (context, index) {
                               final datas = response[index];
-                              print(datas.eventType);
-                              print(datas.textId);
-                              print(datas.dateTime);
                               final params = {
                                 "textId": datas.textId,
                                 "textTopic": datas.textTopic,
@@ -683,33 +682,23 @@ class _SearchTextPage extends State<SearchTextPage> {
                                   // All actions are defined in the children parameter.
                                   children: [
                                     // A SlidableAction can have an icon and/or a label.
-                                    SlidableAction(
-                                      // An action can be bigger than the others.
-                                      flex: 1,
+                                    SlidableActionWidget(
                                       onPressed: (context) async {
                                         await Share.share(
                                             datas.textTopic + datas.textData);
                                         if (!context.mounted) return;
                                         Navigator.pop(context);
                                       },
-                                      backgroundColor:
-                                          const Color.fromARGB(255, 73, 229, 6),
-                                      foregroundColor: Colors.white,
-                                      icon: Icons.share,
-                                      label: 'Share',
+                                      isDeleteButton: false,
                                     ),
-                                    SlidableAction(
+
+                                    SlidableActionWidget(
                                       onPressed: (context) async {
                                         await searchBloc2.deleteData(params);
                                         if (!context.mounted) return;
                                         Navigator.pop(context);
                                       },
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 222, 11, 11),
-                                      foregroundColor: const Color.fromRGBO(
-                                          255, 255, 255, 1),
-                                      icon: Icons.delete,
-                                      label: 'Delete',
+                                      isDeleteButton: true,
                                     ),
                                   ],
                                 ),
@@ -718,40 +707,27 @@ class _SearchTextPage extends State<SearchTextPage> {
                                 endActionPane: ActionPane(
                                   motion: const ScrollMotion(),
                                   children: [
-                                    SlidableAction(
-                                      // An action can be bigger than the others.
-                                      flex: 1,
+                                    SlidableActionWidget(
                                       onPressed: (context) async {
                                         await Share.share(
                                             datas.textTopic + datas.textData);
                                         if (!context.mounted) return;
                                         Navigator.pop(context);
                                       },
-                                      backgroundColor:
-                                          const Color.fromARGB(255, 73, 229, 6),
-                                      foregroundColor: Colors.white,
-                                      icon: Icons.share,
-                                      label: 'Share',
+                                      isDeleteButton: false,
                                     ),
-                                    SlidableAction(
-                                      // An action can be bigger than the others.
-                                      flex: 1,
+                                    SlidableActionWidget(
                                       onPressed: (context) async {
                                         await searchBloc2.deleteData(params);
                                         if (!context.mounted) return;
                                         Navigator.pop(context);
                                       },
-                                      backgroundColor:
-                                          const Color.fromARGB(255, 229, 6, 6),
-                                      foregroundColor: Colors.white,
-                                      icon: Icons.delete_forever,
-                                      label: 'Delete',
+                                      isDeleteButton: true,
                                     ),
                                   ],
                                 ),
                                 child: GestureDetector(
                                   onTap: () {
-                                    
                                     searchBloc.add(
                                       ReadDataDetailsEvent(params: params),
                                     );

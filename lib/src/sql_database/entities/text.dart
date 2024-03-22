@@ -19,7 +19,7 @@ class TextEntity {
       {required this.textId,
       required this.textTopic,
       required this.textData,
-      this.imageData,
-      this.dateTime,
-      this.eventType});
+      required this.imageData,
+      required this.dateTime,
+      required this.eventType});
 }

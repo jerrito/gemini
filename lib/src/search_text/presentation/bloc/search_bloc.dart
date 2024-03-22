@@ -144,7 +144,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     final textEntity = TextEntity(
         textId: params["textId"],
         textTopic: params["textTopic"],
-        textData: params["textData"]);
+        textData: params["textData"],
+        imageData: params["imageData"],
+        dateTime: params["dateTime"],
+        eventType: params["eventType"],
+        );
 
     return await personDao?.insertData(textEntity);
     // final result = await personDao.getTextData();
@@ -155,7 +159,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     final textEntity=TextEntity(
         textId: params["textId"],
         textTopic: params["textTopic"],
-        textData: params["textData"]);
+        textData: params["textData"],
+        imageData: params["imageData"],
+        dateTime: params["dateTime"],
+        eventType: params["eventType"],
+        );
 
     return await textDao?.deleteData(textEntity);
   }
@@ -169,7 +177,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     final textData = TextEntity(
         textId: params["textId"],
         textTopic: params["textTopic"],
-        textData: params["textData"]);
+        textData: params["textData"],
+        imageData: params["imageData"],
+        dateTime: params["dateTime"],
+        eventType: params["eventType"],
+        );
     return textData;
   }
 

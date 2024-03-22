@@ -7,42 +7,55 @@ import 'package:gemini/core/widgets/widgets/bottom_sheet.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
 
-class SearchimageTextfield extends StatefulWidget {
+class ConfirmImageWithTextPage extends StatefulWidget {
   final List<Uint8List> all;
   final String? textData;
-  const SearchimageTextfield({super.key, required this.all, this.textData});
+  const ConfirmImageWithTextPage({super.key, required this.all, this.textData});
 
   @override
-  State<SearchimageTextfield> createState() => _SearchimageTextfieldState();
+  State<ConfirmImageWithTextPage> createState() =>
+      _ConfirmImageWithTextPageState();
 }
 
-class _SearchimageTextfieldState extends State<SearchimageTextfield> {
+class _ConfirmImageWithTextPageState extends State<ConfirmImageWithTextPage> {
   final controller = TextEditingController();
   final searchBloc = sl<SearchBloc>();
+  final form = GlobalKey<FormState>();
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
-  controller.text=widget.textData ?? ""; 
-   }
+    controller.text = widget.textData ?? "";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomSheet: bottomSheetTextfield(
-          controller: controller,
-          hintText: "Add a caption",
-          context: context,
-          onTap: () {},
-          onPressed: () {
-            Map<String, dynamic> paramsWithImage = {
-              "text": controller.text,
-              "images": widget.all
-            };
-            // searchBloc.add(SearchTextAndImageEvent(
-            //   params: paramsWithImage,
-            // ));
-            Navigator.pop(context, paramsWithImage);
-          },
-          isTextAndImage: false),
+    //  key: form,
+      bottomSheet: Form(
+        key:form,
+        child: bottomSheetTextfield(
+            controller: controller,
+            hintText: "Add a caption",
+            context: context,
+            validator: (value) {
+              if (value?.isEmpty ?? true) {
+                return "";
+              }
+              return null;
+            },
+            onTap: () {},
+            onPressed: () {
+              if (form.currentState?.validate() == true) {
+                Map<String, dynamic> paramsWithImage = {
+                  "text": controller.text,
+                  "images": widget.all
+                };
+                Navigator.pop(context, paramsWithImage);
+              }
+            },
+            isTextAndImage: false),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
