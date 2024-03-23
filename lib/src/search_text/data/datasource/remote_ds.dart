@@ -16,16 +16,22 @@ abstract class SearchRemoteDatasource {
 class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   final NetworkInfo networkInfo;
   final gemini = Gemini.instance;
+  final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
 
   SearchRemoteDatasourceImpl({required this.networkInfo});
 
   @override
   Future searchText(Map<String, dynamic> params) async {
-    return await gemini.text(params["text"], safetySettings: [
-      SafetySetting(
-          category: SafetyCategory.hateSpeech,
-          threshold: SafetyThreshold.blockOnlyHigh)
-    ]);
+    final content = [ai.Content.text(params["text"])];
+
+    final response = await model.generateContent(content);
+    return response.text;
+
+    // gemini.text(params["text"], safetySettings: [
+    //   SafetySetting(
+    //       category: SafetyCategory.hateSpeech,
+    //       threshold: SafetyThreshold.blockOnlyHigh)
+    // ]);
   }
 
   @override
@@ -53,7 +59,6 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   @override
   Stream<ai.GenerateContentResponse> generateContent(
       Map<String, dynamic> params) async* {
-    final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
     final content = [ai.Content.text(params["text"])];
 
     final response = model.generateContentStream(content, safetySettings: [
@@ -62,7 +67,6 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
     ]);
 
     yield* response.asBroadcastStream();
-   
 
     // else{
     // throw ai.GenerativeAIException(
@@ -73,15 +77,21 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
 
   @override
   Future chat(Map<String, dynamic> params) async {
-    return await gemini.chat(
-      modelName: "models/gemini-pro",
-      [
-        Content(parts: [
-          Parts(
-            text: params["text"],
-          ),
-        ], role: 'user'),
-      ],
-    );
+    final content = ai.Content.text(params["text"]);
+    final chat = model.startChat();
+
+    final response = await chat.sendMessage(content);
+    return response.text;
+
+    // return await gemini.chat(
+    //   modelName: "models/gemini-pro",
+    //   [
+    //     Content(parts: [
+    //       Parts(
+    //         text: params["text"],
+    //       ),
+    //     ], role: 'user'),
+    //   ],
+    // );
   }
 }

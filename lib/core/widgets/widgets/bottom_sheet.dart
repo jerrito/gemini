@@ -2,47 +2,55 @@ import 'package:flutter/material.dart';
 import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/core/widgets/widgets/default_textfield.dart';
 
+class BottomSheetTextfield extends StatefulWidget {
+  final void Function()? onTap;
+  final void Function()? onPressed;
+  final void Function(String?)? onChanged;
+  final String? Function(String?)? validator;
+  final TextEditingController? controller;
+  final String? hintText;
+  final String? errorText;
+  final bool isTextAndImage;
+  const BottomSheetTextfield({
+    super.key,
+    this.onTap,
+    this.onPressed,
+    this.onChanged,
+    this.validator,
+    this.controller,
+    this.hintText,
+    this.errorText,
+    required this.isTextAndImage,
+  });
 
-Widget bottomSheetTextfield({
-  required BuildContext context,
-  required void Function()? onTap,
-  required void Function()? onPressed,
-   void Function(String?)? onChanged,
-   String? Function(String?)? validator,
-  TextEditingController? controller, 
-  String? hintText,
-  String? errorText,
-required  bool isTextAndImage
-}) {
-  return Container(
-    color: Theme.of(context).brightness !=Brightness.dark
-                          ? Colors.white
-                          : Colors.black,
-    padding: EdgeInsets.symmetric(
-     // horizontal: Sizes().width(context, 0.02),
-      vertical: Sizes().width(context, 0.02),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        SizedBox(
-          width: Sizes().width(context, 0.75),
-          child: DefaultTextfield(
-            validator: validator,
-            errorText:errorText ,
-            onChanged: onChanged,
-            controller: controller,
-            hintText:hintText ?? "Message Jerrito Gemini powered AI",
-           onTap: onTap,
-            isTextAndImage: isTextAndImage,
+  @override
+  State<BottomSheetTextfield> createState() => _BottomSheetTextFieldState();
+}
 
-          ),
+class _BottomSheetTextFieldState extends State<BottomSheetTextfield> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).brightness != Brightness.dark
+          ? Colors.white
+          : Colors.black,
+      padding: EdgeInsets.symmetric(
+        horizontal: Sizes().width(context, 0.02),
+        vertical: Sizes().width(context, 0.025),
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: DefaultTextfield(
+          validator: widget.validator,
+          errorText: widget.errorText,
+          onChanged: widget.onChanged,
+          controller: widget.controller,
+          hintText: widget.hintText ?? "Message Jerrito Gemini powered AI",
+          onTap: widget.onTap,
+          isTextAndImage: widget.isTextAndImage,
+          onPressed: widget.onPressed,
         ),
-
-        IconButton(
-          onPressed:onPressed,
-         icon:const Icon( Icons.send))
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }

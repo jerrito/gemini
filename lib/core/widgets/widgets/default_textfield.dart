@@ -8,6 +8,7 @@ class DefaultTextfield extends StatefulWidget {
   final void Function(String?)? onChanged;
   final String? Function(String?)? validator;
   final void Function()? onTap;
+  final void Function()? onPressed;
   final TextEditingController? controller;
   final String? hintText, initialValue, errorText, label;
   final double? height;
@@ -27,6 +28,7 @@ class DefaultTextfield extends StatefulWidget {
     this.enabled,
     required this.isTextAndImage,
     this.onTap,
+    this.onPressed,
     this.validator,
   });
 
@@ -48,10 +50,17 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
         controller: widget.controller,
         onChanged: widget.onChanged,
         decoration: InputDecoration(
-          suffixIcon: widget.isTextAndImage
+         
+          prefixIcon: widget.isTextAndImage
               ? IconButton(
-                  icon: const Icon(Icons.file_upload), onPressed: widget.onTap)
+                  icon: const Icon(Icons.file_upload,size:28), onPressed: widget.onTap)
               : const SizedBox(),
+          suffixIcon: IconButton(
+              onPressed: widget.onPressed,
+              icon: const Icon(
+                Icons.send,
+                size: 28,
+              )),
           isDense: true,
           errorText: widget.errorText,
           contentPadding:
@@ -61,22 +70,31 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
           //label: Text(label!),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-            borderSide:  BorderSide(color: Theme.of(context).brightness ==Brightness.dark
-                          ? Colors.white
-                          : Colors.black,),
+            borderSide: BorderSide(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-            borderSide:  BorderSide(color: Theme.of(context).brightness ==Brightness.dark
-                          ? Colors.white
-                          : Colors.black,),
+            borderSide: BorderSide(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+            ),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-            borderSide: const BorderSide(color: Colors.red),
+            borderSide:  BorderSide(color:Theme.of(context).brightness==Brightness.dark?Colors.white: Colors.black),
           ),
-        ),
-      ),
+        
+        focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
+            borderSide:  BorderSide(color:Theme.of(context).brightness==Brightness.dark?Colors.white: Colors.black),
+          ),
+        )),
+      
     );
   }
 }

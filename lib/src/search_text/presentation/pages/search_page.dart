@@ -7,6 +7,7 @@ import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/core/widgets/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/core/widgets/widgets/bottom_sheet.dart';
+import 'package:gemini/core/widgets/widgets/default_button.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
 import 'package:gemini/src/search_text/presentation/widgets/buttons_below.dart';
@@ -43,11 +44,14 @@ class _SearchTextPage extends State<SearchTextPage> {
   String repeatQuestion = "";
   String name = "";
   String joinedSnapInfo = "";
+  String initText = "";
   final controller = TextEditingController();
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  bool isAvailble = false;
   @override
   void initState() {
     super.initState();
+    initText = controller.text;
   }
 
   List<TextEntity>? data = [];
@@ -71,7 +75,7 @@ class _SearchTextPage extends State<SearchTextPage> {
       ),
       bottomSheet: Form(
         key: form,
-        child: bottomSheetTextfield(
+        child: BottomSheetTextfield(
           validator: (value) {
             if (value?.isEmpty ?? true) {
               return "";
@@ -85,69 +89,71 @@ class _SearchTextPage extends State<SearchTextPage> {
           },
           // errorText: FormFieldValidator.toString(),
           onChanged: (value) {
-            //  field.didChange(value);
-
-            // data = value!;
+            if (value!.isNotEmpty) {
+              isAvailble = false;
+            }
+            initText = value;
           },
           controller: controller,
-          context: context,
-          onPressed: () {
-            if (form.currentState?.validate() == true &&
-                controller.text.isNotEmpty) {
-              Map<String, dynamic> params = {
-                "text": controller.text,
-              };
-              Map<String, dynamic> paramsWithImage = {
-                "text": controller.text,
-                "images": all
-              };
-              switch (type) {
-                case 4:
-                  searchBloc.add(
-                    SearchTextEvent(
-                      params: params,
-                    ),
-                  );
-                  break;
+          onPressed: isAvailble
+              ? null
+              : () {
+                  if (form.currentState?.validate() == true &&
+                      controller.text.isNotEmpty) {
+                    Map<String, dynamic> params = {
+                      "text": controller.text,
+                    };
+                    Map<String, dynamic> paramsWithImage = {
+                      "text": controller.text,
+                      "images": all
+                    };
+                    switch (type) {
+                      case 4:
+                        searchBloc.add(
+                          SearchTextEvent(
+                            params: params,
+                          ),
+                        );
+                        break;
 
-                case 2:
-                  searchBloc.add(
-                    ChatEvent(
-                      params: params,
-                    ),
-                  );
-                  break;
+                      case 2:
+                        searchBloc.add(
+                          ChatEvent(
+                            params: params,
+                          ),
+                        );
+                        break;
 
-                case 3:
-                  searchBloc.add(
-                    SearchTextAndImageEvent(
-                      params: paramsWithImage,
-                    ),
-                  );
-                  break;
-                case 1:
-                  searchBloc.add(
-                    GenerateStreamEvent(
-                      params: params,
-                    ),
-                  );
-                  break;
-                case 5:
-                  searchBloc.add(
-                    GenerateContentEvent(
-                      params: params,
-                    ),
-                  );
-                default:
-                  searchBloc.add(
-                    GenerateStreamEvent(
-                      params: params,
-                    ),
-                  );
-                  break;
-              }
-            }
-          },
+                      case 3:
+                        searchBloc.add(
+                          SearchTextAndImageEvent(
+                            params: paramsWithImage,
+                          ),
+                        );
+                        break;
+                      case 1:
+                        searchBloc.add(
+                          GenerateStreamEvent(
+                            params: params,
+                          ),
+                        );
+                        break;
+                      case 5:
+                        searchBloc.add(
+                          GenerateContentEvent(
+                            params: params,
+                          ),
+                        );
+                      default:
+                        searchBloc.add(
+                          GenerateStreamEvent(
+                            params: params,
+                          ),
+                        );
+                        break;
+                    }
+                  }
+                },
 
           onTap: () {
             searchBloc2.add(AddMultipleImageEvent(
@@ -254,20 +260,20 @@ class _SearchTextPage extends State<SearchTextPage> {
 
                   if (state is GenerateStreamStop) {
                     all.clear();
-                    if(snapInfo.isNotEmpty){
-                    final newId = await searchBloc.readData();
-                    joinedSnapInfo = snapInfo.join("");
+                    if (snapInfo.isNotEmpty) {
+                      final newId = await searchBloc.readData();
+                      joinedSnapInfo = snapInfo.join("");
 
-                    final params = {
-                      "textId":
-                          newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                      "textTopic":
-                          (question!.isNotEmpty ? question! : repeatQuestion),
-                      "textData": joinedSnapInfo,
-                      "dateTime": DateTime.now().toString(),
-                      "eventType": 1,
-                    };
-                    searchBloc.addData(params);
+                      final params = {
+                        "textId":
+                            newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
+                        "textTopic":
+                            (question!.isNotEmpty ? question! : repeatQuestion),
+                        "textData": joinedSnapInfo,
+                        "dateTime": DateTime.now().toString(),
+                        "eventType": 1,
+                      };
+                      searchBloc.addData(params);
                     }
                   }
 
@@ -325,8 +331,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                   if (state is GenerateStream) {
                     final params = {"text": question};
 
-                    //TODO: Check network
-
                     return StreamBuilder(
                         stream: searchBloc.generateStream(params),
                         builder: (context, snapshot) {
@@ -345,22 +349,21 @@ class _SearchTextPage extends State<SearchTextPage> {
                             searchBloc.add(GenerateStreamStopEvent());
                           }
                           if (snapshot.hasError) {
-                            final data = snapshot.error;
-                            print(data);
+                            // final data = snapshot.error;
 
-                            return SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(question!.isNotEmpty
-                                      ? question!
-                                      : repeatQuestion),
-                                  Space().height(context, 0.02),
-                                  Text(data.toString()),
-                                  Space().height(context, 0.03),
-                                ],
-                              ),
-                            );
+                            // return SingleChildScrollView(
+                            //   child: Column(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     children: [
+                            //       Text(question!.isNotEmpty
+                            //           ? question!
+                            //           : repeatQuestion),
+                            //       Space().height(context, 0.02),
+                            //       Text(data.toString()),
+                            //       Space().height(context, 0.03),
+                            //     ],
+                            //   ),
+                            // );
                           }
                           if (snapshot.hasData) {
                             final data = snapshot.data?.text ??
@@ -387,7 +390,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                         });
                   }
                   if (state is GenerateStreamStop) {
-                    print("done");
                     String copyTextData =
                         (question!.isNotEmpty ? question! : repeatQuestion) +
                             joinedSnapInfo;
@@ -395,39 +397,65 @@ class _SearchTextPage extends State<SearchTextPage> {
                     final params = {
                       "text": copyTextData,
                     };
-                  if(snapInfo.isEmpty){
-                  return const Text("No internet");}
-                  else{  return Column(
-                      children: [
-                        Text(question!.isNotEmpty ? question! : repeatQuestion),
-                        Flexible(
-                          child: ListView.builder(
-                            itemCount: snapInfo.length,
-                            itemBuilder: (context, index) {
-                              final dataFromSnap = snapInfo[index];
-                              return Text(dataFromSnap);
-                            },
+                    if (snapInfo.isEmpty) {
+                      return Column(
+                        children: [
+                          Lottie.asset(noJson),
+                          Space().height(context, 0.02),
+                          const Text("No internet / Invalid request",
+                          style:TextStyle(fontSize:18,color:Colors.red)),
+           Space().height(context, 0.05),
+                          DefaultButton(
+                              label: "Retry",
+                              onTap: () {
+                                final param = {
+                                  "text": (question!.isNotEmpty
+                                      ? question!
+                                      : repeatQuestion),
+                                };
+                                searchBloc.add(
+                                  GenerateStreamEvent(
+                                    params: param,
+                                  ),
+                                );
+                              })
+                        ],
+                      );
+                    } else {
+                      return Column(
+                        children: [
+                          Text(question!.isNotEmpty
+                              ? question!
+                              : repeatQuestion, style:const TextStyle(fontSize: 16,
+                          decorationStyle: TextDecorationStyle.solid)),
+                          Flexible(
+                            child: ListView.builder(
+                              itemCount: snapInfo.length,
+                              itemBuilder: (context, index) {
+                                final dataFromSnap = snapInfo[index];
+                                return Text(dataFromSnap);
+                              },
+                            ),
                           ),
-                        ),
-                        ButtonsBelowResult(onCopy: () async {
-                          searchBloc.copyText(params);
-                        }, onRetry: () {
-                          repeatQuestion = question!;
-                          searchBloc.add(SearchTextEvent(
-                              params: {"text": repeatQuestion}));
-                        }, onShare: () async {
-                          await Share.share((question!.isNotEmpty
-                                  ? question!
-                                  : repeatQuestion) +
-                              joinedSnapInfo);
-                        }),
-                        Space().height(context, 0.1),
-                      ],
-                    );
+                          ButtonsBelowResult(onCopy: () async {
+                            searchBloc.copyText(params);
+                          }, onRetry: () {
+                            repeatQuestion = question!;
+                            searchBloc.add(SearchTextEvent(
+                                params: {"text": repeatQuestion}));
+                          }, onShare: () async {
+                            await Share.share((question!.isNotEmpty
+                                    ? question!
+                                    : repeatQuestion) +
+                                joinedSnapInfo);
+                          }),
+                          Space().height(context, 0.1),
+                        ],
+                      );
                     }
                   }
                   if (state is ChatLoaded) {
-                    final data = state.data.content.parts.last.text;
+                    final data = state.data;
                     String copyTextData =
                         (question!.isNotEmpty ? question! : repeatQuestion) +
                             data.toString();
@@ -441,9 +469,10 @@ class _SearchTextPage extends State<SearchTextPage> {
                         children: [
                           Text(question!.isNotEmpty
                               ? question!
-                              : repeatQuestion),
+                              : repeatQuestion, style:const TextStyle(fontSize: 16,
+                          decorationStyle: TextDecorationStyle.solid)),
                           Space().height(context, 0.02),
-                          Text(data),
+                          Text(data.toString()),
                           ButtonsBelowResult(onCopy: () async {
                             searchBloc.copyText(params);
                           }, onRetry: () {
@@ -476,7 +505,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                         children: [
                           Text((question!.isNotEmpty
                               ? question!
-                              : repeatQuestion)),
+                              : repeatQuestion), style:const TextStyle(fontSize: 16,
+                          decorationStyle: TextDecorationStyle.solid)),
                           if (all.isNotEmpty)
                             Column(
                                 children: List.generate(all.length, (index) {
@@ -502,7 +532,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     );
                   }
                   if (state is SearchTextLoaded) {
-                    final data = state.data.content.parts[0].text;
+                    final data = state.data;
                     String copyTextData =
                         (question!.isNotEmpty ? question! : repeatQuestion) +
                             data.toString();
@@ -516,7 +546,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                         children: [
                           Text(question!.isNotEmpty
                               ? question!
-                              : repeatQuestion),
+                              : repeatQuestion, style:const TextStyle(fontSize: 16,
+                          decorationStyle: TextDecorationStyle.solid)),
                           Space().height(context, 0.02),
                           Text(
                             data.toString(),
@@ -541,7 +572,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(data!.textTopic),
+                          Text(data!.textTopic, style:const TextStyle(fontSize: 16,
+                          decorationStyle: TextDecorationStyle.solid)),
                           Space().height(context, 0.02),
                           if (data.imageData != null)
                             Image.memory(data.imageData!),
@@ -551,6 +583,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                             searchBloc.copyText({"text": data.textData});
                           }, onRetry: () {
                             repeatQuestion = data.textTopic;
+                            //TODO: solve multiple repeat question
                             searchBloc.add(SearchTextEvent(
                                 params: {"text": repeatQuestion}));
                           }, onShare: () async {
@@ -561,10 +594,21 @@ class _SearchTextPage extends State<SearchTextPage> {
                       ),
                     );
                   }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Center(child: Text(info))],
+                  return SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Space().height(context, 0.1),
+                        SizedBox(
+                            // height: S,
+                            child: Lottie.asset(ai2Json)),
+                        Space().height(context, 0.05),
+                        Center(
+                          child: Text(info, style:const TextStyle(fontSize: 16)),
+                        ),
+                      ],
+                    ),
                   );
                 })),
       ),
@@ -657,7 +701,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                       : Flexible(
                           child: ListView.builder(
                             reverse: true,
-                            shrinkWrap: true,
+                            shrinkWrap: response.length > 7 ? false : true,
                             itemCount: response.isEmpty ? 0 : response.length,
                             itemBuilder: (context, index) {
                               final datas = response[index];

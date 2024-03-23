@@ -12,6 +12,10 @@ class DefaultButton extends StatelessWidget {
       width: double.infinity,
       height: Sizes().height(context, 0.05),
       child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white
+        ),
         onPressed: onTap,
         child: Text(label!),
       ),

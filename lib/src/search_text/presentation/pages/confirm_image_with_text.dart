@@ -34,10 +34,9 @@ class _ConfirmImageWithTextPageState extends State<ConfirmImageWithTextPage> {
     //  key: form,
       bottomSheet: Form(
         key:form,
-        child: bottomSheetTextfield(
+        child: BottomSheetTextfield(
             controller: controller,
             hintText: "Add a caption",
-            context: context,
             validator: (value) {
               if (value?.isEmpty ?? true) {
                 return "";
