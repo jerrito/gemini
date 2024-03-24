@@ -227,7 +227,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     all.clear();
 
                     final newId = await searchBloc.readData();
-                    final data = state.data.content.parts[0].text;
+                    final data = state.data;
                     final params = {
                       "textId":
                           newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
@@ -245,7 +245,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     all.clear();
 
                     final newId = await searchBloc.readData();
-                    final data = state.data.content.parts[0].text;
+                    final data = state.data;
                     final params = {
                       "textId":
                           newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
@@ -403,8 +403,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                           Lottie.asset(noJson),
                           Space().height(context, 0.02),
                           const Text("No internet / Invalid request",
-                          style:TextStyle(fontSize:18,color:Colors.red)),
-           Space().height(context, 0.05),
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.red)),
+                          Space().height(context, 0.05),
                           DefaultButton(
                               label: "Retry",
                               onTap: () {
@@ -424,10 +425,11 @@ class _SearchTextPage extends State<SearchTextPage> {
                     } else {
                       return Column(
                         children: [
-                          Text(question!.isNotEmpty
-                              ? question!
-                              : repeatQuestion, style:const TextStyle(fontSize: 16,
-                          decorationStyle: TextDecorationStyle.solid)),
+                          Text(
+                              question!.isNotEmpty ? question! : repeatQuestion,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  decorationStyle: TextDecorationStyle.solid)),
                           Flexible(
                             child: ListView.builder(
                               itemCount: snapInfo.length,
@@ -437,18 +439,17 @@ class _SearchTextPage extends State<SearchTextPage> {
                               },
                             ),
                           ),
-                          ButtonsBelowResult(onCopy: () async {
-                            searchBloc.copyText(params);
-                          }, onRetry: () {
-                            repeatQuestion = question!;
-                            searchBloc.add(SearchTextEvent(
-                                params: {"text": repeatQuestion}));
-                          }, onShare: () async {
-                            await Share.share((question!.isNotEmpty
-                                    ? question!
-                                    : repeatQuestion) +
-                                joinedSnapInfo);
-                          }),
+                          ButtonsBelowResult(
+                              onCopy: () async {
+                                searchBloc.copyText(params);
+                              },
+                              onRetry: null,
+                              onShare: () async {
+                                await Share.share((question!.isNotEmpty
+                                        ? question!
+                                        : repeatQuestion) +
+                                    joinedSnapInfo);
+                              }),
                           Space().height(context, 0.1),
                         ],
                       );
@@ -465,20 +466,20 @@ class _SearchTextPage extends State<SearchTextPage> {
                     };
                     return SingleChildScrollView(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(question!.isNotEmpty
-                              ? question!
-                              : repeatQuestion, style:const TextStyle(fontSize: 16,
-                          decorationStyle: TextDecorationStyle.solid)),
+                          Text(
+                              question!.isNotEmpty ? question! : repeatQuestion,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  decorationStyle: TextDecorationStyle.solid)),
                           Space().height(context, 0.02),
-                          Text(data.toString()),
+                          Text(data),
                           ButtonsBelowResult(onCopy: () async {
                             searchBloc.copyText(params);
                           }, onRetry: () {
                             repeatQuestion = question!;
-                            searchBloc.add(SearchTextEvent(
-                                params: {"text": repeatQuestion}));
+                            searchBloc.add(
+                                ChatEvent(params: {"text": repeatQuestion}));
                           }, onShare: () async {
                             await Share.share((question!.isNotEmpty
                                     ? question!
@@ -501,12 +502,14 @@ class _SearchTextPage extends State<SearchTextPage> {
                     };
                     return SingleChildScrollView(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text((question!.isNotEmpty
-                              ? question!
-                              : repeatQuestion), style:const TextStyle(fontSize: 16,
-                          decorationStyle: TextDecorationStyle.solid)),
+                          Text(
+                              (question!.isNotEmpty
+                                  ? question!
+                                  : repeatQuestion),
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  decorationStyle: TextDecorationStyle.solid)),
                           if (all.isNotEmpty)
                             Column(
                                 children: List.generate(all.length, (index) {
@@ -514,18 +517,17 @@ class _SearchTextPage extends State<SearchTextPage> {
                             })),
                           Space().height(context, 0.02),
                           Text(data.toString()),
-                          ButtonsBelowResult(onCopy: () async {
-                            searchBloc.copyText(params);
-                          }, onRetry: () {
-                            repeatQuestion = question!;
-                            searchBloc.add(SearchTextEvent(
-                                params: {"text": repeatQuestion}));
-                          }, onShare: () async {
-                            await Share.share((question!.isNotEmpty
-                                    ? question!
-                                    : repeatQuestion) +
-                                data);
-                          }),
+                          ButtonsBelowResult(
+                              onCopy: () async {
+                                searchBloc.copyText(params);
+                              },
+                              onRetry: null,
+                              onShare: () async {
+                                await Share.share((question!.isNotEmpty
+                                        ? question!
+                                        : repeatQuestion) +
+                                    data);
+                              }),
                           Space().height(context, 0.1),
                         ],
                       ),
@@ -542,15 +544,15 @@ class _SearchTextPage extends State<SearchTextPage> {
                     };
                     return SingleChildScrollView(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(question!.isNotEmpty
-                              ? question!
-                              : repeatQuestion, style:const TextStyle(fontSize: 16,
-                          decorationStyle: TextDecorationStyle.solid)),
+                          Text(
+                              question!.isNotEmpty ? question! : repeatQuestion,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  decorationStyle: TextDecorationStyle.solid)),
                           Space().height(context, 0.02),
                           Text(
-                            data.toString(),
+                            data,
                           ),
                           ButtonsBelowResult(onCopy: () async {
                             searchBloc.copyText(params);
@@ -570,10 +572,11 @@ class _SearchTextPage extends State<SearchTextPage> {
                     final data = state.textEntity;
                     return SingleChildScrollView(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(data!.textTopic, style:const TextStyle(fontSize: 16,
-                          decorationStyle: TextDecorationStyle.solid)),
+                          Text(data!.textTopic,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  decorationStyle: TextDecorationStyle.solid)),
                           Space().height(context, 0.02),
                           if (data.imageData != null)
                             Image.memory(data.imageData!),
@@ -581,11 +584,28 @@ class _SearchTextPage extends State<SearchTextPage> {
                           Text(data.textData),
                           ButtonsBelowResult(onCopy: () async {
                             searchBloc.copyText({"text": data.textData});
-                          }, onRetry: () {
+                          }, onRetry:data.eventType==2 || data.eventType==1? null: () {
                             repeatQuestion = data.textTopic;
-                            //TODO: solve multiple repeat question
-                            searchBloc.add(SearchTextEvent(
-                                params: {"text": repeatQuestion}));
+                            switch (data.eventType) {
+                            
+                              case 3:
+                                searchBloc.add(
+                                  ChatEvent(params: {"text": repeatQuestion}),
+                                );
+                                break;
+                              case 4:
+                                searchBloc.add(
+                                  SearchTextEvent(
+                                      params: {"text": repeatQuestion}),
+                                );
+                                break;
+                              default:
+                                searchBloc.add(
+                                  GenerateStreamEvent(
+                                      params: {"text": repeatQuestion}),
+                                );
+                                break;
+                            }
                           }, onShare: () async {
                             await Share.share(data.textTopic + data.textData);
                           }),
@@ -605,7 +625,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                             child: Lottie.asset(ai2Json)),
                         Space().height(context, 0.05),
                         Center(
-                          child: Text(info, style:const TextStyle(fontSize: 16)),
+                          child:
+                              Text(info, style: const TextStyle(fontSize: 16)),
                         ),
                       ],
                     ),
@@ -666,9 +687,10 @@ class _SearchTextPage extends State<SearchTextPage> {
                   ? Colors.lightBlueAccent
                   : Theme.of(context).brightness == Brightness.dark
                       ? Colors.white
-                      : Colors.black,
+                      : const Color.fromRGBO(0, 0, 0, 1),
               icon: Icons.text_format,
               onPressed: () {
+                // Provider.
                 type = 4;
                 isTextImage = false;
                 Navigator.pop(context);

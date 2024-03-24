@@ -1,6 +1,4 @@
 import "dart:async";
-
-import "package:flutter_gemini/flutter_gemini.dart";
 import "package:gemini/core/api/api_key.dart";
 import "package:gemini/core/widgets/network_info.dart/network_info.dart";
 import "package:google_generative_ai/google_generative_ai.dart" as ai;
@@ -15,7 +13,6 @@ abstract class SearchRemoteDatasource {
 
 class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
   final NetworkInfo networkInfo;
-  final gemini = Gemini.instance;
   final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
 
   SearchRemoteDatasourceImpl({required this.networkInfo});
@@ -25,13 +22,9 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
     final content = [ai.Content.text(params["text"])];
 
     final response = await model.generateContent(content);
-    return response.text;
+    return  response.text;
 
-    // gemini.text(params["text"], safetySettings: [
-    //   SafetySetting(
-    //       category: SafetyCategory.hateSpeech,
-    //       threshold: SafetyThreshold.blockOnlyHigh)
-    // ]);
+ 
   }
 
   @override

@@ -7,7 +7,7 @@ class SearchInitState extends SearchState {}
 class SearchTextLoading extends SearchState {}
 
 class SearchTextLoaded extends SearchState {
-  final dynamic data;
+  final String data;
   SearchTextLoaded({required this.data});
 }
 
@@ -19,7 +19,7 @@ class SearchTextError extends SearchState {
 class ChatLoading extends SearchState {}
 
 class ChatLoaded extends SearchState {
-  final dynamic data;
+  final String data;
   ChatLoaded({required this.data});
 }
 

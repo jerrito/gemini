@@ -27,9 +27,9 @@ class SearchRepositoryImpl implements SearchRepository {
           return const Left("Invalid request");
         }
 
-        if (response.content == null || response.content.parts[0] == null) {
-          return const Left("Invalid request");
-        }
+        // if (response.content == null || response.content.parts[0] == null) {
+        //   return const Left("Invalid request");
+        // }
         return Right(response);
       } catch (e) {
         return Left(e.toString());
@@ -94,9 +94,9 @@ class SearchRepositoryImpl implements SearchRepository {
         if (response == null) {
           return const Left("Invalid request");
         }
-        if (response.content == null || response.content.parts[0] == null) {
-          return const Left("Invalid request");
-        }
+        // if (response.content == null || response.content.parts[0] == null) {
+        //   return const Left("Invalid request");
+        // }
         return Right(response);
       } catch (e) {
         return Left(e.toString());

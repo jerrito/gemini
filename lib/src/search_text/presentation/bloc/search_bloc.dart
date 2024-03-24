@@ -38,8 +38,14 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
       final response = await searchText.call(event.params);
 
-      emit(response.fold((error) => SearchTextError(errorMessage: error),
-          (response) => SearchTextLoaded(data: response)));
+      emit(
+        response.fold(
+          (error) => SearchTextError(errorMessage: error),
+          (response) => SearchTextLoaded(
+            data: response.toString(),
+          ),
+        ),
+      );
     });
 
     on<SearchTextAndImageEvent>((event, emit) async {
@@ -90,8 +96,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
                 controller.add(event.text!);
               });
               return GenerateContentLoaded(
-                  data: response
-                  .first.then((value) => value.text));
+                  data: response.first.then((value) => value.text));
             },
           );
         },
@@ -113,7 +118,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       emit(
         response.fold(
           (error) => ChatError(errorMessage: error),
-          (response) => ChatLoaded(data: response),
+          (response) => ChatLoaded(data: response.toString()),
         ),
       );
     });
@@ -142,28 +147,28 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   Future addData(Map<String, dynamic> params) async {
     final personDao = database?.textDao;
     final textEntity = TextEntity(
-        textId: params["textId"],
-        textTopic: params["textTopic"],
-        textData: params["textData"],
-        imageData: params["imageData"],
-        dateTime: params["dateTime"],
-        eventType: params["eventType"],
-        );
+      textId: params["textId"],
+      textTopic: params["textTopic"],
+      textData: params["textData"],
+      imageData: params["imageData"],
+      dateTime: params["dateTime"],
+      eventType: params["eventType"],
+    );
 
     return await personDao?.insertData(textEntity);
     // final result = await personDao.getTextData();
   }
 
-  Future deleteData(Map<String,dynamic> params)async{
-    final textDao=database?.textDao;
-    final textEntity=TextEntity(
-        textId: params["textId"],
-        textTopic: params["textTopic"],
-        textData: params["textData"],
-        imageData: params["imageData"],
-        dateTime: params["dateTime"],
-        eventType: params["eventType"],
-        );
+  Future deleteData(Map<String, dynamic> params) async {
+    final textDao = database?.textDao;
+    final textEntity = TextEntity(
+      textId: params["textId"],
+      textTopic: params["textTopic"],
+      textData: params["textData"],
+      imageData: params["imageData"],
+      dateTime: params["dateTime"],
+      eventType: params["eventType"],
+    );
 
     return await textDao?.deleteData(textEntity);
   }
@@ -175,13 +180,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   TextEntity? readDataDetails(Map<String, dynamic> params) {
     final textData = TextEntity(
-        textId: params["textId"],
-        textTopic: params["textTopic"],
-        textData: params["textData"],
-        imageData: params["imageData"],
-        dateTime: params["dateTime"],
-        eventType: params["eventType"],
-        );
+      textId: params["textId"],
+      textTopic: params["textTopic"],
+      textData: params["textData"],
+      imageData: params["imageData"],
+      dateTime: params["dateTime"],
+      eventType: params["eventType"],
+    );
     return textData;
   }
 
