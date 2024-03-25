@@ -56,11 +56,14 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
                   icon: const Icon(Icons.file_upload,size:28), onPressed: widget.onTap)
               : const SizedBox(),
           suffixIcon: IconButton(
-              onPressed: widget.onPressed,
-              icon: const Icon(
-                Icons.send,
-                size: 28,
-              )),
+                onPressed: widget.onPressed,
+                icon: const Icon(
+                  Icons.send,
+                  size: 28,
+                )),
+
+                errorStyle:null,
+          
           isDense: true,
           errorText: widget.errorText,
           contentPadding:
