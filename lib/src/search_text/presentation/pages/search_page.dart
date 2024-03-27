@@ -18,6 +18,7 @@ import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
 import 'package:gemini/src/search_text/presentation/widgets/slidable_action.dart';
 import 'package:gemini/src/sql_database/entities/text.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:lottie/lottie.dart';
 
@@ -398,6 +399,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                       "text": copyTextData,
                     };
                     if (snapInfo.isEmpty) {
+                      //TODO: seperate error from no internet
+                     // GenerativeAIException(); 10ff.net edclub keybr
+                     
                       return Column(
                         children: [
                           Lottie.asset(noJson),
@@ -582,33 +586,43 @@ class _SearchTextPage extends State<SearchTextPage> {
                             Image.memory(data.imageData!),
                           Space().height(context, 0.02),
                           Text(data.textData),
-                          ButtonsBelowResult(onCopy: () async {
-                            searchBloc.copyText({"text": data.textData});
-                          }, onRetry:data.eventType==2 || data.eventType==1? null: () {
-                            repeatQuestion = data.textTopic;
-                            switch (data.eventType) {
-                            
-                              case 3:
-                                searchBloc.add(
-                                  ChatEvent(params: {"text": repeatQuestion}),
-                                );
-                                break;
-                              case 4:
-                                searchBloc.add(
-                                  SearchTextEvent(
-                                      params: {"text": repeatQuestion}),
-                                );
-                                break;
-                              default:
-                                searchBloc.add(
-                                  GenerateStreamEvent(
-                                      params: {"text": repeatQuestion}),
-                                );
-                                break;
-                            }
-                          }, onShare: () async {
-                            await Share.share(data.textTopic + data.textData);
-                          }),
+                          ButtonsBelowResult(
+                              onCopy: () async {
+                                searchBloc.copyText({"text": data.textData});
+                              },
+                              onRetry:
+                                  data.eventType == 2 || data.eventType == 1
+                                      ? null
+                                      : () {
+                                          repeatQuestion = data.textTopic;
+                                          switch (data.eventType) {
+                                            case 3:
+                                              searchBloc.add(
+                                                ChatEvent(params: {
+                                                  "text": repeatQuestion
+                                                }),
+                                              );
+                                              break;
+                                            case 4:
+                                              searchBloc.add(
+                                                SearchTextEvent(params: {
+                                                  "text": repeatQuestion
+                                                }),
+                                              );
+                                              break;
+                                            default:
+                                              searchBloc.add(
+                                                GenerateStreamEvent(params: {
+                                                  "text": repeatQuestion
+                                                }),
+                                              );
+                                              break;
+                                          }
+                                        },
+                              onShare: () async {
+                                await Share.share(
+                                    data.textTopic + data.textData);
+                              }),
                           Space().height(context, 0.1),
                         ],
                       ),
