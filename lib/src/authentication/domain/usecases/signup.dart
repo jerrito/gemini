@@ -3,6 +3,7 @@ import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/src/authentication/domain/entities/user.dart';
 
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
+
 class Signup extends UseCases<User, Map<String, dynamic>> {
   final UserRepository repository;
 

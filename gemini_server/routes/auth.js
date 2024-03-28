@@ -6,7 +6,7 @@ const bcrypt=require("bcryptjs");
 
 
 
-authRouter.post("jerrito_gemini/login",async(req,res)=>{
+authRouter.post("/jerrito_gemini/login",async(req,res)=>{
 
     const {name,email,password}=req.body;
 
@@ -32,7 +32,7 @@ const token=  jwt.sign({id:user._id},"tokenPassword")
 })
 
 
-authRouter.post("/verify_token",async (req,res)=>{
+authRouter.post("/jerrito_gemini/verify_token",async (req,res)=>{
     try{
       const token=req.header("tokenId");
     
@@ -52,7 +52,7 @@ authRouter.post("/verify_token",async (req,res)=>{
     })
 
     
-authRouter.get("/",auth,async(req,res)=>{
+authRouter.get("/jerrito_gemini",auth,async(req,res)=>{
     //console.log(req.user);
   
     const user=await userModel.findById(req.user);

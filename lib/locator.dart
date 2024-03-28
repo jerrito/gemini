@@ -1,5 +1,11 @@
 import 'package:data_connection_checker_nulls/data_connection_checker_nulls.dart';
 import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
+import 'package:gemini/src/authentication/data/data_source/remote_ds.dart';
+import 'package:gemini/src/authentication/data/repository/user_repo_impl.dart';
+import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
+import 'package:gemini/src/authentication/domain/usecases/signin.dart';
+import 'package:gemini/src/authentication/domain/usecases/signup.dart';
+import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
 import 'package:gemini/src/search_text/data/datasource/local_ds.dart';
 import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/src/search_text/data/repository/repository_impl.dart';
@@ -16,26 +22,28 @@ import 'package:get_it/get_it.dart';
 final sl = GetIt.instance;
 
 void initDependencies() {
+  initSearch();
+  initAuthentication();
+}
+
+void initSearch() {
   //bloc
 
   sl.registerFactory(
     () => SearchBloc(
-      searchText: sl(),
-      searchTextAndImage: sl(),
-      addMultipleImage: sl(),
-      generateContent: sl(),
-      chat: sl(),
-      remoteDatasourceImpl: sl(),
-      readSQLData: sl()
-    ),
+        searchText: sl(),
+        searchTextAndImage: sl(),
+        addMultipleImage: sl(),
+        generateContent: sl(),
+        chat: sl(),
+        remoteDatasourceImpl: sl(),
+        readSQLData: sl()),
   );
 
   //usecases
 
- sl.registerLazySingleton(
-    () => ReadData(
-      searchRepository: sl()
-    ),
+  sl.registerLazySingleton(
+    () => ReadData(searchRepository: sl()),
   );
 
   sl.registerLazySingleton<SearchRemoteDatasourceImpl>(
@@ -49,7 +57,7 @@ void initDependencies() {
     ),
   );
 
-sl.registerLazySingleton(
+  sl.registerLazySingleton(
     () => Chat(
       repository: sl(),
     ),
@@ -102,5 +110,40 @@ sl.registerLazySingleton(
 
   sl.registerLazySingleton(
     () => DataConnectionChecker(),
+  );
+}
+
+void initAuthentication() {
+  //bloc
+
+  sl.registerFactory(
+    () => UserBloc(
+      signin: sl(),
+      signup: sl(),
+    ),
+  );
+
+  //usecases
+  sl.registerLazySingleton(
+    () => Signin(
+      repository: sl(),
+    ),
+  );
+  sl.registerLazySingleton(
+    () => Signup(
+      repository: sl(),
+    ),
+  );
+  //repository
+
+  sl.registerLazySingleton<UserRepository>(
+    () => UserRepositoryImpl(
+      userRemoteDatasource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+  //datasources
+  sl.registerLazySingleton<UserRemoteDatasource>(
+    () => UserRemoteDatasourceImpl(),
   );
 }

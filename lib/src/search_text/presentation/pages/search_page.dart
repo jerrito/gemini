@@ -18,7 +18,6 @@ import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
 import 'package:gemini/src/search_text/presentation/widgets/slidable_action.dart';
 import 'package:gemini/src/sql_database/entities/text.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:lottie/lottie.dart';
 
@@ -634,9 +633,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Space().height(context, 0.1),
-                        SizedBox(
-                            // height: S,
-                            child: Lottie.asset(ai2Json)),
+                        Lottie.asset(ai2Json),
                         Space().height(context, 0.05),
                         Center(
                           child:

@@ -24,14 +24,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primaryColorDark: Colors.white,
-        //  textTheme: TextTheme(
-                      
-        //               decorationColor: 
-        //                    Colors.white,
-        //               bodyColor:
-        //                    Colors.white,
-        //               displayColor: 
-        //                    Colors.white),
+       
      useMaterial3: true,
         fontFamily: "Kodchasan"
       ),

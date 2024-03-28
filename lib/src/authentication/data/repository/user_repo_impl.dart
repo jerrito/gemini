@@ -13,8 +13,16 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<Either<String, User>> signin(Map<String, dynamic> params) async {
-    // TODO: implement signin
-    throw UnimplementedError();
+    if (await networkInfo.isConnected) {
+      try {
+        final response =await userRemoteDatasource.signupUser(params);
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      }
+    } else {
+      return Left(networkInfo.noNetworkMessage);
+    }
   }
 
   @override
