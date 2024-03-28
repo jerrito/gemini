@@ -1,8 +1,8 @@
 const express= require("express");
 const {people,products}=require("./data/data");
 const mongoose=require("mongoose");
-const firebase=require("firebase");
-const cors=require("cors");
+const firebase=require("firebase/app");
+const cors=require("cors/");
 const bodyParser=require("body-parser");
 
 
@@ -23,9 +23,9 @@ console.log("Database connected successfully");
 
 
 app.use(express.json());
-app.use(bodyParser.json())
-app.use(cors())
-app.use(auth)
+app.use(bodyParser.json());
+app.use(cors());
+app.use(auth);
 
 firebase.initializeApp(
   {
@@ -34,8 +34,6 @@ firebase.initializeApp(
     projectId:"woww-b2885",
   }
 )
-
-
 
 app.post("/jerrito-gemini/otp/",async(req,res)=>{
 try{
@@ -111,7 +109,7 @@ app.get("*",(req,res)=>
 });
 
 
-app.listen(port,"127.0.0.1",()=>{
+app.listen(port,"0.0.0.0",()=>{
     console.log(`Started at port ${port}`);
 })
 

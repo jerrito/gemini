@@ -12,9 +12,25 @@ class SigninEvent extends UserEvent {
   SigninEvent({required this.params});
 }
 
-class VerifyOtpEvent extends UserEvent {
+class VerifyOTPEvent extends UserEvent {
   final Map<String, dynamic> params;
-  VerifyOtpEvent({required this.params});
+  VerifyOTPEvent({required this.params});
+}
+
+
+class ConfirmTokenEvent extends UserEvent {
+  final Map<String, dynamic> params;
+  ConfirmTokenEvent({required this.params});
+}
+
+class GetUserFromTokenEvent extends UserEvent {
+  final Map<String, dynamic> params;
+  GetUserFromTokenEvent({required this.params});
+}
+
+class GetOTPEvent extends UserEvent {
+  final Map<String, dynamic> params;
+  GetOTPEvent({required this.params});
 }
 
 

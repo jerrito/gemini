@@ -3,8 +3,12 @@ import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
 import 'package:gemini/src/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/src/authentication/data/repository/user_repo_impl.dart';
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
+import 'package:gemini/src/authentication/domain/usecases/confirm_token.dart';
+import 'package:gemini/src/authentication/domain/usecases/get_otp.dart';
+import 'package:gemini/src/authentication/domain/usecases/get_user_from_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/signin.dart';
 import 'package:gemini/src/authentication/domain/usecases/signup.dart';
+import 'package:gemini/src/authentication/domain/usecases/verify_otp.dart';
 import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
 import 'package:gemini/src/search_text/data/datasource/local_ds.dart';
 import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
@@ -120,10 +124,37 @@ void initAuthentication() {
     () => UserBloc(
       signin: sl(),
       signup: sl(),
+      confirmToken: sl(),
+      getOTP: sl(),
+      getUserFromToken: sl(),
+      verifyOTP: sl(),
     ),
   );
 
   //usecases
+
+sl.registerLazySingleton(
+    () => GetUserFromToken(
+      repository: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(
+    () => GetOTP(
+      repository: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(
+    () => VerifyOTP(
+      repository: sl(),
+    ),
+  );
+   sl.registerLazySingleton(
+    () => ConfirmToken(
+      repository: sl(),
+    ),
+  );
   sl.registerLazySingleton(
     () => Signin(
       repository: sl(),

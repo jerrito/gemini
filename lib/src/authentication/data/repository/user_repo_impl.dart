@@ -45,4 +45,47 @@ class UserRepositoryImpl implements UserRepository {
     // TODO: implement verifyToken
     throw UnimplementedError();
   }
+
+  @override
+   Future<Either<String, bool>> confirmToken(Map<String, dynamic> params) async{
+
+     if (await networkInfo.isConnected) {
+      try {
+        final response =await userRemoteDatasource.confirmToken(params);
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      }
+    } else {
+      return Left(networkInfo.noNetworkMessage);
+    }
+   }
+   
+     @override
+     Future<Either<String, dynamic>> getOTP(Map<String, dynamic> params) async{
+      if (await networkInfo.isConnected) {
+      try {
+        final response =await userRemoteDatasource.getOTP(params);
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      }
+    } else {
+      return Left(networkInfo.noNetworkMessage);
+    }
+     }
+
+      @override
+     Future<Either<String, dynamic>> getUserFromToken(Map<String, dynamic> params) async{
+      if (await networkInfo.isConnected) {
+      try {
+        final response =await userRemoteDatasource.getOTP(params);
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      }
+    } else {
+      return Left(networkInfo.noNetworkMessage);
+    }
+    }
 }

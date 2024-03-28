@@ -44,7 +44,7 @@ authRouter.post("/jerrito_gemini/verify_token",async (req,res)=>{
       const user=await userModel.findById(tokenCheckVerify.id);
       console.log(`${user} details`);
       if(!user)res.json(false);
-      res.json(true)
+      res.json(true);
     }
     catch(e){
     res.status(500).json({error:e.message});
