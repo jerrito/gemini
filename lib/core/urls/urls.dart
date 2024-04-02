@@ -14,12 +14,13 @@ enum Url {
 }
 
 String getUrl({required String endpoint}) {
-  //192.168.9.140  154.160.9.66 154.160.23.34
+  //192.168.9.140  154.160.9.66 154.160.23.34 192.168.187.239
   final ipAddress = InternetAddress.anyIPv4.address;
   
   //return ipAddress;
   print(ipAddress);
 
-  String baseUrl = "http://$ipAddress:32/jerrito_gemini/";
+  String baseUrl = "http://$ipAddress:4000/jerrito_gemini/";
   return baseUrl + endpoint;
 }
+
