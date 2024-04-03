@@ -28,8 +28,8 @@ console.log("Database connected successfully");
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
-// app.use(auth);
-// app.use(authRouter);
+app.use(auth);
+app.use(authRouter);
 
 firebase.initializeApp(
   {
@@ -39,30 +39,30 @@ firebase.initializeApp(
   }
 )
 
-app.post("/jerrito_gemini/signup",async(req,res)=>{
-  try{
-  const {name,email,password}=req.body;
+// app.post("/jerrito_gemini/signup",async(req,res)=>{
+//   try{
+//   const {name,email,password}=req.body;
   
-  const emailAlreadyExist=await userModel.findOne({email})
-  console.log(req.body);
-  if(emailAlreadyExist){
-    return  res.status(400).json({msg:"Email already exist"});
-  }
-  const passwordHashed=await bcrypt.hash(password,8);
+//   const emailAlreadyExist=await userModel.findOne({email})
+//   console.log(req.body);
+//   if(emailAlreadyExist){
+//     return  res.status(400).json({msg:"Email already exist"});
+//   }
+//   const passwordHashed=await bcrypt.hash(password,8);
 
-  let user=  userModel({
-    userName:name,
-      email,
-  password:passwordHashed
-  })
+//   let user=  userModel({
+//     userName:name,
+//       email,
+//   password:passwordHashed
+//   })
 
-  const data= await user.save();
-  return res.status(200).json({msg:"Saved successfully"})
-  }
-  catch(e){
-   return   res.status(500).json({error:e.message});
-  }
-})
+//   const data= await user.save();
+//   return res.status(200).json({msg:"Saved successfully"})
+//   }
+//   catch(e){
+//    return   res.status(500).json({error:e.message});
+//   }
+// })
 
 app.post("/jerrito-gemini/otp/",async(req,res)=>{
 try{

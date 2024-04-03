@@ -40,12 +40,15 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: Sizes().height(context, 0.085),
-      child:widget.label != null? Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
+      height:widget.label == null? Sizes().height(context, 0.085):
+      Sizes().height(context, 0.090),
+      child:widget.label != null? 
+      Column(
+       // mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(widget.label!),
+          Space().height(context, 0.01),
           TextFormField(
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: widget.validator,
@@ -56,16 +59,7 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
             onChanged: widget.onChanged,
             decoration: InputDecoration(
              
-              prefixIcon: widget.isTextAndImage
-                  ? IconButton(
-                      icon: const Icon(Icons.file_upload,size:28), onPressed: widget.onTap)
-                  : const SizedBox(),
-              suffixIcon: IconButton(
-                    onPressed: widget.onPressed,
-                    icon: const Icon(
-                      Icons.send,
-                      size: 28,
-                    )),
+             
           
                     errorStyle:null,
               

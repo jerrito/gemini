@@ -35,10 +35,11 @@ class _ConnectionPageState extends State<ConnectionPage> {
           userBloc.add(GetUserFromTokenEvent(params: {}));
         }
         if (state is ConfirmTokenError) {
+          print("state.errorMessage");
           print(state.errorMessage);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const SearchTextPage()),
+            MaterialPageRoute(builder: (context) => const  LandingPage()),
           );
         }
         if (state is GetUserFromTokenError) {

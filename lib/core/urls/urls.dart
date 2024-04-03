@@ -20,7 +20,7 @@ String getUrl({required String endpoint}) {
   //return ipAddress;
   print(ipAddress);
 
-  String baseUrl = "http://$ipAddress:4000/jerrito_gemini/";
+  String baseUrl = "http://192.168.69.255:4000/jerrito_gemini/";
   return baseUrl + endpoint;
 }
 

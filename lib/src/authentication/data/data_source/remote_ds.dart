@@ -75,7 +75,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
     if (token == null) {
       sharedPref.setString("tokenId", "");
     }
-    var tokenResponse = await http.get(
+    var tokenResponse = await http.post(
         Uri.parse(getUrl(endpoint: Url.verifyTokenUrl.endpoint)),
         headers: <String, String>{
           "Content-Type": "application/json; charset=UTF-8",
