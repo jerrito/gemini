@@ -167,16 +167,20 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     on<ListenSpeechTextEvent>((event, emit) async {
       await _speechToText.listen(
+        listenFor: const Duration(seconds: 90),
         onResult: (result) {
           emit(
             OnSpeechResultLoaded(
               result: result.recognizedWords,
             ),
           );
+          print(result.recognizedWords);
         },
-        listenOptions: SpeechListenOptions(listenMode: ListenMode.search),
+        listenOptions: SpeechListenOptions(
+          listenMode: ListenMode.search,
+        ),
       );
-      
+
       //emit(ListenSpeechTextLoaded());
     });
 
@@ -186,8 +190,22 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     // });
 
     on<IsSpeechTextEnabledEvent>((event, emit) async {
-      final response = await isSpeechTextEnabled();
-      emit(IsSpeechTextEnabledLoaded(isSpeechTextEnabled: response));
+     try {
+      final speechEnabled = await _speechToText.initialize();
+     
+        emit(IsSpeechTextEnabledLoaded(isSpeechTextEnabled: speechEnabled));
+      
+    } catch (e) {
+      emit(
+          IsSpeechTextEnabledError(
+            errorMessage:"Your phone is not supported",
+          ));
+      throw PlatformException(code: "404",
+      message: "Your phone is not supported");
+      
+    }
+     
+      
     });
   }
 
@@ -195,9 +213,20 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   /// This has to happen only once per app
   Future<bool> isSpeechTextEnabled() async {
-    final speechEnabled = await _speechToText.initialize();
-    return speechEnabled;
+    try {
+      final speechEnabled = await _speechToText.initialize();
+      return speechEnabled;
+    } catch (e) {
+      throw PlatformException(code: "404",
+      message: "Your phone is not supported");
+    }
   }
+
+  // Future<bool> isSpeechTextHasPermission() async {
+  //   final speechEnabled = await _speechToText.hasPermission();
+  //   print(speechEnabled);
+  //   return speechEnabled;
+  // }
 
   /// Each time to start a speech recognition session
   Future<dynamic> listenToSpeechText() async {

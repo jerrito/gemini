@@ -85,18 +85,21 @@ class _SearchTextPage extends State<SearchTextPage> {
             BlocConsumer(
               bloc: searchBloc3,
               listener: (context, state) {
-                if (state is IsSpeechTextEnabledLoaded) {
-                  searchBloc3.add(ListenSpeechTextEvent());
-                }
+               
                 if (state is OnSpeechResultLoaded) {
                   controller.text = state.result;
                   setState(() {});
                 }
-                // if (state is ListenSpeechTextLoaded) {
-                //   searchBloc3.onSpeechResult(result);
-                // }
+                if (state is IsSpeechTextEnabledError) {
+                   if (!context.mounted) return;
+                    showErrorSnackbar(context, state.errorMessage);
+                }
                 if (state is IsSpeechTextEnabledLoaded) {
-                  searchBloc3.add(ListenSpeechTextEvent());
+                                 
+                    searchBloc3.add(
+                      ListenSpeechTextEvent(),
+                    );
+                  
                 }
               },
               builder: (context, state) {
@@ -104,15 +107,18 @@ class _SearchTextPage extends State<SearchTextPage> {
                   return GestureDetector(
                     onTap: () => searchBloc3.add(StopSpeechTextEvent()),
                     child: Container(
+                        height: Sizes().height(context, 0.07),
+                        width: Sizes().width(context, 0.14),
                         decoration: const BoxDecoration(
-                            color: Colors.purple, shape: BoxShape.circle),
+                            color: Color.fromARGB(255, 18, 33, 207),
+                            shape: BoxShape.circle),
                         child: const Icon(Icons.mic, color: Colors.red)),
                   );
                 }
                 return GestureDetector(
-                  onTap: () => searchBloc3.add(IsSpeechTextEnabledEvent()),
-                  onLongPressCancel: () =>
-                      searchBloc3.add(StopSpeechTextEvent()),
+                  onTap: () => searchBloc3.add(
+                    IsSpeechTextEnabledEvent(),
+                  ),
                   child: const Icon(Icons.mic),
                 );
               },
@@ -684,7 +690,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     builder: (context, state) {
                       if (state is IsSpeechTextEnabledLoaded) {
                         if (state.isSpeechTextEnabled == true) {
-                          return Container();
+                          return Container(child: Text("Listening"));
                         }
                       }
                       return SingleChildScrollView(
