@@ -39,7 +39,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
           print(state.errorMessage);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const  LandingPage()),
+            MaterialPageRoute(builder: (context) => const  SearchTextPage()),
           );
         }
         if (state is GetUserFromTokenError) {

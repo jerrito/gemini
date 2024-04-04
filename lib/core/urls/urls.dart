@@ -13,6 +13,7 @@ enum Url {
   const Url({required this.endpoint});
 }
 
+
 String getUrl({required String endpoint}) {
   //192.168.9.140  154.160.9.66 154.160.23.34 192.168.187.239
   final ipAddress = InternetAddress.anyIPv4.address;
@@ -20,7 +21,7 @@ String getUrl({required String endpoint}) {
   //return ipAddress;
   print(ipAddress);
 
-  String baseUrl = "http://192.168.69.255:4000/jerrito_gemini/";
+  String baseUrl = "http://192.168.69.128:4000/jerrito_gemini/";
   return baseUrl + endpoint;
 }
 
