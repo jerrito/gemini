@@ -70,7 +70,9 @@ void initSearch() {
         generateContent: sl(),
         chat: sl(),
         remoteDatasourceImpl: sl(),
-        readSQLData: sl()),
+        readSQLData: sl(),
+        networkInfo: sl(),
+        ),
   );
 
   sl.registerLazySingleton(

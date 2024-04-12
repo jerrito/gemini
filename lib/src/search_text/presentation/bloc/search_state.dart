@@ -67,6 +67,11 @@ class AddMultipleImageError extends SearchState {
 
 class GenerateStream extends SearchState {}
 
+class GenerateStreamError extends SearchState {
+  final String errorMessage;
+   GenerateStreamError({required this.errorMessage});
+}
+
 class GenerateStreamStop extends SearchState {}
 
 class ReadDataLoaded extends SearchState {
@@ -104,7 +109,6 @@ class StopSpeechTextError extends SearchState {
 }
 
 class StopSpeechTextLoaded extends SearchState {
-
   StopSpeechTextLoaded();
 }
 

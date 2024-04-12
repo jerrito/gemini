@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
 import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/src/search_text/domain/usecase/add_multi_images.dart';
@@ -28,6 +29,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final GenerateContent generateContent;
   final Chat chat;
   final ReadData readSQLData;
+  final NetworkInfo networkInfo;
   // final OnSpeechResult onSpeechResult;
   // final StopSpeechText stopSpeechText;
   // final ListenSpeechText listenSpeechText;
@@ -40,6 +42,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     // required this.listenSpeechText,
     // required this.isSpeechTextEnabled,
     required this.searchText,
+    required this.networkInfo,
     required this.searchTextAndImage,
     required this.addMultipleImage,
     required this.generateContent,
@@ -117,8 +120,16 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
     });
 
-    on<GenerateStreamEvent>((event, emit) {
-      emit(GenerateStream());
+    on<GenerateStreamEvent>((event, emit) async {
+      if (await networkInfo.isConnected) {
+       try{ emit(GenerateStream());
+       }catch(e){
+         emit(GenerateStreamError(errorMessage:"",),);
+       }}
+       else{
+       emit(GenerateStreamError(errorMessage:"",),);
+      }
+
     });
 
     on<GenerateStreamStopEvent>((event, emit) {
@@ -174,7 +185,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               result: result.recognizedWords,
             ),
           );
-          print(result.recognizedWords);
+          // print(result.recognizedWords);
         },
         listenOptions: SpeechListenOptions(
           listenMode: ListenMode.search,
@@ -190,22 +201,17 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     // });
 
     on<IsSpeechTextEnabledEvent>((event, emit) async {
-     try {
-      final speechEnabled = await _speechToText.initialize();
-     
+      try {
+        final speechEnabled = await _speechToText.initialize();
+
         emit(IsSpeechTextEnabledLoaded(isSpeechTextEnabled: speechEnabled));
-      
-    } catch (e) {
-      emit(
-          IsSpeechTextEnabledError(
-            errorMessage:"Your phone is not supported",
-          ));
-      throw PlatformException(code: "404",
-      message: "Your phone is not supported");
-      
-    }
-     
-      
+      } catch (e) {
+        emit(IsSpeechTextEnabledError(
+          errorMessage: "Your phone is not supported",
+        ));
+        throw PlatformException(
+            code: "404", message: "Your phone is not supported");
+      }
     });
   }
 
@@ -217,8 +223,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final speechEnabled = await _speechToText.initialize();
       return speechEnabled;
     } catch (e) {
-      throw PlatformException(code: "404",
-      message: "Your phone is not supported");
+      throw PlatformException(
+          code: "404", message: "Your phone is not supported");
     }
   }
 

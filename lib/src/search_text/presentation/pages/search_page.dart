@@ -460,9 +460,9 @@ class _SearchTextPage extends State<SearchTextPage> {
 
                       return Column(
                         children: [
-                          Lottie.asset(noJson),
+                         // Lottie.asset(noJson),
                           Space().height(context, 0.02),
-                          const Text("No internet / Invalid request",
+                          const Text("Invalid request",
                               style:
                                   TextStyle(fontSize: 18, color: Colors.red)),
                           Space().height(context, 0.05),
