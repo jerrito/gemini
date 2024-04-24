@@ -18,7 +18,7 @@ class DefaultButton extends StatelessWidget {
         ),
         onPressed: onTap,
         child: Text(label!),
-      ),
+      ) ,
     );
   }
 }

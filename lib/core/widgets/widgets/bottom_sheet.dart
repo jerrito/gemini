@@ -45,7 +45,7 @@ class _BottomSheetTextFieldState extends State<BottomSheetTextfield> {
           errorText: widget.errorText,
           onChanged: widget.onChanged,
           controller: widget.controller,
-          hintText: widget.hintText ?? "Message Jerrito Gemini powered AI",
+          hintText: widget.hintText ?? "Message Jerrito  AI",
           onTap: widget.onTap,
           isTextAndImage: widget.isTextAndImage,
           onPressed: widget.onPressed,

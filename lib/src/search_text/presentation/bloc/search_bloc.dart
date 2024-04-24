@@ -121,13 +121,14 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     });
 
     on<GenerateStreamEvent>((event, emit) async {
+      emit(GenerateStreamLoading());
       if (await networkInfo.isConnected) {
        try{ emit(GenerateStream());
        }catch(e){
-         emit(GenerateStreamError(errorMessage:"",),);
+         emit(GenerateStreamError(errorMessage:e.toString(),),);
        }}
        else{
-       emit(GenerateStreamError(errorMessage:"",),);
+       emit(GenerateStreamError(errorMessage:networkInfo.noNetworkMessage,),);
       }
 
     });

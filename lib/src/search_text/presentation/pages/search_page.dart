@@ -85,21 +85,18 @@ class _SearchTextPage extends State<SearchTextPage> {
             BlocConsumer(
               bloc: searchBloc3,
               listener: (context, state) {
-               
                 if (state is OnSpeechResultLoaded) {
                   controller.text = state.result;
                   setState(() {});
                 }
                 if (state is IsSpeechTextEnabledError) {
-                   if (!context.mounted) return;
-                    showErrorSnackbar(context, state.errorMessage);
+                  if (!context.mounted) return;
+                  showErrorSnackbar(context, state.errorMessage);
                 }
                 if (state is IsSpeechTextEnabledLoaded) {
-                                 
-                    searchBloc3.add(
-                      ListenSpeechTextEvent(),
-                    );
-                  
+                  searchBloc3.add(
+                    ListenSpeechTextEvent(),
+                  );
                 }
               },
               builder: (context, state) {
@@ -143,7 +140,6 @@ class _SearchTextPage extends State<SearchTextPage> {
               }
               return null;
             },
-            // errorText: FormFieldValidator.toString(),
             onChanged: (value) {
               if (value!.isNotEmpty) {
                 isAvailble = false;
@@ -210,7 +206,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                       }
                     }
                   },
-
             onTap: () {
               searchBloc2.add(AddMultipleImageEvent(
                 noParams: NoParams(),
@@ -362,7 +357,12 @@ class _SearchTextPage extends State<SearchTextPage> {
                     if (!context.mounted) return;
                     showErrorSnackbar(context, state.errorMessage);
                   }
-
+                  
+                  if (state is GenerateStreamError) {
+                    controller.text = "";
+                    if (!context.mounted) return;
+                    showErrorSnackbar(context, state.errorMessage);
+                  }
                   if (state is ChatError) {
                     if (!context.mounted) return;
                     showErrorSnackbar(context, state.errorMessage);
@@ -370,7 +370,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   if (state is SearchTextAndImageLoading ||
                       state is SearchTextLoading ||
                       state is ChatLoading ||
-                      state is GenerateStream) {
+                      state is GenerateStreamLoading) {
                     question = controller.text;
                     controller.text = "";
                   }
@@ -378,7 +378,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                 builder: (context, state) {
                   if (state is SearchTextAndImageLoading ||
                       state is SearchTextLoading ||
-                      state is ChatLoading) {
+                      state is ChatLoading ||
+                      state is GenerateStreamLoading) {
                     return Center(
                       child: Lottie.asset(
                         aiJson,
@@ -446,6 +447,20 @@ class _SearchTextPage extends State<SearchTextPage> {
                           return const SizedBox();
                         });
                   }
+                  // if(state is GenerateStreamError){
+                  //   final error=state.errorMessage;
+
+                  //    return Column(
+                  //     mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: [
+                  //         Lottie.asset(noJson),
+                  //         Space().height(context, 0.02),
+                  //         Text(error,
+                  //             style:
+                  //              const   TextStyle(fontSize: 18, color: Colors.red,),),
+                  //       ]);
+                  //       }
+
                   if (state is GenerateStreamStop) {
                     String copyTextData =
                         (question!.isNotEmpty ? question! : repeatQuestion) +
@@ -459,8 +474,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                       // GenerativeAIException(); 10ff.net edclub keybr
 
                       return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                         // Lottie.asset(noJson),
+                          // Lottie.asset(noJson),
                           Space().height(context, 0.02),
                           const Text("Invalid request",
                               style:
