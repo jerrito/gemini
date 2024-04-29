@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:gemini/src/authentication/presentation/provider/user_provider.da
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class UserRemoteDatasource {
   //s
@@ -24,15 +26,27 @@ abstract class UserRemoteDatasource {
   Future<dynamic> getOTP(Map<String, dynamic> params);
 
   //get user from token
-  Future<UserModel> getUserFromToken(
-      Map<String, dynamic> params);
+  Future<UserModel> getUserFromToken(Map<String, dynamic> params);
 
   //get ip address
   String getIPAddress();
+
+  //signup supabase
+  Future<AuthResponse> signUpSupabase(Map<String, dynamic> params);
+
+  //signin otp
+  Future<void> signInOTPSupabase(Map<String, dynamic> params);
+
+  // signin with password
+  Future<AuthResponse> signInPasswordSupabase(Map<String, dynamic> params);
+
+  //add userSupabase
+  Future<dynamic> addUserSupabase(Map<String, dynamic> params);
 }
 
 class UserRemoteDatasourceImpl implements UserRemoteDatasource {
   final http.Client client;
+  final supabase = Supabase.instance.client;
 
   UserRemoteDatasourceImpl({required this.client});
   @override
@@ -94,8 +108,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
   }
 
   @override
-  Future<UserModel> getUserFromToken(
-      Map<String, dynamic> params) async {
+  Future<UserModel> getUserFromToken(Map<String, dynamic> params) async {
     Map<String, String>? headers = {};
     headers.addAll(<String, String>{
       "Content-Type": "application/json; charset=UTF-8",
@@ -109,15 +122,56 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
 
     if (response.statusCode == 200) {
       return UserModel.fromJson(json.decode(response.body));
-     
     } else {
       throw Exception([response.reasonPhrase]);
     }
   }
 
   @override
-  String getIPAddress()  {
-    final ipAddress =  InternetAddress.anyIPv4.address;
+  String getIPAddress() {
+    final ipAddress = InternetAddress.anyIPv4.address;
     return ipAddress;
+  }
+
+  @override
+  Future<AuthResponse> signUpSupabase(Map<String, dynamic> params) async {
+    return await supabase.auth.signUp(
+        email: params["email"],
+        channel: OtpChannel.whatsapp,
+        //emailRedirectTo: ,
+        // data: {"userName": params["userName"]},
+        phone: params["phone_number"],
+        password: params["password"]);
+  }
+
+  @override
+  Future<void> signInOTPSupabase(Map<String, dynamic> params) async {
+    return await supabase.auth.signInWithOtp(
+      email: params["email"],
+      channel: OtpChannel.whatsapp,
+      //emailRedirectTo: ,
+      //data: {"userName": params["userName"]},
+      phone: params["phone_number"],
+    );
+  }
+
+  @override
+  Future<AuthResponse> signInPasswordSupabase(
+      Map<String, dynamic> params) async {
+    return await supabase.auth.signInWithPassword(
+      email: params["email"],
+
+      //emailRedirectTo: ,
+      password: params["password"],
+      phone: params["phone_number"],
+    );
+  }
+
+  @override
+  Future addUserSupabase(Map<String, dynamic> params) async {
+    return await supabase.from("GeminiAccount").insert({
+      "userName": params["userName"],
+      "email": params["email"],
+    });
   }
 }

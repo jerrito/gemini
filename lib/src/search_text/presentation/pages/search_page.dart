@@ -910,7 +910,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                                                     : Colors.black12),
                                         padding: EdgeInsets.symmetric(
                                           vertical:
-                                              Sizes().height(context, 0.015),
+                                              Sizes().height(context, 0.01),
                                           horizontal:
                                               Sizes().width(context, 0.02),
                                         ),

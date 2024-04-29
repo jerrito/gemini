@@ -6,6 +6,8 @@ import 'package:gemini/core/widgets/widgets/default_button.dart';
 import 'package:gemini/core/widgets/widgets/default_textfield.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
+import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
+import 'package:go_router/go_router.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -16,34 +18,87 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final userBloc = sl<UserBloc>();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Padding(
-          padding:  EdgeInsets.symmetric(
-          horizontal: Sizes().width(context, 0.04)
+        appBar: AppBar(title: Text("Signup")),
+        bottomSheet: Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: Sizes().height(context, 0.01),
+              vertical: Sizes().height(context, 0.02)),
+          child: BlocConsumer(
+            bloc: userBloc,
+            listener: (context, state) {
+              if (state is SignupSupabaseError) {
+                if (!context.mounted) return;
+                showErrorSnackbar(context, state.errorMessage);
+                print(state.errorMessage);
+              }
+              if (state is AddUserSupabaseLoaded) {
+                context.goNamed("searchPage");
+              }
+              if (state is AddUserSupabaseError) {}
+              if (state is SignupSupabaseLoaded) {
+                print(state.data.user?.id);
+                final Map<String, dynamic> params = {
+                  "email": emailController.text,
+                  "password": passwordController.text,
+                  "userName": nameController.text,
+                };
+                userBloc.add(AddUserSupabaseEvent(params: params));
+              }
+            },
+            builder: (context, state) {
+              if (state is SignupSupabaseLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return DefaultButton(
+                  onTap: () {
+                    final Map<String, dynamic> params = {
+                      "email": emailController.text,
+                      "password": passwordController.text,
+                      "userName": nameController.text,
+                    };
+                    userBloc.add(SignupSupabaseEvent(params: params));
+                  },
+                  label: "Signup");
+            },
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-                const DefaultTextfield(
-            isTextAndImage: false, hintText: "Enter Name", label: "UserName"),
-                Space().height(context, 0.02),
-                const DefaultTextfield(
-            isTextAndImage: false, hintText: "Enter Email", label: "UserName"),
-                Space().height(context, 0.02),
-                const DefaultTextfield(
-            isTextAndImage: false, hintText: "Enter Password", label: "UserName"),
-                Space().height(context, 0.02),
-                BlocConsumer(
-          bloc: userBloc,
-          listener: (context, state) {
-            // TODO: implement listener
-          },
-          builder: (context, state) {
-            return DefaultButton(onTap: () {}, label: "Signup");
-          },
+        body: Padding(
+          padding:
+              EdgeInsets.symmetric(horizontal: Sizes().width(context, 0.04)),
+          child: Column(
+              //mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Space().height(context, 0.03),
+                DefaultTextfield(
+                  controller: nameController,
+                  isTextAndImage: false,
+                  hintText: "Enter Username",
+                  label: "UserName",
                 ),
+                Space().height(context, 0.02),
+                DefaultTextfield(
+                  controller: emailController,
+                  isTextAndImage: false,
+                  hintText: "Enter Email",
+                  label: "Email",
+                ),
+                Space().height(context, 0.02),
+                DefaultTextfield(
+                  controller: passwordController,
+                  isTextAndImage: false,
+                  hintText: "Enter Password",
+                  label: "Password",
+                ),
+                Space().height(context, 0.02),
               ]),
         ));
   }

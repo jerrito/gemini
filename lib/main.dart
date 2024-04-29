@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gemini/core/routes/go_router.dart';
 import 'package:gemini/locator.dart';
-import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
-import 'package:gemini/src/authentication/presentation/pages/landing_page.dart';
+import 'package:gemini/src/authentication/presentation/pages/signup_page.dart';
 import 'package:gemini/src/authentication/presentation/provider/user_provider.dart';
-import 'package:gemini/src/connection_page.dart';
 import 'package:gemini/src/search_text/presentation/pages/search_page.dart';
 import 'package:gemini/src/sql_database/database/text_database.dart';
 import 'package:provider/provider.dart';
+import "package:supabase_flutter/supabase_flutter.dart";
 
 AppDatabase? database;
 
+const url = String.fromEnvironment("superbaseUrl");
+const apiKey = String.fromEnvironment("superbaseKey");
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: url,
+    anonKey: apiKey,
+  );
   initDependencies();
   database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
   runApp(const MyApp());
@@ -26,22 +31,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  
-  @override
-  void initState() {
-    super.initState();
-   
-  }
-
   @override
   Widget build(BuildContext context) {
-   
-   
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => UserProvider())
-      ],
-      child: MaterialApp(
+        ChangeNotifierProvider(create: (context) => UserProvider())],
+      child: MaterialApp.router(
+        routerConfig: goRouter,
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         darkTheme: ThemeData(
@@ -52,8 +48,8 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
-            fontFamily: "Kodchasan"),
-        home: const SearchTextPage(),
+            fontFamily: "Kodchasan",),
+        // home: const SignupPage(),
       ),
     );
   }

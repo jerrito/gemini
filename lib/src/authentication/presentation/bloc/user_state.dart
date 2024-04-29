@@ -80,3 +80,53 @@ class VerifyOTPError extends UserState{
   final String errorMessage;
   VerifyOTPError({required this.errorMessage});
 }
+
+class SignupSupabaseLoaded extends UserState{
+  final supabase.AuthResponse data;
+ SignupSupabaseLoaded({required this.data});  
+}
+
+class SignupSupabaseLoading extends UserState{}
+
+class SignupSupabaseError extends UserState{
+  final String errorMessage;
+ SignupSupabaseError({required this.errorMessage});
+}
+
+
+class SigninOTPSupabaseLoaded extends UserState{
+//  final void data;
+ SigninOTPSupabaseLoaded();  
+}
+
+class SigninOTPSupabaseLoading extends UserState{}
+
+class SigninOTPSupabaseError extends UserState{
+  final String errorMessage;
+ SigninOTPSupabaseError({required this.errorMessage});
+}
+
+
+class SigninPasswordSupabaseLoaded extends UserState{
+  final dynamic data;
+ SigninPasswordSupabaseLoaded({required this.data});  
+}
+
+class SigninPasswordSupabaseLoading extends UserState{}
+
+class SigninPasswordSupabaseError extends UserState{
+  final String errorMessage;
+ SigninPasswordSupabaseError({required this.errorMessage});
+}
+
+class AddUserSupabaseLoaded extends UserState{
+  final dynamic data;
+ AddUserSupabaseLoaded({required this.data});  
+}
+
+class AddUserSupabaseLoading extends UserState{}
+
+class AddUserSupabaseError extends UserState{
+  final String errorMessage;
+ AddUserSupabaseError({required this.errorMessage});
+}

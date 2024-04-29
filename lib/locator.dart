@@ -3,11 +3,15 @@ import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
 import 'package:gemini/src/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/src/authentication/data/repository/user_repo_impl.dart';
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
+import 'package:gemini/src/authentication/domain/usecases/add_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/confirm_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_otp.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user_from_token.dart';
+import 'package:gemini/src/authentication/domain/usecases/sign_otp_supabase.dart';
 import 'package:gemini/src/authentication/domain/usecases/signin.dart';
+import 'package:gemini/src/authentication/domain/usecases/signin_password_supabase.dart';
 import 'package:gemini/src/authentication/domain/usecases/signup.dart';
+import 'package:gemini/src/authentication/domain/usecases/signup_supabase.dart';
 import 'package:gemini/src/authentication/domain/usecases/verify_otp.dart';
 import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
 import 'package:gemini/src/search_text/data/datasource/local_ds.dart';
@@ -158,11 +162,37 @@ void initAuthentication() {
       getOTP: sl(),
       getUserFromToken: sl(),
       verifyOTP: sl(),
+      signinOTPSupabase: sl(),
+      signupSupabase: sl(),
+      signinPasswordSupabase: sl(),
+      addUserSupabase: sl(),
     ),
   );
 
   //usecases
 
+ sl.registerLazySingleton(
+    () => SignupSupabase(
+      repository: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(
+    () => AddUserSupabase(
+      repository: sl(),
+    ),
+  );
+   
+    sl.registerLazySingleton(
+    () => SigninOTPSupabase(
+      repository: sl(),
+    ),
+  );
+    sl.registerLazySingleton(
+    () => SigninPasswordSupabase(
+      repository: sl(),
+    ),
+  );
   sl.registerLazySingleton(
     () => GetUserFromToken(
       repository: sl(),

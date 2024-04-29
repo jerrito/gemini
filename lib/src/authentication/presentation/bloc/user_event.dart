@@ -32,5 +32,25 @@ class GetOTPEvent extends UserEvent {
   final Map<String, dynamic> params;
   GetOTPEvent({required this.params});
 }
+class SignupSupabaseEvent extends UserEvent {
+  final Map<String, dynamic> params;
+  SignupSupabaseEvent({required this.params});
+}
+
+class SigninPasswordSupabaseEvent extends UserEvent {
+  final Map<String, dynamic> params;
+  SigninPasswordSupabaseEvent({required this.params});
+}
+
+class SigninOTPSupabaseEvent extends UserEvent {
+  final Map<String, dynamic> params;
+  SigninOTPSupabaseEvent({required this.params});
+}
+
+class AddUserSupabaseEvent extends UserEvent {
+  final Map<String, dynamic> params;
+  AddUserSupabaseEvent({required this.params});
+}
+
 
 
