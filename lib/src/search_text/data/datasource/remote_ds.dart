@@ -1,6 +1,5 @@
 import "dart:async";
 import "package:gemini/core/api/api_key.dart";
-import "package:gemini/core/widgets/network_info.dart/network_info.dart";
 import "package:google_generative_ai/google_generative_ai.dart" as ai;
 
 abstract class SearchRemoteDatasource {

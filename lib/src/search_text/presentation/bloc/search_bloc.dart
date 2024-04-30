@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
@@ -7,13 +8,9 @@ import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/src/search_text/domain/usecase/add_multi_images.dart';
 import 'package:gemini/src/search_text/domain/usecase/chat.dart';
 import 'package:gemini/src/search_text/domain/usecase/generate_content.dart';
-import 'package:gemini/src/search_text/domain/usecase/is_speech_text_enabled.dart';
-import 'package:gemini/src/search_text/domain/usecase/listen_speech_text.dart';
-import 'package:gemini/src/search_text/domain/usecase/on_speech_result.dart';
 import 'package:gemini/src/search_text/domain/usecase/read_sql_data.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text.dart';
 import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
-import 'package:gemini/src/search_text/domain/usecase/stop_speech_text.dart';
 import 'package:gemini/src/sql_database/entities/text.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:gemini/main.dart';
@@ -35,6 +32,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   // final ListenSpeechText listenSpeechText;
   // final SpeechTextEnabled isSpeechTextEnabled;
   final SearchRemoteDatasourceImpl remoteDatasourceImpl;
+
+  StreamController<SpeechRecognitionResult> words =
+      StreamController<SpeechRecognitionResult>();
 
   SearchBloc({
     // required this.onSpeechResult,
@@ -123,14 +123,22 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<GenerateStreamEvent>((event, emit) async {
       emit(GenerateStreamLoading());
       if (await networkInfo.isConnected) {
-       try{ emit(GenerateStream());
-       }catch(e){
-         emit(GenerateStreamError(errorMessage:e.toString(),),);
-       }}
-       else{
-       emit(GenerateStreamError(errorMessage:networkInfo.noNetworkMessage,),);
+        try {
+          emit(GenerateStream());
+        } catch (e) {
+          emit(
+            GenerateStreamError(
+              errorMessage: e.toString(),
+            ),
+          );
+        }
+      } else {
+        emit(
+          GenerateStreamError(
+            errorMessage: networkInfo.noNetworkMessage,
+          ),
+        );
       }
-
     });
 
     on<GenerateStreamStopEvent>((event, emit) {
@@ -173,41 +181,31 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<StopSpeechTextEvent>((event, emit) async {
       await stopSpeechText();
       emit(
-        StopSpeechTextLoaded(),
+        const StopSpeechTextLoaded(),
       );
     });
 
     on<ListenSpeechTextEvent>((event, emit) async {
-      await _speechToText.listen(
-        listenFor: const Duration(seconds: 90),
-        onResult: (result) {
-          emit(
-            OnSpeechResultLoaded(
-              result: result.recognizedWords,
-            ),
-          );
-          // print(result.recognizedWords);
-        },
-        listenOptions: SpeechListenOptions(
-          listenMode: ListenMode.search,
-        ),
-      );
+      // emit(OnSpeechResultLoading());
 
-      //emit(ListenSpeechTextLoaded());
+      listenToSpeechText();
+
+      await emit.forEach(words.stream, onData: (data) {
+        emit(OnSpeechResultLoading());
+
+        return OnSpeechResultLoaded(
+          result: data.recognizedWords,
+        );
+      });
     });
-
-    // on<OnSpeechResultEvent>((event, emit) {
-    //   // final response = onSpeechResult.call();
-    //   //emit(OnSpeechResultLoaded(result: response));
-    // });
 
     on<IsSpeechTextEnabledEvent>((event, emit) async {
       try {
-        final speechEnabled = await _speechToText.initialize();
+        await _speechToText.initialize();
 
-        emit(IsSpeechTextEnabledLoaded(isSpeechTextEnabled: speechEnabled));
+        emit(IsSpeechTextEnabledLoaded());
       } catch (e) {
-        emit(IsSpeechTextEnabledError(
+        emit(const IsSpeechTextEnabledError(
           errorMessage: "Your phone is not supported",
         ));
         throw PlatformException(
@@ -237,11 +235,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   /// Each time to start a speech recognition session
   Future<dynamic> listenToSpeechText() async {
-    final response = await _speechToText.listen(
-      onResult: onSpeechResult,
+    return await _speechToText.listen(
+      onResult: (result) => words.add(result),
       listenOptions: SpeechListenOptions(listenMode: ListenMode.search),
     );
-    return response;
   }
 
   /// Manually stop the active speech recognition session
@@ -250,13 +247,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   /// listen method.
   Future<void> stopSpeechText() async {
     return await _speechToText.stop();
-  }
-
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
-  String onSpeechResult(SpeechRecognitionResult result) {
-    print(result.recognizedWords);
-    return result.recognizedWords;
   }
 
   Stream<GenerateContentResponse> generateStream(Map<String, dynamic> params) {

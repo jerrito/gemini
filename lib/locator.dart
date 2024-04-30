@@ -58,21 +58,22 @@ void initDependencies() async {
 
   //shared preferences
   final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
 }
 
 void initSearch() {
   //bloc
   sl.registerFactory(
     () => SearchBloc(
-        searchText: sl(),
-        searchTextAndImage: sl(),
-        addMultipleImage: sl(),
-        generateContent: sl(),
-        chat: sl(),
-        remoteDatasourceImpl: sl(),
-        readSQLData: sl(),
-        networkInfo: sl(),
-        ),
+      searchText: sl(),
+      searchTextAndImage: sl(),
+      addMultipleImage: sl(),
+      generateContent: sl(),
+      chat: sl(),
+      remoteDatasourceImpl: sl(),
+      readSQLData: sl(),
+      networkInfo: sl(),
+    ),
   );
 
   sl.registerLazySingleton(
@@ -192,7 +193,7 @@ void initAuthentication() {
       repository: sl(),
     ),
   );
-  
+
   sl.registerLazySingleton(
     () => Signup(
       repository: sl(),

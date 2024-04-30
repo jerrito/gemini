@@ -1,12 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:gemini/core/urls/urls.dart';
 import 'package:gemini/src/authentication/data/models/user_model.dart';
-import 'package:gemini/src/authentication/presentation/provider/user_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class UserRemoteDatasource {

@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/locator.dart';
-import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
-import 'package:gemini/src/authentication/presentation/pages/landing_page.dart';
 import 'package:gemini/src/authentication/presentation/provider/user_provider.dart';
-import 'package:gemini/src/connection_page.dart';
 import 'package:gemini/src/search_text/presentation/pages/search_page.dart';
 import 'package:gemini/src/sql_database/database/text_database.dart';
 import 'package:provider/provider.dart';
