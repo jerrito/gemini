@@ -36,7 +36,7 @@ abstract class UserRepository {
   Future addUserSupabase(Map<String, dynamic> params);
  
  //cache user
- Future<Either<String,supabase.User>> cacheUserData(supabase.User user);
+ Future<Either<String,supabase.User>> cacheUserData(supabase.User user, String userName);
 
   //get User Data
  Future<Either<String,supabase.User>>  getUserData();

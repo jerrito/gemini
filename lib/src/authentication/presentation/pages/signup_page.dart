@@ -37,17 +37,21 @@ class _SignupPageState extends State<SignupPage> {
                 if (!context.mounted) return;
                 showErrorSnackbar(context, state.errorMessage);
               }
-              
+
               if (state is CacheUserDataError) {
-if (!context.mounted) return;
+                if (!context.mounted) return;
                 showErrorSnackbar(context, state.errorMessage);
               }
               if (state is CacheUserDataLoaded) {
                 context.goNamed("searchPage");
               }
               if (state is SignupSupabaseLoaded) {
-                 userBloc.add(CacheUserDataEvent(user: state.data.user!));
-                
+                userBloc.add(
+                  CacheUserDataEvent(
+                    user: state.data.user!,
+                    userName: nameController.text,
+                  ),
+                );
               }
             },
             builder: (context, state) {

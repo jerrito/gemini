@@ -1,4 +1,4 @@
-part of  'user_bloc.dart';
+part of 'user_bloc.dart';
 
 abstract class UserEvent {}
 
@@ -17,7 +17,6 @@ class VerifyOTPEvent extends UserEvent {
   VerifyOTPEvent({required this.params});
 }
 
-
 class ConfirmTokenEvent extends UserEvent {
   final Map<String, dynamic> params;
   ConfirmTokenEvent({required this.params});
@@ -32,6 +31,7 @@ class GetOTPEvent extends UserEvent {
   final Map<String, dynamic> params;
   GetOTPEvent({required this.params});
 }
+
 class SignupSupabaseEvent extends UserEvent {
   final Map<String, dynamic> params;
   SignupSupabaseEvent({required this.params});
@@ -52,15 +52,12 @@ class AddUserSupabaseEvent extends UserEvent {
   AddUserSupabaseEvent({required this.params});
 }
 
-
 class CacheUserDataEvent extends UserEvent {
-   final supabase.User user;
-  CacheUserDataEvent({required this.user});
+  final supabase.User user;
+  final String userName;
+  CacheUserDataEvent({required this.user, required this.userName});
 }
 
 class GetUserCacheDataEvent extends UserEvent {
-  
   GetUserCacheDataEvent();
 }
-
-

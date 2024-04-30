@@ -7,7 +7,7 @@ class CacheUserData  {
 
   CacheUserData({required this.repository});
 
-  Future<Either<String, User>> cacheUserData(User user) async {
-    return await repository.cacheUserData(user);
+  Future<Either<String, User>> cacheUserData(User user, String userName) async {
+    return await repository.cacheUserData(user, userName);
   }
 }

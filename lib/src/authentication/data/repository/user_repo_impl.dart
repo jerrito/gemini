@@ -157,9 +157,9 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-   Future<Either<String,supabase.User>> cacheUserData(supabase.User user) async {
+   Future<Either<String,supabase.User>> cacheUserData(supabase.User user, String userName) async {
     try {
-      final data = await userLocalDatasource.cacheUserData(user);
+      final data = await userLocalDatasource.cacheUserData(user, userName);
       return Right(data);
     } catch (e) {
       return Left(e.toString());

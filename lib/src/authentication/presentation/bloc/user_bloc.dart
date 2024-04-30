@@ -138,34 +138,34 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           (r) => AddUserSupabaseLoaded(data: r),
         ),
       );
+    });
+    //! CACHE DATA
+    on<CacheUserDataEvent>((event, emit) async {
+      //  emit(CacheUserDataLoading());
+      final response =
+          await cacheUserData.cacheUserData(event.user, event.userName);
 
-      //! CACHE DATA
-      on<CacheUserDataEvent>((event, emit) async {
-        emit(CacheUserDataLoading());
-        final response = await cacheUserData.cacheUserData(event.user);
+      emit(
+        response.fold(
+          (l) => CacheUserDataError(errorMessage: l),
+          (r) => CacheUserDataLoaded(user: r),
+        ),
+      );
+    });
+
+    //! GET CACHED DATA
+    on<GetUserCacheDataEvent>(
+      (event, emit) async {
+        //emit(GetUserDataLoading());
+        final response = await getUserData.getUserData();
 
         emit(
           response.fold(
-            (l) => CacheUserDataError(errorMessage: l),
-            (r) => CacheUserDataLoaded(data: r),
+            (l) => GetUserCacheDataError(errorMessage: l),
+            (r) => GetUserCachedDataLoaded(user: r),
           ),
         );
-      });
-
-      //! GET CACHED DATA
-      on<GetUserCacheDataEvent>(
-        (event, emit) async {
-          emit(GetUserDataLoading());
-          final response = await getUserData.getUserData();
-
-          emit(
-            response.fold(
-              (l) => GetUserDataError(errorMessage: l),
-              (r) => GetUserDataLoaded(data: r),
-            ),
-          );
-        },
-      );
-    });
+      },
+    );
   }
 }

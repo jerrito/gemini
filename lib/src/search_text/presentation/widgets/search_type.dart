@@ -18,7 +18,7 @@ class SearchTypeWidget extends StatelessWidget {
   build(BuildContext context) {
     return Padding(
       padding:  EdgeInsets.symmetric(
-        horizontal: Sizes().width(context, 0.05)),
+        horizontal: Sizes().width(context, 0.02),),
       child: ListTile(
         iconColor: color,
         textColor: color,

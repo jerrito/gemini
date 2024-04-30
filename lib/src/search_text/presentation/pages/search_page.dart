@@ -10,6 +10,7 @@ import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/core/widgets/widgets/bottom_sheet.dart';
 import 'package:gemini/core/widgets/widgets/default_button.dart';
 import 'package:gemini/locator.dart';
+import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
 import 'package:gemini/src/search_text/presentation/widgets/buttons_below.dart';
 import 'package:gemini/src/search_text/presentation/widgets/history_shimmer.dart';
@@ -32,6 +33,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   final searchBloc = sl<SearchBloc>();
   final searchBloc2 = sl<SearchBloc>();
   final searchBloc3 = sl<SearchBloc>();
+  final userBloc = sl<UserBloc>();
   final form = GlobalKey<FormState>();
   List<Uint8List> all = [];
   List<String> imageExtensions = [];
@@ -45,6 +47,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   String repeatQuestion = "";
   String name = "";
   String joinedSnapInfo = "";
+  String? email;
   String initText = "";
   final controller = TextEditingController();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -60,6 +63,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   void initState() {
     super.initState();
     initText = controller.text;
+    
   }
 
   List<TextEntity>? data = [];
@@ -76,6 +80,7 @@ class _SearchTextPage extends State<SearchTextPage> {
           leading: IconButton(
               onPressed: () async {
                 scaffoldKey.currentState?.openDrawer();
+                userBloc.add(GetUserCacheDataEvent());
                 searchBloc2.add(ReadSQLDataEvent());
                 // getIPAddress();
               },
@@ -357,7 +362,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     if (!context.mounted) return;
                     showErrorSnackbar(context, state.errorMessage);
                   }
-                  
+
                   if (state is GenerateStreamError) {
                     controller.text = "";
                     if (!context.mounted) return;
@@ -728,214 +733,240 @@ class _SearchTextPage extends State<SearchTextPage> {
                   );
                 })),
       ),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            Space().height(context, 0.07),
-            SearchTypeWidget(
-              color: type == 1
-                  ? Colors.lightBlueAccent
-                  : Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-              icon: Icons.stream,
-              onPressed: () {
-                type = 1;
-                isTextImage = false;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Stream content",
-            ),
-            SearchTypeWidget(
-              color: type == 3
-                  ? Colors.lightBlueAccent
-                  : Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-              icon: Icons.image_search,
-              onPressed: () {
-                type = 3;
-                isTextImage = true;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Search text with image",
-            ),
-            SearchTypeWidget(
-              color: type == 2
-                  ? Colors.lightBlueAccent
-                  : Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-              icon: Icons.chat,
-              onPressed: () async {
-                type = 2;
-                isTextImage = false;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Chat with bot",
-            ),
-            SearchTypeWidget(
-              color: type == 4
-                  ? Colors.lightBlueAccent
-                  : Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : const Color.fromRGBO(0, 0, 0, 1),
-              icon: Icons.text_format,
-              onPressed: () {
-                // Provider.
-                type = 4;
-                isTextImage = false;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Await content",
-            ),
-            const Divider(
-              thickness: 2,
-            ),
-            const Center(
-              child: Text("History",
-                  style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.underline)),
-            ),
-            BlocConsumer(
-              bloc: searchBloc2,
-              builder: (context, state) {
-                if (state is ReadDataLoading) {
-                  //  print("dd");
-                  return const HistoryShimmer();
-                }
+      drawer: SafeArea(
+        child: Drawer(
+          child: Column(
+            children: [
+              BlocListener(
+                listener: (context, state) async {
+                  if (state is GetUserCachedDataLoaded) {
+                    email = state.user.email;
+                  }
+                  if (state is GetUserCacheDataError) {
+                    debugPrint(state.errorMessage);
+                  }
+                },
+                bloc: userBloc,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.brown.shade800,
+                      child: const Text('AH'),
+                    ),
+                    Text(email ?? "Jerrito Boateng")
+                  ],
+                ),
+              ),
+              Space().height(context, 0.07),
+              SearchTypeWidget(
+                color: type == 1
+                    ? Colors.lightBlueAccent
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                icon: Icons.stream,
+                onPressed: () {
+                  type = 1;
+                  isTextImage = false;
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                label: "Stream content",
+              ),
+              SearchTypeWidget(
+                color: type == 3
+                    ? Colors.lightBlueAccent
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                icon: Icons.image_search,
+                onPressed: () {
+                  type = 3;
+                  isTextImage = true;
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                label: "Search text with image",
+              ),
+              SearchTypeWidget(
+                color: type == 2
+                    ? Colors.lightBlueAccent
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                icon: Icons.chat,
+                onPressed: () async {
+                  type = 2;
+                  isTextImage = false;
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                label: "Chat with bot",
+              ),
+              SearchTypeWidget(
+                color: type == 4
+                    ? Colors.lightBlueAccent
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : const Color.fromRGBO(0, 0, 0, 1),
+                icon: Icons.text_format,
+                onPressed: () {
+                  // Provider.
+                  type = 4;
+                  isTextImage = false;
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                label: "Await content",
+              ),
+              const Divider(
+                thickness: 2,
+              ),
+              const Center(
+                child: Text("History",
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.underline)),
+              ),
+              BlocConsumer(
+                bloc: searchBloc2,
+                builder: (context, state) {
+                  if (state is ReadDataLoading) {
+                    //  print("dd");
+                    return const HistoryShimmer();
+                  }
 
-                if (state is ReadDataLoaded) {
-                  final response = state.data;
-                  return response!.isEmpty
-                      ? Lottie.asset(historyJson)
-                      : Flexible(
-                          child: ListView.builder(
-                            reverse: true,
-                            shrinkWrap: response.length > 7 ? false : true,
-                            itemCount: response.isEmpty ? 0 : response.length,
-                            itemBuilder: (context, index) {
-                              final datas = response[index];
-                              final params = {
-                                "textId": datas.textId,
-                                "textTopic": datas.textTopic,
-                                "textData": datas.textData,
-                                "imageData": datas.imageData,
-                                "eventType": datas.eventType,
-                                "dateTime": datas.dateTime,
-                              };
-                              return Slidable(
-                                // Specify a key if the Slidable is dismissible.
-                                key: const ValueKey(0),
-                                startActionPane: ActionPane(
-                                  // A motion is a widget used to control how the pane animates.
-                                  motion: const ScrollMotion(),
+                  if (state is ReadDataLoaded) {
+                    final response = state.data;
+                    return response!.isEmpty
+                        ? Lottie.asset(historyJson)
+                        : Flexible(
+                            child: ListView.builder(
+                              //reverse: true,
+                              shrinkWrap: response.length > 7 ? false : true,
+                              itemCount: response.isEmpty ? 0 : response.length,
+                              itemBuilder: (context, index) {
+                                final datas = response[index];
+                                final params = {
+                                  "textId": datas.textId,
+                                  "textTopic": datas.textTopic,
+                                  "textData": datas.textData,
+                                  "imageData": datas.imageData,
+                                  "eventType": datas.eventType,
+                                  "dateTime": datas.dateTime,
+                                };
+                                return Slidable(
+                                  // Specify a key if the Slidable is dismissible.
+                                  key: const ValueKey(0),
+                                  startActionPane: ActionPane(
+                                    // A motion is a widget used to control how the pane animates.
+                                    motion: const ScrollMotion(),
 
-                                  // A pane can dismiss the Slidable.
-                                  // dismissible: DismissiblePane(onDismissed: () {}),
+                                    // A pane can dismiss the Slidable.
+                                    // dismissible: DismissiblePane(onDismissed: () {}),
 
-                                  // All actions are defined in the children parameter.
-                                  children: [
-                                    // A SlidableAction can have an icon and/or a label.
-                                    SlidableActionWidget(
-                                      onPressed: (context) async {
-                                        await Share.share(
-                                            datas.textTopic + datas.textData);
-                                        if (!context.mounted) return;
-                                        Navigator.pop(context);
-                                      },
-                                      isDeleteButton: false,
-                                    ),
+                                    // All actions are defined in the children parameter.
+                                    children: [
+                                      // A SlidableAction can have an icon and/or a label.
+                                      SlidableActionWidget(
+                                        onPressed: (context) async {
+                                          await Share.share(
+                                              datas.textTopic + datas.textData);
+                                          if (!context.mounted) return;
+                                          Navigator.pop(context);
+                                        },
+                                        isDeleteButton: false,
+                                      ),
 
-                                    SlidableActionWidget(
-                                      onPressed: (context) async {
-                                        await searchBloc2.deleteData(params);
-                                        if (!context.mounted) return;
-                                        Navigator.pop(context);
-                                      },
-                                      isDeleteButton: true,
-                                    ),
-                                  ],
-                                ),
-
-                                // The end action pane is the one at the right or the bottom side.
-                                endActionPane: ActionPane(
-                                  motion: const ScrollMotion(),
-                                  children: [
-                                    SlidableActionWidget(
-                                      onPressed: (context) async {
-                                        await Share.share(
-                                            datas.textTopic + datas.textData);
-                                        if (!context.mounted) return;
-                                        Navigator.pop(context);
-                                      },
-                                      isDeleteButton: false,
-                                    ),
-                                    SlidableActionWidget(
-                                      onPressed: (context) async {
-                                        await searchBloc2.deleteData(params);
-                                        if (!context.mounted) return;
-                                        Navigator.pop(context);
-                                      },
-                                      isDeleteButton: true,
-                                    ),
-                                  ],
-                                ),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    searchBloc.add(
-                                      ReadDataDetailsEvent(params: params),
-                                    );
-                                    Navigator.pop(context);
-                                  },
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: Sizes().height(context, 0.005),
-                                      horizontal: Sizes().width(context, 0.02),
-                                    ),
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                                Sizes().height(context, 0.01)),
-                                            color:
-                                                Theme.of(context).brightness ==
-                                                        Brightness.dark
-                                                    ? Colors.black
-                                                    : Colors.black12),
-                                        padding: EdgeInsets.symmetric(
-                                          vertical:
-                                              Sizes().height(context, 0.01),
-                                          horizontal:
-                                              Sizes().width(context, 0.02),
-                                        ),
-                                        child: Center(
-                                            child: Text(
-                                                style: const TextStyle(
-                                                    fontSize: 16,
-                                                    letterSpacing: 1.2),
-                                                datas.textTopic))),
+                                      SlidableActionWidget(
+                                        onPressed: (context) async {
+                                          await searchBloc2.deleteData(params);
+                                          if (!context.mounted) return;
+                                          Navigator.pop(context);
+                                        },
+                                        isDeleteButton: true,
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                }
-                return const SizedBox();
-              },
-              listener: (BuildContext context, Object? state) {
-                if (state is ReadDataError) {
-                  showErrorSnackbar(context, state.errorMessage);
-                }
-              },
-            )
-          ],
+
+                                  // The end action pane is the one at the right or the bottom side.
+                                  endActionPane: ActionPane(
+                                    motion: const ScrollMotion(),
+                                    children: [
+                                      SlidableActionWidget(
+                                        onPressed: (context) async {
+                                          await Share.share(
+                                              datas.textTopic + datas.textData);
+                                          if (!context.mounted) return;
+                                          Navigator.pop(context);
+                                        },
+                                        isDeleteButton: false,
+                                      ),
+                                      SlidableActionWidget(
+                                        onPressed: (context) async {
+                                          await searchBloc2.deleteData(params);
+                                          if (!context.mounted) return;
+                                          Navigator.pop(context);
+                                        },
+                                        isDeleteButton: true,
+                                      ),
+                                    ],
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      searchBloc.add(
+                                        ReadDataDetailsEvent(params: params),
+                                      );
+                                      Navigator.pop(context);
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical:
+                                            Sizes().height(context, 0.005),
+                                        horizontal:
+                                            Sizes().width(context, 0.02),
+                                      ),
+                                      child: Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(Sizes()
+                                                      .height(context, 0.01)),
+                                              color: Theme.of(context)
+                                                          .brightness ==
+                                                      Brightness.dark
+                                                  ? Colors.black
+                                                  : Colors.black12),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical:
+                                                Sizes().height(context, 0.01),
+                                            horizontal:
+                                                Sizes().width(context, 0.02),
+                                          ),
+                                          child: Center(
+                                              child: Text(
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      letterSpacing: 1.2),
+                                                  datas.textTopic))),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                  }
+                  return const SizedBox();
+                },
+                listener: (BuildContext context, Object? state) {
+                  if (state is ReadDataError) {
+                    showErrorSnackbar(context, state.errorMessage);
+                  }
+                },
+              )
+            ],
+          ),
         ),
       ),
     );

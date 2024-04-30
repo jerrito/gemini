@@ -1,5 +1,6 @@
 import 'package:data_connection_checker_nulls/data_connection_checker_nulls.dart';
 import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
+import 'package:gemini/src/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/src/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/src/authentication/data/repository/user_repo_impl.dart';
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
@@ -29,7 +30,6 @@ import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 
@@ -63,7 +63,7 @@ void initDependencies() async {
   );
 
   //shared preferences
-  final sharedPreferences = await SharedPreferences.getInstance();
+  //final sharedPreferences = await SharedPreferences.getInstance();
 }
 
 void initSearch() {
@@ -261,5 +261,9 @@ sl.registerLazySingleton(
     () => UserRemoteDatasourceImpl(
       client: sl(),
     ),
+  );
+
+   sl.registerLazySingleton<UserLocalDatasource>(
+    () => UserLocalDatasourceImpl(),
   );
 }

@@ -24,6 +24,9 @@ class _LandingPageState extends State<LandingPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
+           // Space().height(context,0.04),
+
             DefaultButton(
               onTap: (){
                 Navigator.push(
@@ -33,7 +36,7 @@ class _LandingPageState extends State<LandingPage> {
               },
               label: "Signin",
             ),
-            Space().height(context, 0.02),
+
             DefaultButton(
               onTap: (){
                 Navigator.push(
