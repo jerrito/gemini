@@ -25,7 +25,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Signup")),
+        appBar: AppBar(title: const Text("Signup")),
         bottomSheet: Padding(
           padding: EdgeInsets.symmetric(
               horizontal: Sizes().height(context, 0.01),
@@ -36,20 +36,18 @@ class _SignupPageState extends State<SignupPage> {
               if (state is SignupSupabaseError) {
                 if (!context.mounted) return;
                 showErrorSnackbar(context, state.errorMessage);
-                print(state.errorMessage);
               }
-              if (state is AddUserSupabaseLoaded) {
+              
+              if (state is CacheUserDataError) {
+if (!context.mounted) return;
+                showErrorSnackbar(context, state.errorMessage);
+              }
+              if (state is CacheUserDataLoaded) {
                 context.goNamed("searchPage");
               }
-              if (state is AddUserSupabaseError) {}
               if (state is SignupSupabaseLoaded) {
-                print(state.data.user?.id);
-                final Map<String, dynamic> params = {
-                  "email": emailController.text,
-                  "password": passwordController.text,
-                  "userName": nameController.text,
-                };
-                userBloc.add(AddUserSupabaseEvent(params: params));
+                 userBloc.add(CacheUserDataEvent(user: state.data.user!));
+                
               }
             },
             builder: (context, state) {

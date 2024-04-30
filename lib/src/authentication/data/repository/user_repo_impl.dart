@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
+import 'package:gemini/src/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/src/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/src/authentication/domain/entities/user.dart';
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
@@ -8,9 +9,10 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 class UserRepositoryImpl implements UserRepository {
   final NetworkInfo networkInfo;
   final UserRemoteDatasource userRemoteDatasource;
+  final UserLocalDatasource userLocalDatasource;
 
-  UserRepositoryImpl(
-      {required this.userRemoteDatasource, required this.networkInfo});
+  UserRepositoryImpl({required this.userLocalDatasource,
+      required this.userRemoteDatasource, required this.networkInfo});
 
   @override
   Future<Either<String, User>> signin(Map<String, dynamic> params) async {
@@ -91,7 +93,8 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<String,supabase.AuthResponse>> signUpSupabase(Map<String, dynamic> params) async {
+  Future<Either<String, supabase.AuthResponse>> signUpSupabase(
+      Map<String, dynamic> params) async {
     if (await networkInfo.isConnected) {
       try {
         final response = await userRemoteDatasource.signUpSupabase(params);
@@ -104,10 +107,11 @@ class UserRepositoryImpl implements UserRepository {
       return Left(networkInfo.noNetworkMessage);
     }
   }
-  
+
   @override
-  Future<Either<String,void>> signInOTPSupabase(Map<String, dynamic> params) async{
-   if (await networkInfo.isConnected) {
+  Future<Either<String, void>> signInOTPSupabase(
+      Map<String, dynamic> params) async {
+    if (await networkInfo.isConnected) {
       try {
         final response = await userRemoteDatasource.signInOTPSupabase(params);
 
@@ -119,12 +123,14 @@ class UserRepositoryImpl implements UserRepository {
       return Left(networkInfo.noNetworkMessage);
     }
   }
-  
+
   @override
-  Future<Either<String,supabase.AuthResponse>> signInPasswordSupabase(Map<String, dynamic> params) async{
-  if (await networkInfo.isConnected) {
+  Future<Either<String, supabase.AuthResponse>> signInPasswordSupabase(
+      Map<String, dynamic> params) async {
+    if (await networkInfo.isConnected) {
       try {
-        final response = await userRemoteDatasource.signInPasswordSupabase(params);
+        final response =
+            await userRemoteDatasource.signInPasswordSupabase(params);
 
         return Right(response);
       } catch (e) {
@@ -134,9 +140,9 @@ class UserRepositoryImpl implements UserRepository {
       return Left(networkInfo.noNetworkMessage);
     }
   }
-  
+
   @override
-  Future addUserSupabase(Map<String, dynamic> params) async{
+  Future addUserSupabase(Map<String, dynamic> params) async {
     if (await networkInfo.isConnected) {
       try {
         final response = await userRemoteDatasource.addUserSupabase(params);
@@ -147,6 +153,26 @@ class UserRepositoryImpl implements UserRepository {
       }
     } else {
       return Left(networkInfo.noNetworkMessage);
+    }
+  }
+
+  @override
+   Future<Either<String,supabase.User>> cacheUserData(supabase.User user) async {
+    try {
+      final data = await userLocalDatasource.cacheUserData(user);
+      return Right(data);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, supabase.User>> getUserData() async{
+    try {
+      final data =await userLocalDatasource.getUserData();
+      return Right(data);
+    } catch (e) {
+      return Left(e.toString());
     }
   }
 }

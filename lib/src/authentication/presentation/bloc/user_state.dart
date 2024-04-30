@@ -130,3 +130,28 @@ class AddUserSupabaseError extends UserState{
   final String errorMessage;
  AddUserSupabaseError({required this.errorMessage});
 }
+
+class CacheUserDataLoaded extends UserState{
+  final dynamic data;
+ CacheUserDataLoaded({required this.data});  
+}
+
+class CacheUserDataLoading extends UserState{}
+
+class CacheUserDataError extends UserState{
+  final String errorMessage;
+ CacheUserDataError({required this.errorMessage});
+}
+
+
+class GetUserDataLoaded extends UserState{
+  final dynamic data;
+ GetUserDataLoaded({required this.data});  
+}
+
+class GetUserDataLoading extends UserState{}
+
+class GetUserDataError extends UserState{
+  final String errorMessage;
+ GetUserDataError({required this.errorMessage});
+}

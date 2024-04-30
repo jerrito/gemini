@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/src/authentication/domain/entities/user.dart';
 import 'package:gemini/src/authentication/domain/usecases/add_user.dart';
+import 'package:gemini/src/authentication/domain/usecases/cache_user.dart';
+import 'package:gemini/src/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/sign_otp_supabase.dart';
 import 'package:gemini/src/authentication/domain/usecases/signin.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_otp.dart';
@@ -25,6 +27,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   final SigninPasswordSupabase signinPasswordSupabase;
   final SigninOTPSupabase signinOTPSupabase;
   final AddUserSupabase addUserSupabase;
+  final CacheUserData cacheUserData;
+  final GetUserData getUserData;
   UserBloc({
     required this.signup,
     required this.signin,
@@ -36,6 +40,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     required this.signupSupabase,
     required this.signinOTPSupabase,
     required this.signinPasswordSupabase,
+    required this.getUserData,
+    required this.cacheUserData,
   }) : super(InitState()) {
     on<SignupEvent>(
       (event, emit) async {
@@ -121,18 +127,45 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             (r) => SigninOTPSupabaseLoaded()));
       },
     );
-    on<AddUserSupabaseEvent>(
-      (event, emit) async {
-        emit(AddUserSupabaseLoading());
-        final response = await addUserSupabase.call(event.params);
+
+    on<AddUserSupabaseEvent>((event, emit) async {
+      emit(AddUserSupabaseLoading());
+      final response = await addUserSupabase.call(event.params);
+
+      emit(
+        response.fold(
+          (l) => AddUserSupabaseError(errorMessage: l),
+          (r) => AddUserSupabaseLoaded(data: r),
+        ),
+      );
+
+      //! CACHE DATA
+      on<CacheUserDataEvent>((event, emit) async {
+        emit(CacheUserDataLoading());
+        final response = await cacheUserData.cacheUserData(event.user);
 
         emit(
           response.fold(
-            (l) => AddUserSupabaseError(errorMessage: l),
-            (r) => AddUserSupabaseLoaded(data: r),
+            (l) => CacheUserDataError(errorMessage: l),
+            (r) => CacheUserDataLoaded(data: r),
           ),
         );
-      },
-    );
+      });
+
+      //! GET CACHED DATA
+      on<GetUserCacheDataEvent>(
+        (event, emit) async {
+          emit(GetUserDataLoading());
+          final response = await getUserData.getUserData();
+
+          emit(
+            response.fold(
+              (l) => GetUserDataError(errorMessage: l),
+              (r) => GetUserDataLoaded(data: r),
+            ),
+          );
+        },
+      );
+    });
   }
 }

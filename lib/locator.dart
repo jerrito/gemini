@@ -4,8 +4,10 @@ import 'package:gemini/src/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/src/authentication/data/repository/user_repo_impl.dart';
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
 import 'package:gemini/src/authentication/domain/usecases/add_user.dart';
+import 'package:gemini/src/authentication/domain/usecases/cache_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/confirm_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_otp.dart';
+import 'package:gemini/src/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user_from_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/sign_otp_supabase.dart';
 import 'package:gemini/src/authentication/domain/usecases/signin.dart';
@@ -166,10 +168,24 @@ void initAuthentication() {
       signupSupabase: sl(),
       signinPasswordSupabase: sl(),
       addUserSupabase: sl(),
+      getUserData: sl(),
+      cacheUserData:  sl(),
     ),
   );
 
   //usecases
+
+sl.registerLazySingleton(
+    () => CacheUserData(
+      repository: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(
+    () => GetUserData(
+      repository: sl(),
+    ),
+  );
 
  sl.registerLazySingleton(
     () => SignupSupabase(
@@ -233,8 +249,10 @@ void initAuthentication() {
 
   sl.registerLazySingleton<UserRepository>(
     () => UserRepositoryImpl(
+      userLocalDatasource:sl(),
       userRemoteDatasource: sl(),
       networkInfo: sl(),
+      
     ),
   );
 

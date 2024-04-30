@@ -53,4 +53,14 @@ class AddUserSupabaseEvent extends UserEvent {
 }
 
 
+class CacheUserDataEvent extends UserEvent {
+   final supabase.User user;
+  CacheUserDataEvent({required this.user});
+}
+
+class GetUserCacheDataEvent extends UserEvent {
+  
+  GetUserCacheDataEvent();
+}
+
 
