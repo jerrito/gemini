@@ -30,6 +30,7 @@ import 'package:gemini/src/search_text/domain/usecase/search_text_image.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 

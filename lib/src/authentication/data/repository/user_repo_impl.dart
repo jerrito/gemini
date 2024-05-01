@@ -157,9 +157,9 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-   Future<Either<String,supabase.User>> cacheUserData(supabase.User user, String userName) async {
+   Future<Either<String,dynamic>> cacheUserData(supabase.User user, User userData) async {
     try {
-      final data = await userLocalDatasource.cacheUserData(user, userName);
+      final data = await userLocalDatasource.cacheUserData(user, userData);
       return Right(data);
     } catch (e) {
       return Left(e.toString());
@@ -167,7 +167,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<String, supabase.User>> getUserData() async{
+  Future<Either<String, User>> getUserData() async{
     try {
       final data =await userLocalDatasource.getUserData();
       return Right(data);

@@ -36,6 +36,8 @@ class _LandingPageState extends State<LandingPage> {
               },
               label: "Signin",
             ),
+            
+            Space().height(context,0.02),
 
             DefaultButton(
               onTap: (){

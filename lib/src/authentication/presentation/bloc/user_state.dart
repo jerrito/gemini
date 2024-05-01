@@ -139,7 +139,7 @@ class CacheUserDataError extends UserState {
 }
 
 class GetUserCachedDataLoaded extends UserState {
-  final supabase.User user;
+  final User user;
   GetUserCachedDataLoaded({required this.user});
 }
 

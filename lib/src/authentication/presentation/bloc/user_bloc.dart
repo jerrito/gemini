@@ -143,7 +143,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<CacheUserDataEvent>((event, emit) async {
       //  emit(CacheUserDataLoading());
       final response =
-          await cacheUserData.cacheUserData(event.user, event.userName);
+          await cacheUserData.cacheUserData(event.user, event.userData);
 
       emit(
         response.fold(

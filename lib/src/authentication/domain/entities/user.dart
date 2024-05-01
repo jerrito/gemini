@@ -19,4 +19,12 @@ class User extends Equatable {
     phoneNumber,
     token,
   ];
+   Map<String, dynamic> toMap()=>
+  {
+    "userName":userName,
+    "email":email,
+    "password":password,
+    "phoneNumber":phoneNumber,
+    "token":token,
+  };
 }

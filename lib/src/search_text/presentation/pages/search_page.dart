@@ -48,6 +48,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   String name = "";
   String joinedSnapInfo = "";
   String? email;
+  String? userName;
   String initText = "";
   final controller = TextEditingController();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -64,13 +65,13 @@ class _SearchTextPage extends State<SearchTextPage> {
   void initState() {
     super.initState();
     initText = controller.text;
-    
   }
 
   List<TextEntity>? data = [];
 
   @override
   Widget build(BuildContext context) {
+    userBloc.add(GetUserCacheDataEvent());
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -689,109 +690,144 @@ class _SearchTextPage extends State<SearchTextPage> {
                   ),
                 );
               }
-              return isSpeechTextEnabled
-                  ? const Center(child: Text('Listening'))
-                  : SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Space().height(context, 0.1),
-                          Lottie.asset(ai2Json),
-                          Space().height(context, 0.05),
-                          Center(
-                            child: Text(info,
-                                style: const TextStyle(fontSize: 16)),
-                          ),
-                        ],
+              if (isSpeechTextEnabled) {
+                return const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Text(
+                        'Listening',
                       ),
-                    );
+                    ),
+                    Text("00:01"),
+                  ],
+                );
+              } else {
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Space().height(context, 0.1),
+                      Lottie.asset(ai2Json),
+                      Space().height(context, 0.05),
+                      Center(
+                        child: Text(info, style: const TextStyle(fontSize: 16)),
+                      ),
+                    ],
+                  ),
+                );
+              }
             },
           ),
         ),
       ),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            Space().height(context, 0.07),
-            SearchTypeWidget(
-              color: type == 1
-                  ? Colors.lightBlueAccent
-                  : Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-              icon: Icons.stream,
-              onPressed: () {
-                type = 1;
-                isTextImage = false;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Stream content",
-            ),
-            SearchTypeWidget(
-              color: type == 3
-                  ? Colors.lightBlueAccent
-                  : Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-              icon: Icons.image_search,
-              onPressed: () {
-                type = 3;
-                isTextImage = true;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Search text with image",
-            ),
-            SearchTypeWidget(
-              color: type == 2
-                  ? Colors.lightBlueAccent
-                  : Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-              icon: Icons.chat,
-              onPressed: () async {
-                type = 2;
-                isTextImage = false;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Chat with bot",
-            ),
-            SearchTypeWidget(
-              color: type == 4
-                  ? Colors.lightBlueAccent
-                  : Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : const Color.fromRGBO(0, 0, 0, 1),
-              icon: Icons.text_format,
-              onPressed: () {
-                // Provider.
-                type = 4;
-                isTextImage = false;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              label: "Await content",
-            ),
-            const Divider(
-              thickness: 2,
-            ),
-            const Center(
-              child: Text("History",
-                  style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.underline)),
-            ),
-            BlocConsumer(
-              bloc: searchBloc2,
-              builder: (context, state) {
-                if (state is ReadDataLoading) {
-                  //  print("dd");
-                  return const HistoryShimmer();
-                }
+      drawer: SafeArea(
+        child: Drawer(
+          child: Column(
+            children: [
+              BlocListener(
+                bloc: userBloc,
+                listener: (context, state) async {
+                  if (state is GetUserCachedDataLoaded) {
+                    email = state.user.email;
+                    userName = state.user.userName;
+                  }
+                  if (state is GetUserCacheDataError) {}
+                },
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      CircleAvatar(
+                        child: Text(
+                          userName?.substring(0, 1).toUpperCase() ??
+                              email?.substring(0, 1).toUpperCase() ??
+                              "",
+                        ),
+                      ),
+                      Text(
+                        userName ?? email ?? "",
+                      ),
+                    ]),
+              ),
+              SearchTypeWidget(
+                color: type == 1
+                    ? Colors.lightBlueAccent
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                icon: Icons.stream,
+                onPressed: () {
+                  type = 1;
+                  isTextImage = false;
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                label: "Stream content",
+              ),
+              SearchTypeWidget(
+                color: type == 3
+                    ? Colors.lightBlueAccent
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                icon: Icons.image_search,
+                onPressed: () {
+                  type = 3;
+                  isTextImage = true;
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                label: "Search text with image",
+              ),
+              SearchTypeWidget(
+                color: type == 2
+                    ? Colors.lightBlueAccent
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                icon: Icons.chat,
+                onPressed: () async {
+                  type = 2;
+                  isTextImage = false;
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                label: "Chat with bot",
+              ),
+              SearchTypeWidget(
+                color: type == 4
+                    ? Colors.lightBlueAccent
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : const Color.fromRGBO(0, 0, 0, 1),
+                icon: Icons.text_format,
+                onPressed: () {
+                  // Provider.
+                  type = 4;
+                  isTextImage = false;
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                label: "Await content",
+              ),
+              const Divider(
+                thickness: 2,
+              ),
+              const Center(
+                child: Text("History",
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.underline)),
+              ),
+              BlocConsumer(
+                bloc: searchBloc2,
+                builder: (context, state) {
+                  if (state is ReadDataLoading) {
+                    //  print("dd");
+                    return const HistoryShimmer();
+                  }
 
                   if (state is ReadDataLoaded) {
                     final response = state.data;
