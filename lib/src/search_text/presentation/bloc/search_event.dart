@@ -1,62 +1,56 @@
 part of 'search_bloc.dart';
 
-class SearchEvent {}
+sealed class SearchEvent extends Equatable {
+  const SearchEvent();
 
-class SearchTextEvent extends SearchEvent {
-  final Map<String, dynamic> params;
-  SearchTextEvent({required this.params});
+  @override
+  List<Object> get props => [];
 }
 
-class SearchTextAndImageEvent extends SearchEvent {
+final class SearchTextEvent extends SearchEvent {
   final Map<String, dynamic> params;
-  SearchTextAndImageEvent({required this.params});
+  const SearchTextEvent({required this.params});
 }
 
-class GenerateContentEvent extends SearchEvent {
+final class SearchTextAndImageEvent extends SearchEvent {
   final Map<String, dynamic> params;
-  GenerateContentEvent({required this.params});
+  const SearchTextAndImageEvent({required this.params});
 }
 
-class AddMultipleImageEvent extends SearchEvent {
+final class GenerateContentEvent extends SearchEvent {
+  final Map<String, dynamic> params;
+  const GenerateContentEvent({required this.params});
+}
+
+final class AddMultipleImageEvent extends SearchEvent {
   final NoParams noParams;
 
-  AddMultipleImageEvent({required this.noParams});
+  const AddMultipleImageEvent({required this.noParams});
 }
 
-class ChatEvent extends SearchEvent {
+final class ChatEvent extends SearchEvent {
   final Map<String, dynamic> params;
-  ChatEvent({required this.params});
+  const ChatEvent({required this.params});
 }
 
-class GenerateStreamEvent extends SearchEvent {
+final class GenerateStreamEvent extends SearchEvent {
   final Map<String, dynamic> params;
-  GenerateStreamEvent({required this.params});
+  const GenerateStreamEvent({required this.params});
 }
 
-class GenerateStreamStopEvent extends SearchEvent{}
+final class GenerateStreamStopEvent extends SearchEvent {}
 
-class ReadSQLDataEvent extends SearchEvent{}
+final class ReadSQLDataEvent extends SearchEvent {}
 
-class ReadDataDetailsEvent extends SearchEvent{
-   final Map<String, dynamic> params;
-  ReadDataDetailsEvent({required this.params});
+final class ReadDataDetailsEvent extends SearchEvent {
+  final Map<String, dynamic> params;
+  const ReadDataDetailsEvent({required this.params});
 }
 
-class IsSpeechTextEnabledEvent extends SearchEvent{
-  
-  IsSpeechTextEnabledEvent();
-}
+final class IsSpeechTextEnabledEvent extends SearchEvent {}
 
-class ListenSpeechTextEvent extends SearchEvent{
-  
-  ListenSpeechTextEvent();
-}
+final class ListenSpeechTextEvent extends SearchEvent {}
 
-class StopSpeechTextEvent extends SearchEvent{
-  
-  StopSpeechTextEvent();
-}
-class OnSpeechResultEvent extends SearchEvent{
-  
-  OnSpeechResultEvent();
-}
+final class StopSpeechTextEvent extends SearchEvent {}
+
+final class OnSpeechResultEvent extends SearchEvent {}

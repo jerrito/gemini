@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gemini/core/routes/go_router.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/src/authentication/presentation/provider/user_provider.dart';
+import 'package:gemini/src/search_text/presentation/pages/search_page.dart';
 import 'package:gemini/src/sql_database/database/text_database.dart';
 import 'package:provider/provider.dart';
 import "package:supabase_flutter/supabase_flutter.dart";

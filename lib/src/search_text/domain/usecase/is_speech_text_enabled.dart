@@ -1,4 +1,5 @@
 
+
 import 'package:dartz/dartz.dart';
 import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/src/search_text/domain/repository/search_repository.dart';

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:gemini/core/urls/urls.dart';
 import 'package:gemini/src/authentication/data/models/user_model.dart';
 import 'package:http/http.dart' as http;

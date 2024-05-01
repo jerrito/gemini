@@ -1,133 +1,138 @@
 part of 'search_bloc.dart';
 
-class SearchState {}
+sealed class SearchState extends Equatable {
+  const SearchState();
 
-class SearchInitState extends SearchState {}
+  @override
+  List<Object> get props => [];
+}
 
-class SearchTextLoading extends SearchState {}
+final class SearchInitState extends SearchState {}
 
-class SearchTextLoaded extends SearchState {
+final class SearchTextLoading extends SearchState {}
+
+final class SearchTextLoaded extends SearchState {
   final String data;
-  SearchTextLoaded({required this.data});
+  const SearchTextLoaded({required this.data});
 }
 
-class SearchTextError extends SearchState {
+final class SearchTextError extends SearchState {
   final String errorMessage;
-  SearchTextError({required this.errorMessage});
+  const SearchTextError({required this.errorMessage});
 }
 
-class ChatLoading extends SearchState {}
+final class ChatLoading extends SearchState {}
 
-class ChatLoaded extends SearchState {
+final class ChatLoaded extends SearchState {
   final String data;
-  ChatLoaded({required this.data});
+  const ChatLoaded({required this.data});
 }
 
-class ChatError extends SearchState {
+final class ChatError extends SearchState {
   final String errorMessage;
-  ChatError({required this.errorMessage});
+  const ChatError({required this.errorMessage});
 }
 
-class SearchTextAndImageLoading extends SearchState {}
+final class SearchTextAndImageLoading extends SearchState {}
 
-class SearchTextAndImageLoaded extends SearchState {
+final class SearchTextAndImageLoaded extends SearchState {
   final dynamic data;
-  SearchTextAndImageLoaded({required this.data});
+  const SearchTextAndImageLoaded({required this.data});
 }
 
-class SearchTextAndImageError extends SearchState {
+final class SearchTextAndImageError extends SearchState {
   final String errorMessage;
-  SearchTextAndImageError({required this.errorMessage});
+  const SearchTextAndImageError({required this.errorMessage});
 }
 
-class GenerateContentLoading extends SearchState {}
+final class GenerateContentLoading extends SearchState {}
 
-class GenerateContentLoaded extends SearchState {
+final class GenerateContentLoaded extends SearchState {
   final dynamic data;
-  GenerateContentLoaded({required this.data});
+  const GenerateContentLoaded({required this.data});
 }
 
-class GenerateContentError extends SearchState {
+final class GenerateContentError extends SearchState {
   final String errorMessage;
-  GenerateContentError({required this.errorMessage});
+  const GenerateContentError({required this.errorMessage});
 }
 
-class AddMultipleImageLoading extends SearchState {}
+final class AddMultipleImageLoading extends SearchState {}
 
-class AddMultipleImageLoaded extends SearchState {
+final class AddMultipleImageLoaded extends SearchState {
   final Map<List<Uint8List>, List<String>> data;
 
-  AddMultipleImageLoaded({required this.data});
+  const AddMultipleImageLoaded({required this.data});
 }
 
-class AddMultipleImageError extends SearchState {
+final class AddMultipleImageError extends SearchState {
   final String errorMessage;
-  AddMultipleImageError({required this.errorMessage});
+  const AddMultipleImageError({required this.errorMessage});
 }
 
-class GenerateStream extends SearchState {}
+final class GenerateStream extends SearchState {}
 
-class GenerateStreamLoading extends SearchState{}
-class GenerateStreamError extends SearchState {
+final class GenerateStreamLoading extends SearchState {}
+
+final class GenerateStreamError extends SearchState {
   final String errorMessage;
-   GenerateStreamError({required this.errorMessage});
+  const GenerateStreamError({required this.errorMessage});
 }
 
-class GenerateStreamStop extends SearchState {}
+final class GenerateStreamStop extends SearchState {}
 
-class ReadDataLoaded extends SearchState {
+final class ReadDataLoaded extends SearchState {
   final List<TextEntity>? data;
 
-  ReadDataLoaded({required this.data});
+  const ReadDataLoaded({required this.data});
 }
 
-class ReadDataLoading extends SearchState {}
+final class ReadDataLoading extends SearchState {}
 
-class ReadDataError extends SearchState {
+final class ReadDataError extends SearchState {
   final String errorMessage;
-  ReadDataError({required this.errorMessage});
+  const ReadDataError({required this.errorMessage});
 }
 
-class ReadDataDetailsLoaded extends SearchState {
+final class ReadDataDetailsLoaded extends SearchState {
   final TextEntity? textEntity;
 
-  ReadDataDetailsLoaded(this.textEntity);
+  const ReadDataDetailsLoaded(this.textEntity);
 }
 
-class IsSpeechTextEnabledError extends SearchState {
+final class IsSpeechTextEnabledError extends SearchState {
   final String errorMessage;
-  IsSpeechTextEnabledError({required this.errorMessage});
+  const IsSpeechTextEnabledError({required this.errorMessage});
 }
 
-class IsSpeechTextEnabledLoaded extends SearchState {
-  final bool isSpeechTextEnabled;
-  IsSpeechTextEnabledLoaded({required this.isSpeechTextEnabled});
-}
+final class IsSpeechTextEnabledLoaded extends SearchState {}
 
-class StopSpeechTextError extends SearchState {
+final class StopSpeechTextError extends SearchState {
   final String errorMessage;
-  StopSpeechTextError({required this.errorMessage});
+  const StopSpeechTextError({required this.errorMessage});
 }
 
-class StopSpeechTextLoaded extends SearchState {
-  StopSpeechTextLoaded();
+final class StopSpeechTextLoaded extends SearchState {
+  const StopSpeechTextLoaded();
 }
 
-class ListenSpeechTextError extends SearchState {
+final class ListenSpeechTextError extends SearchState {
   final String errorMessage;
-  ListenSpeechTextError({required this.errorMessage});
+  const ListenSpeechTextError({required this.errorMessage});
 }
 
-class OnSpeechResultError extends SearchState {
+final class OnSpeechResultError extends SearchState {
   final String errorMessage;
-  OnSpeechResultError({required this.errorMessage});
+  const OnSpeechResultError({required this.errorMessage});
 }
 
-class ListenSpeechTextLoaded extends SearchState {
-  ListenSpeechTextLoaded();
+final class ListenSpeechTextLoaded extends SearchState {
+  const ListenSpeechTextLoaded();
 }
 
-class OnSpeechResultLoaded extends SearchState {
+final class OnSpeechResultLoaded extends SearchState {
   final String result;
-  OnSpeechResultLoaded({required this.result});
+  const OnSpeechResultLoaded({required this.result});
 }
+
+final class OnSpeechResultLoading extends SearchState {}

@@ -52,6 +52,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   final controller = TextEditingController();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   bool isAvailble = false;
+  bool isSpeechTextEnabled = false;
 
   getTime() {
     Timer.periodic(const Duration(seconds: 90), (timer) {
@@ -87,7 +88,7 @@ class _SearchTextPage extends State<SearchTextPage> {
               icon: const Icon(Icons.menu)),
           centerTitle: true,
           actions: [
-            BlocConsumer(
+            BlocListener(
               bloc: searchBloc3,
               listener: (context, state) {
                 if (state is OnSpeechResultLoaded) {
@@ -102,28 +103,31 @@ class _SearchTextPage extends State<SearchTextPage> {
                   searchBloc3.add(
                     ListenSpeechTextEvent(),
                   );
+                  setState(() {
+                    isSpeechTextEnabled = !isSpeechTextEnabled;
+                  });
+                }
+                if (state is StopSpeechTextLoaded) {
+                  setState(() {
+                    isSpeechTextEnabled = !isSpeechTextEnabled;
+                  });
                 }
               },
-              builder: (context, state) {
-                if (state is IsSpeechTextEnabledLoaded) {
-                  return GestureDetector(
-                    onTap: () => searchBloc3.add(StopSpeechTextEvent()),
-                    child: Container(
+              child: GestureDetector(
+                onTap: () => searchBloc3.add(isSpeechTextEnabled
+                    ? StopSpeechTextEvent()
+                    : IsSpeechTextEnabledEvent()),
+                child: isSpeechTextEnabled
+                    ? Container(
                         height: Sizes().height(context, 0.07),
                         width: Sizes().width(context, 0.14),
                         decoration: const BoxDecoration(
                             color: Color.fromARGB(255, 18, 33, 207),
                             shape: BoxShape.circle),
-                        child: const Icon(Icons.mic, color: Colors.red)),
-                  );
-                }
-                return GestureDetector(
-                  onTap: () => searchBloc3.add(
-                    IsSpeechTextEnabledEvent(),
-                  ),
-                  child: const Icon(Icons.mic),
-                );
-              },
+                        child: const Icon(Icons.mic, color: Colors.red),
+                      )
+                    : const Icon(Icons.mic),
+              ),
             ),
             Space().width(context, 0.04)
           ]),
@@ -232,611 +236,562 @@ class _SearchTextPage extends State<SearchTextPage> {
           ),
         ),
         child: BlocListener(
-            bloc: searchBloc2,
-            listener: (context, state) async {
-              if (state is AddMultipleImageLoaded) {
-                all.clear();
-                imageExtensions.clear();
-                imageLength = 0;
-                //  info = "";
-                question = "";
+          bloc: searchBloc2,
+          listener: (context, state) async {
+            if (state is AddMultipleImageLoaded) {
+              all.clear();
+              imageExtensions.clear();
+              imageLength = 0;
+              //  info = "";
+              question = "";
 
-                for (int i = 0; i < state.data.length; i++) {
-                  all.addAll(state.data.keys.elementAt(i));
-                  imageExtensions.addAll(state.data.values.elementAt(i));
-                }
-                imageLength = all.length;
+              for (int i = 0; i < state.data.length; i++) {
+                all.addAll(state.data.keys.elementAt(i));
+                imageExtensions.addAll(state.data.values.elementAt(i));
+              }
+              imageLength = all.length;
 
-                final dataGet = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) {
-                    return ConfirmImageWithTextPage(
-                      all: all,
-                      textData: controller.text,
-                    );
-                  }),
-                );
+              final dataGet = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) {
+                  return ConfirmImageWithTextPage(
+                    all: all,
+                    textData: controller.text,
+                  );
+                }),
+              );
 
-                if (dataGet != null) {
-                  controller.text = dataGet["text"];
-                  if (form.currentState?.validate() == true) {
-                    searchBloc.add(
-                      SearchTextAndImageEvent(
-                        params: {
-                          "text": controller.text,
-                          "ext": imageExtensions,
-                          "image": all,
-                          "images": imageLength,
-                        },
-                      ),
-                    );
-                  }
+              if (dataGet != null) {
+                controller.text = dataGet["text"];
+                if (form.currentState?.validate() == true) {
+                  searchBloc.add(
+                    SearchTextAndImageEvent(
+                      params: {
+                        "text": controller.text,
+                        "ext": imageExtensions,
+                        "image": all,
+                        "images": imageLength,
+                      },
+                    ),
+                  );
                 }
               }
-              if (state is AddMultipleImageLoading) {
-                //all.clear();
+            }
+            if (state is AddMultipleImageLoading) {
+              //all.clear();
+            }
+          },
+          child: BlocConsumer(
+            bloc: searchBloc,
+            listener: (context, state) async {
+              if (state is SearchTextLoaded) {
+                all.clear();
+
+                final newId = await searchBloc.readData();
+                final data = state.data;
+                final params = {
+                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
+                  "textTopic":
+                      (question!.isNotEmpty ? question! : repeatQuestion),
+                  "textData": data,
+                  "dateTime": DateTime.now().toString(),
+                  "eventType": 4,
+                };
+                searchBloc.addData(params);
+              }
+              // form.currentState?.validate();
+
+              if (state is ChatLoaded) {
+                all.clear();
+
+                final newId = await searchBloc.readData();
+                final data = state.data;
+                final params = {
+                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
+                  "textTopic":
+                      (question!.isNotEmpty ? question! : repeatQuestion),
+                  "textData": data,
+                  "dateTime": DateTime.now().toString(),
+                  "eventType": 3,
+                };
+                searchBloc.addData(params);
+              }
+
+              if (state is GenerateStreamStop) {
+                all.clear();
+                if (snapInfo.isNotEmpty) {
+                  final newId = await searchBloc.readData();
+                  joinedSnapInfo = snapInfo.join("");
+
+                  final params = {
+                    "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
+                    "textTopic":
+                        (question!.isNotEmpty ? question! : repeatQuestion),
+                    "textData": joinedSnapInfo,
+                    "dateTime": DateTime.now().toString(),
+                    "eventType": 1,
+                  };
+                  searchBloc.addData(params);
+                }
+              }
+
+              if (state is SearchTextAndImageLoaded) {
+                final newId = await searchBloc.readData();
+                final data = state.data;
+                final params = {
+                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
+                  "textTopic":
+                      (question!.isNotEmpty ? question! : repeatQuestion),
+                  "textData": data,
+                  "imageData": all[0],
+                  "dateTime": DateTime.now().toString(),
+                  "eventType": 2,
+                };
+                searchBloc.addData(params);
+              }
+
+              if (state is GenerateContentError) {
+                if (!context.mounted) return;
+                showErrorSnackbar(context, state.errorMessage);
+              }
+              if (state is SearchTextAndImageError) {
+                if (!context.mounted) return;
+                showErrorSnackbar(context, state.errorMessage);
+              }
+              if (state is SearchTextError) {
+                if (!context.mounted) return;
+                showErrorSnackbar(context, state.errorMessage);
+              }
+
+              if (state is GenerateStreamError) {
+                controller.text = "";
+                if (!context.mounted) return;
+                showErrorSnackbar(context, state.errorMessage);
+              }
+              if (state is ChatError) {
+                if (!context.mounted) return;
+                showErrorSnackbar(context, state.errorMessage);
+              }
+              if (state is SearchTextAndImageLoading ||
+                  state is SearchTextLoading ||
+                  state is ChatLoading ||
+                  state is GenerateStreamLoading) {
+                question = controller.text;
+                controller.text = "";
               }
             },
-            child: BlocConsumer(
-                bloc: searchBloc,
-                listener: (context, state) async {
-                  if (state is SearchTextLoaded) {
-                    all.clear();
+            builder: (context, state) {
+              if (state is SearchTextAndImageLoading ||
+                  state is SearchTextLoading ||
+                  state is ChatLoading ||
+                  state is GenerateStreamLoading) {
+                return Center(
+                  child: Lottie.asset(
+                    aiJson,
+                  ),
+                );
+              }
+              if (state is GenerateStream) {
+                final params = {"text": question};
 
-                    final newId = await searchBloc.readData();
-                    final data = state.data;
-                    final params = {
-                      "textId":
-                          newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                      "textTopic":
-                          (question!.isNotEmpty ? question! : repeatQuestion),
-                      "textData": data,
-                      "dateTime": DateTime.now().toString(),
-                      "eventType": 4,
-                    };
-                    searchBloc.addData(params);
-                  }
-                  // form.currentState?.validate();
+                return StreamBuilder(
+                    stream: searchBloc.generateStream(params),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        snapInfo.clear();
+                        return Center(
+                          child: Lottie.asset(
+                            aiJson,
+                          ),
+                        );
+                      }
 
-                  if (state is ChatLoaded) {
-                    all.clear();
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        searchBloc.add(GenerateStreamStopEvent());
+                      }
+                      if (snapshot.hasError) {
+                        // final data = snapshot.error;
 
-                    final newId = await searchBloc.readData();
-                    final data = state.data;
-                    final params = {
-                      "textId":
-                          newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                      "textTopic":
-                          (question!.isNotEmpty ? question! : repeatQuestion),
-                      "textData": data,
-                      "dateTime": DateTime.now().toString(),
-                      "eventType": 3,
-                    };
-                    searchBloc.addData(params);
-                  }
+                        // return SingleChildScrollView(
+                        //   child: Column(
+                        //     crossAxisAlignment: CrossAxisAlignment.start,
+                        //     children: [
+                        //       Text(question!.isNotEmpty
+                        //           ? question!
+                        //           : repeatQuestion),
+                        //       Space().height(context, 0.02),
+                        //       Text(data.toString()),
+                        //       Space().height(context, 0.03),
+                        //     ],
+                        //   ),
+                        // );
+                      }
+                      if (snapshot.hasData) {
+                        final data = snapshot.data?.text ??
+                            snapshot.data?.promptFeedback?.blockReasonMessage;
+                        snapInfo.add(data!);
+                        return Column(
+                          children: [
+                            // Text(question!.isNotEmpty? question! : repeatQuestion),
+                            Flexible(
+                              child: ListView.builder(
+                                itemCount: snapInfo.length,
+                                itemBuilder: (context, index) {
+                                  final dataFromSnap = snapInfo[index];
+                                  return Text(dataFromSnap);
+                                },
+                              ),
+                            ),
+                            Space().height(context, 0.1),
+                          ],
+                        );
+                      }
+                      return const SizedBox();
+                    });
+              }
+              // if(state is GenerateStreamError){
+              //   final error=state.errorMessage;
 
-                  if (state is GenerateStreamStop) {
-                    all.clear();
-                    if (snapInfo.isNotEmpty) {
-                      final newId = await searchBloc.readData();
-                      joinedSnapInfo = snapInfo.join("");
+              //    return Column(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //       children: [
+              //         Lottie.asset(noJson),
+              //         Space().height(context, 0.02),
+              //         Text(error,
+              //             style:
+              //              const   TextStyle(fontSize: 18, color: Colors.red,),),
+              //       ]);
+              //       }
 
-                      final params = {
-                        "textId":
-                            newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                        "textTopic":
-                            (question!.isNotEmpty ? question! : repeatQuestion),
-                        "textData": joinedSnapInfo,
-                        "dateTime": DateTime.now().toString(),
-                        "eventType": 1,
-                      };
-                      searchBloc.addData(params);
-                    }
-                  }
+              if (state is GenerateStreamStop) {
+                String copyTextData =
+                    (question!.isNotEmpty ? question! : repeatQuestion) +
+                        joinedSnapInfo;
 
-                  if (state is SearchTextAndImageLoaded) {
-                    final newId = await searchBloc.readData();
-                    final data = state.data;
-                    final params = {
-                      "textId":
-                          newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                      "textTopic":
-                          (question!.isNotEmpty ? question! : repeatQuestion),
-                      "textData": data,
-                      "imageData": all[0],
-                      "dateTime": DateTime.now().toString(),
-                      "eventType": 2,
-                    };
-                    searchBloc.addData(params);
-                  }
+                final params = {
+                  "text": copyTextData,
+                };
+                if (snapInfo.isEmpty) {
+                  //TODO: seperate error from no internet
+                  // GenerativeAIException(); 10ff.net edclub keybr
 
-                  if (state is GenerateContentError) {
-                    if (!context.mounted) return;
-                    showErrorSnackbar(context, state.errorMessage);
-                  }
-                  if (state is SearchTextAndImageError) {
-                    if (!context.mounted) return;
-                    showErrorSnackbar(context, state.errorMessage);
-                  }
-                  if (state is SearchTextError) {
-                    if (!context.mounted) return;
-                    showErrorSnackbar(context, state.errorMessage);
-                  }
-
-                  if (state is GenerateStreamError) {
-                    controller.text = "";
-                    if (!context.mounted) return;
-                    showErrorSnackbar(context, state.errorMessage);
-                  }
-                  if (state is ChatError) {
-                    if (!context.mounted) return;
-                    showErrorSnackbar(context, state.errorMessage);
-                  }
-                  if (state is SearchTextAndImageLoading ||
-                      state is SearchTextLoading ||
-                      state is ChatLoading ||
-                      state is GenerateStreamLoading) {
-                    question = controller.text;
-                    controller.text = "";
-                  }
-                },
-                builder: (context, state) {
-                  if (state is SearchTextAndImageLoading ||
-                      state is SearchTextLoading ||
-                      state is ChatLoading ||
-                      state is GenerateStreamLoading) {
-                    return Center(
-                      child: Lottie.asset(
-                        aiJson,
-                      ),
-                    );
-                  }
-                  if (state is GenerateStream) {
-                    final params = {"text": question};
-
-                    return StreamBuilder(
-                        stream: searchBloc.generateStream(params),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            snapInfo.clear();
-                            return Center(
-                              child: Lottie.asset(
-                                aiJson,
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Lottie.asset(noJson),
+                      Space().height(context, 0.02),
+                      const Text("Invalid request",
+                          style: TextStyle(fontSize: 18, color: Colors.red)),
+                      Space().height(context, 0.05),
+                      DefaultButton(
+                          label: "Retry",
+                          onTap: () {
+                            final param = {
+                              "text": (question!.isNotEmpty
+                                  ? question!
+                                  : repeatQuestion),
+                            };
+                            searchBloc.add(
+                              GenerateStreamEvent(
+                                params: param,
                               ),
                             );
-                          }
-
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            searchBloc.add(GenerateStreamStopEvent());
-                          }
-                          if (snapshot.hasError) {
-                            // final data = snapshot.error;
-
-                            // return SingleChildScrollView(
-                            //   child: Column(
-                            //     crossAxisAlignment: CrossAxisAlignment.start,
-                            //     children: [
-                            //       Text(question!.isNotEmpty
-                            //           ? question!
-                            //           : repeatQuestion),
-                            //       Space().height(context, 0.02),
-                            //       Text(data.toString()),
-                            //       Space().height(context, 0.03),
-                            //     ],
-                            //   ),
-                            // );
-                          }
-                          if (snapshot.hasData) {
-                            final data = snapshot.data?.text ??
-                                snapshot
-                                    .data?.promptFeedback?.blockReasonMessage;
-                            snapInfo.add(data!);
-                            return Column(
-                              children: [
-                                // Text(question!.isNotEmpty? question! : repeatQuestion),
-                                Flexible(
-                                  child: ListView.builder(
-                                    itemCount: snapInfo.length,
-                                    itemBuilder: (context, index) {
-                                      final dataFromSnap = snapInfo[index];
-                                      return Text(dataFromSnap);
-                                    },
-                                  ),
-                                ),
-                                Space().height(context, 0.1),
-                              ],
-                            );
-                          }
-                          return const SizedBox();
-                        });
-                  }
-                  // if(state is GenerateStreamError){
-                  //   final error=state.errorMessage;
-
-                  //    return Column(
-                  //     mainAxisAlignment: MainAxisAlignment.center,
-                  //       children: [
-                  //         Lottie.asset(noJson),
-                  //         Space().height(context, 0.02),
-                  //         Text(error,
-                  //             style:
-                  //              const   TextStyle(fontSize: 18, color: Colors.red,),),
-                  //       ]);
-                  //       }
-
-                  if (state is GenerateStreamStop) {
-                    String copyTextData =
-                        (question!.isNotEmpty ? question! : repeatQuestion) +
-                            joinedSnapInfo;
-
-                    final params = {
-                      "text": copyTextData,
-                    };
-                    if (snapInfo.isEmpty) {
-                      //TODO: seperate error from no internet
-                      // GenerativeAIException(); 10ff.net edclub keybr
-
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Lottie.asset(noJson),
-                          Space().height(context, 0.02),
-                          const Text("Invalid request",
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.red)),
-                          Space().height(context, 0.05),
-                          DefaultButton(
-                              label: "Retry",
-                              onTap: () {
-                                final param = {
-                                  "text": (question!.isNotEmpty
-                                      ? question!
-                                      : repeatQuestion),
-                                };
-                                searchBloc.add(
-                                  GenerateStreamEvent(
-                                    params: param,
-                                  ),
-                                );
-                              })
-                        ],
-                      );
-                    } else {
-                      return Column(
-                        children: [
-                          Text(
-                              question!.isNotEmpty ? question! : repeatQuestion,
-                              style: const TextStyle(
-                                  fontSize: 16,
-                                  decorationStyle: TextDecorationStyle.solid)),
-                          Flexible(
-                            child: ListView.builder(
-                              itemCount: snapInfo.length,
-                              itemBuilder: (context, index) {
-                                final dataFromSnap = snapInfo[index];
-                                return Text(dataFromSnap);
-                              },
-                            ),
-                          ),
-                          ButtonsBelowResult(
-                              onCopy: () async {
-                                searchBloc.copyText(params);
-                              },
-                              onRetry: null,
-                              onShare: () async {
-                                await Share.share((question!.isNotEmpty
-                                        ? question!
-                                        : repeatQuestion) +
-                                    joinedSnapInfo);
-                              }),
-                          Space().height(context, 0.1),
-                        ],
-                      );
-                    }
-                  }
-                  if (state is ChatLoaded) {
-                    final data = state.data;
-                    String copyTextData =
-                        (question!.isNotEmpty ? question! : repeatQuestion) +
-                            data.toString();
-
-                    final params = {
-                      "text": copyTextData,
-                    };
-                    return SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Text(
-                              question!.isNotEmpty ? question! : repeatQuestion,
-                              style: const TextStyle(
-                                  fontSize: 16,
-                                  decorationStyle: TextDecorationStyle.solid)),
-                          Space().height(context, 0.02),
-                          Text(data),
-                          ButtonsBelowResult(onCopy: () async {
+                          })
+                    ],
+                  );
+                } else {
+                  return Column(
+                    children: [
+                      Text(question!.isNotEmpty ? question! : repeatQuestion,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              decorationStyle: TextDecorationStyle.solid)),
+                      Flexible(
+                        child: ListView.builder(
+                          itemCount: snapInfo.length,
+                          itemBuilder: (context, index) {
+                            final dataFromSnap = snapInfo[index];
+                            return Text(dataFromSnap);
+                          },
+                        ),
+                      ),
+                      ButtonsBelowResult(
+                          onCopy: () async {
                             searchBloc.copyText(params);
-                          }, onRetry: () {
-                            repeatQuestion = question!;
-                            searchBloc.add(
-                                ChatEvent(params: {"text": repeatQuestion}));
-                          }, onShare: () async {
+                          },
+                          onRetry: null,
+                          onShare: () async {
+                            await Share.share((question!.isNotEmpty
+                                    ? question!
+                                    : repeatQuestion) +
+                                joinedSnapInfo);
+                          }),
+                      Space().height(context, 0.1),
+                    ],
+                  );
+                }
+              }
+              if (state is ChatLoaded) {
+                final data = state.data;
+                String copyTextData =
+                    (question!.isNotEmpty ? question! : repeatQuestion) +
+                        data.toString();
+
+                final params = {
+                  "text": copyTextData,
+                };
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(question!.isNotEmpty ? question! : repeatQuestion,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              decorationStyle: TextDecorationStyle.solid)),
+                      Space().height(context, 0.02),
+                      Text(data),
+                      ButtonsBelowResult(onCopy: () async {
+                        searchBloc.copyText(params);
+                      }, onRetry: () {
+                        repeatQuestion = question!;
+                        searchBloc
+                            .add(ChatEvent(params: {"text": repeatQuestion}));
+                      }, onShare: () async {
+                        await Share.share((question!.isNotEmpty
+                                ? question!
+                                : repeatQuestion) +
+                            data);
+                      }),
+                      Space().height(context, 0.1),
+                    ],
+                  ),
+                );
+              }
+
+              if (state is SearchTextAndImageLoaded) {
+                final data = state.data;
+                String copyTextData = data.toString() +
+                    (question!.isNotEmpty ? question! : repeatQuestion);
+
+                final params = {
+                  "text": copyTextData,
+                };
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text((question!.isNotEmpty ? question! : repeatQuestion),
+                          style: const TextStyle(
+                              fontSize: 16,
+                              decorationStyle: TextDecorationStyle.solid)),
+                      if (all.isNotEmpty)
+                        Column(
+                            children: List.generate(all.length, (index) {
+                          return Image.memory(all[index]);
+                        })),
+                      Space().height(context, 0.02),
+                      Text(data.toString()),
+                      ButtonsBelowResult(
+                          onCopy: () async {
+                            searchBloc.copyText(params);
+                          },
+                          onRetry: null,
+                          onShare: () async {
                             await Share.share((question!.isNotEmpty
                                     ? question!
                                     : repeatQuestion) +
                                 data);
                           }),
-                          Space().height(context, 0.1),
-                        ],
+                      Space().height(context, 0.1),
+                    ],
+                  ),
+                );
+              }
+              if (state is SearchTextLoaded) {
+                final data = state.data;
+                String copyTextData =
+                    (question!.isNotEmpty ? question! : repeatQuestion) +
+                        data.toString();
+
+                final params = {
+                  "text": copyTextData,
+                };
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(question!.isNotEmpty ? question! : repeatQuestion,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              decorationStyle: TextDecorationStyle.solid)),
+                      Space().height(context, 0.02),
+                      Text(
+                        data,
                       ),
-                    );
-                  }
-
-                  if (state is SearchTextAndImageLoaded) {
-                    final data = state.data;
-                    String copyTextData = data.toString() +
-                        (question!.isNotEmpty ? question! : repeatQuestion);
-
-                    final params = {
-                      "text": copyTextData,
-                    };
-                    return SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Text(
-                              (question!.isNotEmpty
-                                  ? question!
-                                  : repeatQuestion),
-                              style: const TextStyle(
-                                  fontSize: 16,
-                                  decorationStyle: TextDecorationStyle.solid)),
-                          if (all.isNotEmpty)
-                            Column(
-                                children: List.generate(all.length, (index) {
-                              return Image.memory(all[index]);
-                            })),
-                          Space().height(context, 0.02),
-                          Text(data.toString()),
-                          ButtonsBelowResult(
-                              onCopy: () async {
-                                searchBloc.copyText(params);
-                              },
-                              onRetry: null,
-                              onShare: () async {
-                                await Share.share((question!.isNotEmpty
-                                        ? question!
-                                        : repeatQuestion) +
-                                    data);
-                              }),
-                          Space().height(context, 0.1),
-                        ],
-                      ),
-                    );
-                  }
-                  if (state is SearchTextLoaded) {
-                    final data = state.data;
-                    String copyTextData =
-                        (question!.isNotEmpty ? question! : repeatQuestion) +
-                            data.toString();
-
-                    final params = {
-                      "text": copyTextData,
-                    };
-                    return SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Text(
-                              question!.isNotEmpty ? question! : repeatQuestion,
-                              style: const TextStyle(
-                                  fontSize: 16,
-                                  decorationStyle: TextDecorationStyle.solid)),
-                          Space().height(context, 0.02),
-                          Text(
-                            data,
-                          ),
-                          ButtonsBelowResult(onCopy: () async {
-                            searchBloc.copyText(params);
-                          }, onRetry: () {
-                            repeatQuestion = question!;
-                            searchBloc.add(SearchTextEvent(
-                                params: {"text": repeatQuestion}));
-                          }, onShare: () async {
-                            await Share.share(copyTextData);
+                      ButtonsBelowResult(onCopy: () async {
+                        searchBloc.copyText(params);
+                      }, onRetry: () {
+                        repeatQuestion = question!;
+                        searchBloc.add(
+                            SearchTextEvent(params: {"text": repeatQuestion}));
+                      }, onShare: () async {
+                        await Share.share(copyTextData);
+                      }),
+                      Space().height(context, 0.1),
+                    ],
+                  ),
+                );
+              }
+              if (state is ReadDataDetailsLoaded) {
+                final data = state.textEntity;
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(data!.textTopic,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              decorationStyle: TextDecorationStyle.solid)),
+                      Space().height(context, 0.02),
+                      if (data.imageData != null) Image.memory(data.imageData!),
+                      Space().height(context, 0.02),
+                      Text(data.textData),
+                      ButtonsBelowResult(
+                          onCopy: () async {
+                            searchBloc.copyText({"text": data.textData});
+                          },
+                          onRetry: data.eventType == 2 || data.eventType == 1
+                              ? null
+                              : () {
+                                  repeatQuestion = data.textTopic;
+                                  switch (data.eventType) {
+                                    case 3:
+                                      searchBloc.add(
+                                        ChatEvent(
+                                            params: {"text": repeatQuestion}),
+                                      );
+                                      break;
+                                    case 4:
+                                      searchBloc.add(
+                                        SearchTextEvent(
+                                            params: {"text": repeatQuestion}),
+                                      );
+                                      break;
+                                    default:
+                                      searchBloc.add(
+                                        GenerateStreamEvent(
+                                            params: {"text": repeatQuestion}),
+                                      );
+                                      break;
+                                  }
+                                },
+                          onShare: () async {
+                            await Share.share(data.textTopic + data.textData);
                           }),
-                          Space().height(context, 0.1),
-                        ],
-                      ),
-                    );
-                  }
-                  if (state is ReadDataDetailsLoaded) {
-                    final data = state.textEntity;
-                    return SingleChildScrollView(
+                      Space().height(context, 0.1),
+                    ],
+                  ),
+                );
+              }
+              return isSpeechTextEnabled
+                  ? const Center(child: Text('Listening'))
+                  : SingleChildScrollView(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(data!.textTopic,
-                              style: const TextStyle(
-                                  fontSize: 16,
-                                  decorationStyle: TextDecorationStyle.solid)),
-                          Space().height(context, 0.02),
-                          if (data.imageData != null)
-                            Image.memory(data.imageData!),
-                          Space().height(context, 0.02),
-                          Text(data.textData),
-                          ButtonsBelowResult(
-                              onCopy: () async {
-                                searchBloc.copyText({"text": data.textData});
-                              },
-                              onRetry:
-                                  data.eventType == 2 || data.eventType == 1
-                                      ? null
-                                      : () {
-                                          repeatQuestion = data.textTopic;
-                                          switch (data.eventType) {
-                                            case 3:
-                                              searchBloc.add(
-                                                ChatEvent(params: {
-                                                  "text": repeatQuestion
-                                                }),
-                                              );
-                                              break;
-                                            case 4:
-                                              searchBloc.add(
-                                                SearchTextEvent(params: {
-                                                  "text": repeatQuestion
-                                                }),
-                                              );
-                                              break;
-                                            default:
-                                              searchBloc.add(
-                                                GenerateStreamEvent(params: {
-                                                  "text": repeatQuestion
-                                                }),
-                                              );
-                                              break;
-                                          }
-                                        },
-                              onShare: () async {
-                                await Share.share(
-                                    data.textTopic + data.textData);
-                              }),
                           Space().height(context, 0.1),
+                          Lottie.asset(ai2Json),
+                          Space().height(context, 0.05),
+                          Center(
+                            child: Text(info,
+                                style: const TextStyle(fontSize: 16)),
+                          ),
                         ],
                       ),
                     );
-                  }
-                  return BlocConsumer(
-                    bloc: searchBloc3,
-                    listener: (context, state) {},
-                    builder: (context, state) {
-                      if (state is IsSpeechTextEnabledLoaded) {
-                        if (state.isSpeechTextEnabled == true) {
-                          return Container(child: Text("Listening"));
-                        }
-                      }
-                      return SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Space().height(context, 0.1),
-                            Lottie.asset(ai2Json),
-                            Space().height(context, 0.05),
-                            Center(
-                              child: Text(info,
-                                  style: const TextStyle(fontSize: 16)),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                })),
+            },
+          ),
+        ),
       ),
-      drawer: SafeArea(
-        child: Drawer(
-          child: Column(
-            children: [
-              BlocListener(
-                listener: (context, state) async {
-                  if (state is GetUserCachedDataLoaded) {
-                    email = state.user.email;
-                  }
-                  if (state is GetUserCacheDataError) {
-                    debugPrint(state.errorMessage);
-                  }
-                },
-                bloc: userBloc,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.brown.shade800,
-                      child: const Text('AH'),
-                    ),
-                    Text(email ?? "Jerrito Boateng")
-                  ],
-                ),
-              ),
-              Space().height(context, 0.07),
-              SearchTypeWidget(
-                color: type == 1
-                    ? Colors.lightBlueAccent
-                    : Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                icon: Icons.stream,
-                onPressed: () {
-                  type = 1;
-                  isTextImage = false;
-                  Navigator.pop(context);
-                  setState(() {});
-                },
-                label: "Stream content",
-              ),
-              SearchTypeWidget(
-                color: type == 3
-                    ? Colors.lightBlueAccent
-                    : Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                icon: Icons.image_search,
-                onPressed: () {
-                  type = 3;
-                  isTextImage = true;
-                  Navigator.pop(context);
-                  setState(() {});
-                },
-                label: "Search text with image",
-              ),
-              SearchTypeWidget(
-                color: type == 2
-                    ? Colors.lightBlueAccent
-                    : Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                icon: Icons.chat,
-                onPressed: () async {
-                  type = 2;
-                  isTextImage = false;
-                  Navigator.pop(context);
-                  setState(() {});
-                },
-                label: "Chat with bot",
-              ),
-              SearchTypeWidget(
-                color: type == 4
-                    ? Colors.lightBlueAccent
-                    : Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : const Color.fromRGBO(0, 0, 0, 1),
-                icon: Icons.text_format,
-                onPressed: () {
-                  // Provider.
-                  type = 4;
-                  isTextImage = false;
-                  Navigator.pop(context);
-                  setState(() {});
-                },
-                label: "Await content",
-              ),
-              const Divider(
-                thickness: 2,
-              ),
-              const Center(
-                child: Text("History",
-                    style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.underline)),
-              ),
-              BlocConsumer(
-                bloc: searchBloc2,
-                builder: (context, state) {
-                  if (state is ReadDataLoading) {
-                    //  print("dd");
-                    return const HistoryShimmer();
-                  }
+      drawer: Drawer(
+        child: Column(
+          children: [
+            Space().height(context, 0.07),
+            SearchTypeWidget(
+              color: type == 1
+                  ? Colors.lightBlueAccent
+                  : Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+              icon: Icons.stream,
+              onPressed: () {
+                type = 1;
+                isTextImage = false;
+                Navigator.pop(context);
+                setState(() {});
+              },
+              label: "Stream content",
+            ),
+            SearchTypeWidget(
+              color: type == 3
+                  ? Colors.lightBlueAccent
+                  : Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+              icon: Icons.image_search,
+              onPressed: () {
+                type = 3;
+                isTextImage = true;
+                Navigator.pop(context);
+                setState(() {});
+              },
+              label: "Search text with image",
+            ),
+            SearchTypeWidget(
+              color: type == 2
+                  ? Colors.lightBlueAccent
+                  : Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+              icon: Icons.chat,
+              onPressed: () async {
+                type = 2;
+                isTextImage = false;
+                Navigator.pop(context);
+                setState(() {});
+              },
+              label: "Chat with bot",
+            ),
+            SearchTypeWidget(
+              color: type == 4
+                  ? Colors.lightBlueAccent
+                  : Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : const Color.fromRGBO(0, 0, 0, 1),
+              icon: Icons.text_format,
+              onPressed: () {
+                // Provider.
+                type = 4;
+                isTextImage = false;
+                Navigator.pop(context);
+                setState(() {});
+              },
+              label: "Await content",
+            ),
+            const Divider(
+              thickness: 2,
+            ),
+            const Center(
+              child: Text("History",
+                  style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline)),
+            ),
+            BlocConsumer(
+              bloc: searchBloc2,
+              builder: (context, state) {
+                if (state is ReadDataLoading) {
+                  //  print("dd");
+                  return const HistoryShimmer();
+                }
 
                   if (state is ReadDataLoaded) {
                     final response = state.data;
