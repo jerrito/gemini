@@ -73,7 +73,8 @@ class _SignupPageState extends State<SignupPage> {
                       "password": passwordController.text,
                       "userName": nameController.text,
                     };
-                    userBloc.add(SignupSupabaseEvent(params: params));
+                    userBloc.add(
+                        CreateUserWithEmailAndPasswordEvent(params: params));
                   },
                   label: "Signup");
             },

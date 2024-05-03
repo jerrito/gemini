@@ -98,7 +98,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             (r) => VerifyOTPLoaded(data: r)));
       },
     );
-    on<SignupSupabaseEvent>(
+    on<CreateUserWithEmailAndPasswordEvent>(
       (event, emit) async {
         emit(CreateUserWithEmailAndPasswordLoading());
         final response =
@@ -110,7 +110,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       },
     );
 
-    on<SigninPasswordSupabaseEvent>(
+    on<SignInWithEmailLinkEvent>(
       (event, emit) async {
         emit(SignInWithEmailLinkLoading());
         final response = await signInWithEmailLink.call(event.params);
@@ -120,7 +120,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       },
     );
 
-    on<SigninOTPSupabaseEvent>(
+    on<SigninWithEmailPasswordEvent>(
       (event, emit) async {
         emit(SigninWithEmailPasswordLoading());
         final response = await signinWithEmailPassword.call(event.params);
@@ -130,7 +130,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       },
     );
 
-    on<AddUserSupabaseEvent>((event, emit) async {
+    on<IsSignInWithEmailLinkEvent>((event, emit) async {
       emit(IsSignInWithEmailLinkLoading());
       final response = await isSignInWithEmailLink.call(event.params);
 

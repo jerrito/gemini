@@ -32,30 +32,30 @@ class GetOTPEvent extends UserEvent {
   GetOTPEvent({required this.params});
 }
 
-class SignupSupabaseEvent extends UserEvent {
+class CreateUserWithEmailAndPasswordEvent extends UserEvent {
   final Map<String, dynamic> params;
-  SignupSupabaseEvent({required this.params});
+  CreateUserWithEmailAndPasswordEvent({required this.params});
 }
 
-class SigninPasswordSupabaseEvent extends UserEvent {
+class SignInWithEmailLinkEvent extends UserEvent {
   final Map<String, dynamic> params;
-  SigninPasswordSupabaseEvent({required this.params});
+  SignInWithEmailLinkEvent({required this.params});
 }
 
-class SigninOTPSupabaseEvent extends UserEvent {
+class SigninWithEmailPasswordEvent extends UserEvent {
   final Map<String, dynamic> params;
-  SigninOTPSupabaseEvent({required this.params});
+  SigninWithEmailPasswordEvent({required this.params});
 }
 
-class AddUserSupabaseEvent extends UserEvent {
+class IsSignInWithEmailLinkEvent extends UserEvent {
   final Map<String, dynamic> params;
-  AddUserSupabaseEvent({required this.params});
+  IsSignInWithEmailLinkEvent({required this.params});
 }
 
 class CacheUserDataEvent extends UserEvent {
   final User userData;
- 
-  CacheUserDataEvent({ required this.userData});
+
+  CacheUserDataEvent({required this.userData});
 }
 
 class GetUserCacheDataEvent extends UserEvent {
