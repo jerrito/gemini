@@ -4,17 +4,17 @@ import 'package:gemini/src/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/src/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/src/authentication/data/repository/user_repo_impl.dart';
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
-import 'package:gemini/src/authentication/domain/usecases/add_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/cache_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/confirm_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_otp.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user_from_token.dart';
-import 'package:gemini/src/authentication/domain/usecases/sign_otp_supabase.dart';
+import 'package:gemini/src/authentication/domain/usecases/is_email_link.dart';
+import 'package:gemini/src/authentication/domain/usecases/signin_email_password.dart';
 import 'package:gemini/src/authentication/domain/usecases/signin.dart';
-import 'package:gemini/src/authentication/domain/usecases/signin_password_supabase.dart';
+import 'package:gemini/src/authentication/domain/usecases/signin_with_email_link.dart';
 import 'package:gemini/src/authentication/domain/usecases/signup.dart';
-import 'package:gemini/src/authentication/domain/usecases/signup_supabase.dart';
+import 'package:gemini/src/authentication/domain/usecases/create_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/verify_otp.dart';
 import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
 import 'package:gemini/src/search_text/data/datasource/local_ds.dart';
@@ -166,18 +166,18 @@ void initAuthentication() {
       getOTP: sl(),
       getUserFromToken: sl(),
       verifyOTP: sl(),
-      signinOTPSupabase: sl(),
-      signupSupabase: sl(),
-      signinPasswordSupabase: sl(),
-      addUserSupabase: sl(),
+      signinWithEmailPassword: sl(),
+      createUserWithEmailAndPassword: sl(),
+      signInWithEmailLink: sl(),
+      isSignInWithEmailLink: sl(),
       getUserData: sl(),
-      cacheUserData:  sl(),
+      cacheUserData: sl(),
     ),
   );
 
   //usecases
 
-sl.registerLazySingleton(
+  sl.registerLazySingleton(
     () => CacheUserData(
       repository: sl(),
     ),
@@ -189,25 +189,25 @@ sl.registerLazySingleton(
     ),
   );
 
- sl.registerLazySingleton(
-    () => SignupSupabase(
+  sl.registerLazySingleton(
+    () => CreateUserWithEmailAndPassword(
       repository: sl(),
     ),
   );
 
   sl.registerLazySingleton(
-    () => AddUserSupabase(
+    () => IsSignInWithEmailLink(
       repository: sl(),
     ),
   );
-   
-    sl.registerLazySingleton(
-    () => SigninOTPSupabase(
+
+  sl.registerLazySingleton(
+    () => SigninWithEmailPassword(
       repository: sl(),
     ),
   );
-    sl.registerLazySingleton(
-    () => SigninPasswordSupabase(
+  sl.registerLazySingleton(
+    () => SignInWithEmailLink(
       repository: sl(),
     ),
   );
@@ -251,10 +251,9 @@ sl.registerLazySingleton(
 
   sl.registerLazySingleton<UserRepository>(
     () => UserRepositoryImpl(
-      userLocalDatasource:sl(),
+      userLocalDatasource: sl(),
       userRemoteDatasource: sl(),
       networkInfo: sl(),
-      
     ),
   );
 
@@ -265,7 +264,7 @@ sl.registerLazySingleton(
     ),
   );
 
-   sl.registerLazySingleton<UserLocalDatasource>(
+  sl.registerLazySingleton<UserLocalDatasource>(
     () => UserLocalDatasourceImpl(),
   );
 }

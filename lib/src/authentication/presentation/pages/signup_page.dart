@@ -34,7 +34,7 @@ class _SignupPageState extends State<SignupPage> {
           child: BlocConsumer(
             bloc: userBloc,
             listener: (context, state) {
-              if (state is SignupSupabaseError) {
+              if (state is CreateUserWithEmailAndPasswordError) {
                 if (!context.mounted) return;
                 showErrorSnackbar(context, state.errorMessage);
               }
@@ -46,10 +46,9 @@ class _SignupPageState extends State<SignupPage> {
               if (state is CacheUserDataLoaded) {
                 context.goNamed("searchPage");
               }
-              if (state is SignupSupabaseLoaded) {
+              if (state is CreateUserWithEmailAndPasswordLoaded) {
                 userBloc.add(
                   CacheUserDataEvent(
-                    user: state.data.user!,
                     userData: User(
                       userName: nameController.text,
                       email: emailController.text,
@@ -62,7 +61,7 @@ class _SignupPageState extends State<SignupPage> {
               }
             },
             builder: (context, state) {
-              if (state is SignupSupabaseLoading) {
+              if (state is CreateUserWithEmailAndPasswordLoading) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );

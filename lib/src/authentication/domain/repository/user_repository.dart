@@ -1,6 +1,6 @@
 import "package:dartz/dartz.dart";
+import "package:firebase_auth/firebase_auth.dart" as auth;
 import "package:gemini/src/authentication/domain/entities/user.dart";
-import "package:supabase_flutter/supabase_flutter.dart" as supabase;
 
 abstract class UserRepository {
 // signup
@@ -22,22 +22,23 @@ abstract class UserRepository {
   Future<Either<String, bool>> confirmToken(Map<String, dynamic> params);
 
   // signup supabase
-  Future<Either<String, supabase.AuthResponse>> signUpSupabase(
+  Future<Either<String, auth.UserCredential>> createUserWithEmailAndPassword(
       Map<String, dynamic> params);
 
   //signin otp
-  Future<Either<String, void>> signInOTPSupabase(Map<String, dynamic> params);
-
-  // signin with password
-  Future<Either<String, supabase.AuthResponse>> signInPasswordSupabase(
+  Future<Either<String, auth.UserCredential>> signinWithEmailPassword(
       Map<String, dynamic> params);
 
+  // signin with password
+  Future<Either<String, void>> signInWithEmailLink(Map<String, dynamic> params);
+
   //add user
-  Future addUserSupabase(Map<String, dynamic> params);
- 
- //cache user
- Future<Either<String,dynamic>> cacheUserData(supabase.User user, User userData);
+  Future<Either<String, bool>> isSignInWithEmailLink(
+      Map<String, dynamic> params);
+
+  //cache user
+  Future<Either<String, dynamic>> cacheUserData( User userData);
 
   //get User Data
- Future<Either<String,User>>  getUserData();
+  Future<Either<String, User>> getUserData();
 }

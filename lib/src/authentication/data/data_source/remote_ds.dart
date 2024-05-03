@@ -5,7 +5,9 @@ import 'package:gemini/core/urls/urls.dart';
 import 'package:gemini/src/authentication/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 abstract class UserRemoteDatasource {
   //s
@@ -28,21 +30,23 @@ abstract class UserRemoteDatasource {
   String getIPAddress();
 
   //signup supabase
-  Future<AuthResponse> signUpSupabase(Map<String, dynamic> params);
+  Future<UserCredential> createUserWithEmailAndPassword(
+      Map<String, dynamic> params);
 
   //signin otp
-  Future<void> signInOTPSupabase(Map<String, dynamic> params);
+  Future<UserCredential> signinWithEmailPassword(Map<String, dynamic> params);
 
   // signin with password
-  Future<AuthResponse> signInPasswordSupabase(Map<String, dynamic> params);
+  Future<void> signInWithEmailLink(Map<String, dynamic> params);
 
   //add userSupabase
-  Future<dynamic> addUserSupabase(Map<String, dynamic> params);
+  Future<bool> isSignInWithEmailLink(Map<String, dynamic> params);
 }
 
 class UserRemoteDatasourceImpl implements UserRemoteDatasource {
   final http.Client client;
-  final supabase = Supabase.instance.client;
+  final firebaseAuth = FirebaseAuth.instance;
+  //final firebase=Firebase.app();
 
   UserRemoteDatasourceImpl({required this.client});
   @override
@@ -130,44 +134,33 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
   }
 
   @override
-  Future<AuthResponse> signUpSupabase(Map<String, dynamic> params) async {
-    return await supabase.auth.signUp(
-        email: params["email"],
-        channel: OtpChannel.whatsapp,
-        //emailRedirectTo: ,
-        // data: {"userName": params["userName"]},
-        phone: params["phone_number"],
-        password: params["password"]);
-  }
-
-  @override
-  Future<void> signInOTPSupabase(Map<String, dynamic> params) async {
-    return await supabase.auth.signInWithOtp(
-      email: params["email"],
-      channel: OtpChannel.whatsapp,
-      //emailRedirectTo: ,
-      //data: {"userName": params["userName"]},
-      phone: params["phone_number"],
-    );
-  }
-
-  @override
-  Future<AuthResponse> signInPasswordSupabase(
+  Future<UserCredential> createUserWithEmailAndPassword(
       Map<String, dynamic> params) async {
-    return await supabase.auth.signInWithPassword(
-      email: params["email"],
+    return await firebaseAuth.createUserWithEmailAndPassword(
+        email: params["email"], password: params["password"]);
+  }
 
-      //emailRedirectTo: ,
+  @override
+  Future<UserCredential> signinWithEmailPassword(
+      Map<String, dynamic> params) async {
+    return await firebaseAuth.signInWithEmailAndPassword(
+      email: params["email"],
       password: params["password"],
-      phone: params["phone_number"],
     );
   }
 
   @override
-  Future addUserSupabase(Map<String, dynamic> params) async {
-    return await supabase.from("GeminiAccount").insert({
-      "userName": params["userName"],
-      "email": params["email"],
-    });
+  Future<UserCredential> signInWithEmailLink(
+      Map<String, dynamic> params) async {
+    return await firebaseAuth.signInWithEmailLink(
+        email: params["email"], 
+        emailLink: '');
+  }
+
+  @override
+  Future<bool> isSignInWithEmailLink(Map<String, dynamic> params) async {
+    return  firebaseAuth.isSignInWithEmailLink(
+      params["emailLink"]
+    );
   }
 }

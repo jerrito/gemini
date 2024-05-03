@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'package:gemini/src/authentication/data/models/user_model.dart';
-import 'package:gemini/src/authentication/domain/entities/user.dart' as u;
+import 'package:gemini/src/authentication/domain/entities/user.dart' ;
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class UserLocalDatasource {
-  cacheUserData(User user, u.User userData);
+  cacheUserData(User userData);
   Future<UserModel> getUserData();
 }
 
@@ -14,10 +13,10 @@ class UserLocalDatasourceImpl implements UserLocalDatasource {
   final userCacheKey = "userKey";
   SharedPreferences? sharedPreferences;
   @override
-  cacheUserData(User user, u.User userData) async {
+  cacheUserData(User userData) async {
     final sharedPreferences = await SharedPreferences.getInstance();
    
-    print(user);
+    
     print(userData);
     final data =
         await sharedPreferences.setString(userCacheKey,

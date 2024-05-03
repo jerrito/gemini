@@ -78,57 +78,55 @@ class VerifyOTPError extends UserState {
   VerifyOTPError({required this.errorMessage});
 }
 
-class SignupSupabaseLoaded extends UserState {
-  final supabase.AuthResponse data;
-  SignupSupabaseLoaded({required this.data});
+class CreateUserWithEmailAndPasswordLoaded extends UserState {
+  final auth.UserCredential data;
+  CreateUserWithEmailAndPasswordLoaded({required this.data});
 }
 
-class SignupSupabaseLoading extends UserState {}
+class CreateUserWithEmailAndPasswordLoading extends UserState {}
 
-class SignupSupabaseError extends UserState {
+class CreateUserWithEmailAndPasswordError extends UserState {
   final String errorMessage;
-  SignupSupabaseError({required this.errorMessage});
+  CreateUserWithEmailAndPasswordError({required this.errorMessage});
 }
 
-class SigninOTPSupabaseLoaded extends UserState {
-//  final void data;
-  SigninOTPSupabaseLoaded();
+class SigninWithEmailPasswordLoaded extends UserState {
+  final auth.UserCredential data;
+  SigninWithEmailPasswordLoaded({required this.data});
 }
 
-class SigninOTPSupabaseLoading extends UserState {}
+class SigninWithEmailPasswordLoading extends UserState {}
 
-class SigninOTPSupabaseError extends UserState {
+class SigninWithEmailPasswordError extends UserState {
   final String errorMessage;
-  SigninOTPSupabaseError({required this.errorMessage});
+  SigninWithEmailPasswordError({required this.errorMessage});
 }
 
-class SigninPasswordSupabaseLoaded extends UserState {
+class SignInWithEmailLinkLoaded extends UserState {
+  SignInWithEmailLinkLoaded();
+}
+
+class SignInWithEmailLinkLoading extends UserState {}
+
+class SignInWithEmailLinkError extends UserState {
+  final String errorMessage;
+  SignInWithEmailLinkError({required this.errorMessage});
+}
+
+class IsSignInWithEmailLinkLoaded extends UserState {
   final dynamic data;
-  SigninPasswordSupabaseLoaded({required this.data});
+  IsSignInWithEmailLinkLoaded({required this.data});
 }
 
-class SigninPasswordSupabaseLoading extends UserState {}
+class IsSignInWithEmailLinkLoading extends UserState {}
 
-class SigninPasswordSupabaseError extends UserState {
+class IsSignInWithEmailLinkError extends UserState {
   final String errorMessage;
-  SigninPasswordSupabaseError({required this.errorMessage});
-}
-
-class AddUserSupabaseLoaded extends UserState {
-  final dynamic data;
-  AddUserSupabaseLoaded({required this.data});
-}
-
-class AddUserSupabaseLoading extends UserState {}
-
-class AddUserSupabaseError extends UserState {
-  final String errorMessage;
-  AddUserSupabaseError({required this.errorMessage});
+  IsSignInWithEmailLinkError({required this.errorMessage});
 }
 
 class CacheUserDataLoaded extends UserState {
-  final supabase.User user;
-  CacheUserDataLoaded({required this.user});
+  CacheUserDataLoaded();
 }
 
 class CacheUserDataLoading extends UserState {}

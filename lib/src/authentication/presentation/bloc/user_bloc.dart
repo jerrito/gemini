@@ -1,18 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/src/authentication/domain/entities/user.dart';
-import 'package:gemini/src/authentication/domain/usecases/add_user.dart';
+import 'package:gemini/src/authentication/domain/usecases/is_email_link.dart';
 import 'package:gemini/src/authentication/domain/usecases/cache_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user.dart';
-import 'package:gemini/src/authentication/domain/usecases/sign_otp_supabase.dart';
+import 'package:gemini/src/authentication/domain/usecases/signin_email_password.dart';
 import 'package:gemini/src/authentication/domain/usecases/signin.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_otp.dart';
-import 'package:gemini/src/authentication/domain/usecases/signin_password_supabase.dart';
+import 'package:gemini/src/authentication/domain/usecases/signin_with_email_link.dart';
 import 'package:gemini/src/authentication/domain/usecases/signup.dart';
-import 'package:gemini/src/authentication/domain/usecases/signup_supabase.dart';
+import 'package:gemini/src/authentication/domain/usecases/create_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/verify_otp.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user_from_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/confirm_token.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 part 'user_event.dart';
 part 'user_state.dart';
 
@@ -23,10 +23,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   final GetUserFromToken getUserFromToken;
   final GetOTP getOTP;
   final VerifyOTP verifyOTP;
-  final SignupSupabase signupSupabase;
-  final SigninPasswordSupabase signinPasswordSupabase;
-  final SigninOTPSupabase signinOTPSupabase;
-  final AddUserSupabase addUserSupabase;
+  final CreateUserWithEmailAndPassword createUserWithEmailAndPassword;
+  final SignInWithEmailLink signInWithEmailLink;
+  final SigninWithEmailPassword signinWithEmailPassword;
+  final IsSignInWithEmailLink isSignInWithEmailLink;
   final CacheUserData cacheUserData;
   final GetUserData getUserData;
   UserBloc({
@@ -35,11 +35,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     required this.confirmToken,
     required this.getUserFromToken,
     required this.verifyOTP,
-    required this.addUserSupabase,
+    required this.isSignInWithEmailLink,
     required this.getOTP,
-    required this.signupSupabase,
-    required this.signinOTPSupabase,
-    required this.signinPasswordSupabase,
+    required this.createUserWithEmailAndPassword,
+    required this.signinWithEmailPassword,
+    required this.signInWithEmailLink,
     required this.getUserData,
     required this.cacheUserData,
   }) : super(InitState()) {
@@ -100,55 +100,56 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     );
     on<SignupSupabaseEvent>(
       (event, emit) async {
-        emit(SignupSupabaseLoading());
-        final response = await signupSupabase.call(event.params);
+        emit(CreateUserWithEmailAndPasswordLoading());
+        final response =
+            await createUserWithEmailAndPassword.call(event.params);
 
-        emit(response.fold((l) => SignupSupabaseError(errorMessage: l),
-            (r) => SignupSupabaseLoaded(data: r)));
+        emit(response.fold(
+            (l) => CreateUserWithEmailAndPasswordError(errorMessage: l),
+            (r) => CreateUserWithEmailAndPasswordLoaded(data: r)));
       },
     );
 
     on<SigninPasswordSupabaseEvent>(
       (event, emit) async {
-        emit(SigninPasswordSupabaseLoading());
-        final response = await signinPasswordSupabase.call(event.params);
+        emit(SignInWithEmailLinkLoading());
+        final response = await signInWithEmailLink.call(event.params);
 
-        emit(response.fold((l) => SigninPasswordSupabaseError(errorMessage: l),
-            (r) => SigninPasswordSupabaseLoaded(data: r)));
+        emit(response.fold((l) => SignInWithEmailLinkError(errorMessage: l),
+            (r) => SignInWithEmailLinkLoaded()));
       },
     );
 
     on<SigninOTPSupabaseEvent>(
       (event, emit) async {
-        emit(SigninOTPSupabaseLoading());
-        final response = await signinOTPSupabase.call(event.params);
+        emit(SigninWithEmailPasswordLoading());
+        final response = await signinWithEmailPassword.call(event.params);
 
-        emit(response.fold((l) => SigninOTPSupabaseError(errorMessage: l),
-            (r) => SigninOTPSupabaseLoaded()));
+        emit(response.fold((l) => SigninWithEmailPasswordError(errorMessage: l),
+            (r) => SigninWithEmailPasswordLoaded(data: r)));
       },
     );
 
     on<AddUserSupabaseEvent>((event, emit) async {
-      emit(AddUserSupabaseLoading());
-      final response = await addUserSupabase.call(event.params);
+      emit(IsSignInWithEmailLinkLoading());
+      final response = await isSignInWithEmailLink.call(event.params);
 
       emit(
         response.fold(
-          (l) => AddUserSupabaseError(errorMessage: l),
-          (r) => AddUserSupabaseLoaded(data: r),
+          (l) => IsSignInWithEmailLinkError(errorMessage: l),
+          (r) => IsSignInWithEmailLinkLoaded(data: r),
         ),
       );
     });
     //! CACHE DATA
     on<CacheUserDataEvent>((event, emit) async {
       //  emit(CacheUserDataLoading());
-      final response =
-          await cacheUserData.cacheUserData(event.user, event.userData);
+      final response = await cacheUserData.cacheUserData(event.userData);
 
       emit(
         response.fold(
           (l) => CacheUserDataError(errorMessage: l),
-          (r) => CacheUserDataLoaded(user: r),
+          (r) => CacheUserDataLoaded(),
         ),
       );
     });
