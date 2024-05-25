@@ -51,7 +51,6 @@ class _SigninPageState extends State<SigninPage> {
                       email: emailController.text,
                       password: null,
                       phoneNumber: null,
-                      token: null,
                     ),
                      )
                     );

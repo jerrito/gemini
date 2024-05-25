@@ -25,8 +25,6 @@ class _LandingPageState extends State<LandingPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
-           // Space().height(context,0.04),
-
             DefaultButton(
               onTap: (){
                 Navigator.push(
