@@ -41,4 +41,10 @@ abstract class UserRepository {
 
   //get User Data
   Future<Either<String, User>> getUserData();
+
+  //cache token 
+  Future<Either<String, void>> cacheToken(String token);
+
+  //get token
+  Future<Either<String,String>> getToken();
 }

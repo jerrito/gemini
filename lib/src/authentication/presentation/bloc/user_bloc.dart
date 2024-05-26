@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/src/authentication/domain/entities/user.dart';
+import 'package:gemini/src/authentication/domain/usecases/cache_token.dart';
+import 'package:gemini/src/authentication/domain/usecases/get_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/is_email_link.dart';
 import 'package:gemini/src/authentication/domain/usecases/cache_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user.dart';
@@ -29,6 +32,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   final IsSignInWithEmailLink isSignInWithEmailLink;
   final CacheUserData cacheUserData;
   final GetUserData getUserData;
+  final CacheToken cacheToken;
+  final GetToken getToken;
   UserBloc({
     required this.signup,
     required this.signin,
@@ -42,6 +47,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     required this.signInWithEmailLink,
     required this.getUserData,
     required this.cacheUserData,
+    required this.cacheToken,
+    required this.getToken,
   }) : super(InitState()) {
     on<SignupEvent>(
       (event, emit) async {
@@ -168,5 +175,27 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         );
       },
     );
+
+    on<CacheTokenEvent>((event, emit) async {
+      final response = await cacheToken.call(event.token);
+      emit(
+        response.fold(
+          (errorMessage) => CacheTokenError(errorMessage: errorMessage),
+          (response) => CacheTokenLoaded(),
+        ),
+      );
+    });
+
+    on<GetTokenEvent>((event, emit) async {
+      final response = await getToken.call(NoParams());
+      emit(
+        response.fold(
+          (errorMessage) => GetTokenError(errorMessage: errorMessage),
+          (response) => GetTokenLoaded(
+            token: response,
+          ),
+        ),
+      );
+    });
   }
 }

@@ -9,19 +9,22 @@ abstract class UserLocalDatasource {
   cacheUserData(User userData);
   cacheToken(String token);
   Future<UserModel> getUserData();
+  Future<String> getToken();
 }
 
 class UserLocalDatasourceImpl implements UserLocalDatasource {
+   
+  // Create storage
+  final storage = const FlutterSecureStorage();
+
   final userCacheKey = "userKey";
   final tokenKey = "tokenKey";
   SharedPreferences? sharedPreferences;
   @override
   cacheUserData(User userData) async {
-    final sharedPreferences = await SharedPreferences.getInstance();
 
-    print(userData);
-    final data = await sharedPreferences.setString(
-        userCacheKey, jsonEncode(userData.toMap()));
+    final data = await storage.write(
+       key: userCacheKey, value: jsonEncode(userData.toMap()));
     return data;
   }
 
@@ -31,10 +34,16 @@ class UserLocalDatasourceImpl implements UserLocalDatasource {
     final data = sharedPreferences.getString(userCacheKey)!;
     return UserModel.fromJson(json.decode(data));
   }
-  
+
   @override
-  cacheToken(String token) {
-    // TODO: implement cacheToken
-    throw UnimplementedError();
+  cacheToken(String token) async {
+    // Read value
+    await storage.write(key: tokenKey, value: token);
+  }
+
+  @override
+  Future<String> getToken() async {
+    final token = await storage.read(key: tokenKey);
+    return token!;
   }
 }

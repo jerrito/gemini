@@ -162,8 +162,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<String, dynamic>> cacheUserData(
-       User userData) async {
+  Future<Either<String, dynamic>> cacheUserData(User userData) async {
     try {
       final data = await userLocalDatasource.cacheUserData(userData);
       return Right(data);
@@ -177,6 +176,28 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final data = await userLocalDatasource.getUserData();
       return Right(data);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, dynamic>> cacheToken(String token) async {
+    try {
+      final response = await userLocalDatasource.cacheToken(token);
+
+      return Right(response);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, String>> getToken()async {
+   try {
+      final response = await userLocalDatasource.getToken();
+
+      return Right(response);
     } catch (e) {
       return Left(e.toString());
     }

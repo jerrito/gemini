@@ -1,6 +1,6 @@
 part of 'user_bloc.dart';
 
-abstract class UserEvent {}
+sealed class UserEvent {}
 
 class SignupEvent extends UserEvent {
   final Map<String, dynamic> params;
@@ -60,4 +60,13 @@ class CacheUserDataEvent extends UserEvent {
 
 class GetUserCacheDataEvent extends UserEvent {
   GetUserCacheDataEvent();
+}
+
+class CacheTokenEvent extends UserEvent {
+  final String token;
+  CacheTokenEvent({required this.token});
+}
+
+class GetTokenEvent extends UserEvent {
+  GetTokenEvent();
 }

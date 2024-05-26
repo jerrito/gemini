@@ -4,9 +4,11 @@ import 'package:gemini/src/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/src/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/src/authentication/data/repository/user_repo_impl.dart';
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
+import 'package:gemini/src/authentication/domain/usecases/cache_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/cache_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/confirm_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_otp.dart';
+import 'package:gemini/src/authentication/domain/usecases/get_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user_from_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/is_email_link.dart';
@@ -172,10 +174,24 @@ void initAuthentication() {
       isSignInWithEmailLink: sl(),
       getUserData: sl(),
       cacheUserData: sl(),
+      cacheToken: sl(),
+      getToken: sl(),
     ),
   );
 
   //usecases
+
+ sl.registerLazySingleton(
+    () => CacheToken(
+      repository: sl(),
+    ),
+  );
+
+   sl.registerLazySingleton(
+    () => GetToken(
+      repository: sl(),
+    ),
+  );
 
   sl.registerLazySingleton(
     () => CacheUserData(

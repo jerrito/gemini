@@ -147,3 +147,26 @@ class GetUserCacheDataError extends UserState {
   final String errorMessage;
   GetUserCacheDataError({required this.errorMessage});
 }
+
+class CacheTokenLoaded extends UserState {
+  CacheTokenLoaded();
+}
+
+class CacheTokenError extends UserState {
+  final String errorMessage;
+
+  CacheTokenError({required this.errorMessage});
+
+}
+
+
+class GetTokenLoaded extends UserState {
+  final String token;
+  GetTokenLoaded({required this.token});
+}
+
+class GetTokenError extends UserState {
+  final String errorMessage;
+  GetTokenError({required this.errorMessage});
+
+}
