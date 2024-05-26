@@ -42,16 +42,15 @@ class _SigninPageState extends State<SigninPage> {
             BlocConsumer(
               bloc: userBloc,
               listener: (context, state) {
-                if (state is SigninWithEmailPasswordLoaded) {
-                  final data = state.data.user;
+                if (state is SigninLoaded) {
+                  final data = state.user;
                   userBloc.add(
                     CacheUserDataEvent(
-                      userData: User(
-                      userName: emailController.text,
-                      email: emailController.text,
-                      password: null,
-                      phoneNumber: null,
-                    ),
+                      params: {
+                      "userName": data.userName,
+                      "email": data.email,
+                      "password": null,
+                    },
                      )
                     );
                 }
@@ -68,7 +67,7 @@ class _SigninPageState extends State<SigninPage> {
                         "password": passwordController.text
                       };
                       userBloc
-                          .add(SigninWithEmailPasswordEvent(params: params));
+                          .add(SigninEvent(params: params));
                     },
                     label: "Signin");
               },

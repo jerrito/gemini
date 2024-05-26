@@ -42,54 +42,6 @@ class GetUserFromTokenError extends UserState {
   GetUserFromTokenError({required this.errorMessage});
 }
 
-class ConfirmTokenLoaded extends UserState {
-  final bool confirm;
-  ConfirmTokenLoaded({required this.confirm});
-}
-
-class ConfirmTokenLoading extends UserState {}
-
-class ConfirmTokenError extends UserState {
-  final String errorMessage;
-  ConfirmTokenError({required this.errorMessage});
-}
-
-class GetOTPLoaded extends UserState {
-  final User user;
-  GetOTPLoaded({required this.user});
-}
-
-class GetOTPLoading extends UserState {}
-
-class GetOTPError extends UserState {
-  final String errorMessage;
-  GetOTPError({required this.errorMessage});
-}
-
-class VerifyOTPLoaded extends UserState {
-  final dynamic data;
-  VerifyOTPLoaded({required this.data});
-}
-
-class VerifyOTPLoading extends UserState {}
-
-class VerifyOTPError extends UserState {
-  final String errorMessage;
-  VerifyOTPError({required this.errorMessage});
-}
-
-class CreateUserWithEmailAndPasswordLoaded extends UserState {
-  final auth.UserCredential data;
-  CreateUserWithEmailAndPasswordLoaded({required this.data});
-}
-
-class CreateUserWithEmailAndPasswordLoading extends UserState {}
-
-class CreateUserWithEmailAndPasswordError extends UserState {
-  final String errorMessage;
-  CreateUserWithEmailAndPasswordError({required this.errorMessage});
-}
-
 class SigninWithEmailPasswordLoaded extends UserState {
   final auth.UserCredential data;
   SigninWithEmailPasswordLoaded({required this.data});
@@ -102,28 +54,7 @@ class SigninWithEmailPasswordError extends UserState {
   SigninWithEmailPasswordError({required this.errorMessage});
 }
 
-class SignInWithEmailLinkLoaded extends UserState {
-  SignInWithEmailLinkLoaded();
-}
 
-class SignInWithEmailLinkLoading extends UserState {}
-
-class SignInWithEmailLinkError extends UserState {
-  final String errorMessage;
-  SignInWithEmailLinkError({required this.errorMessage});
-}
-
-class IsSignInWithEmailLinkLoaded extends UserState {
-  final dynamic data;
-  IsSignInWithEmailLinkLoaded({required this.data});
-}
-
-class IsSignInWithEmailLinkLoading extends UserState {}
-
-class IsSignInWithEmailLinkError extends UserState {
-  final String errorMessage;
-  IsSignInWithEmailLinkError({required this.errorMessage});
-}
 
 class CacheUserDataLoaded extends UserState {
   CacheUserDataLoaded();

@@ -30,15 +30,16 @@ abstract class UserRemoteDatasource {
   String getIPAddress();
 
   //signup supabase
-  Future<UserCredential> createUserWithEmailAndPassword(
-      Map<String, dynamic> params);
+  Future<UserModel> createUserWithEmailAndPassword(Map<String, dynamic> params);
 
   //signin otp
-  Future<UserCredential> signinWithEmailPassword(Map<String, dynamic> params);
+  Future<UserModel> signinWithEmailPassword(Map<String, dynamic> params);
 
   // signin with password
   Future<void> signInWithEmailLink(Map<String, dynamic> params);
 
+  // get user
+  Future<UserModel> getUser(Map<String, dynamic> params);
   //add userSupabase
   Future<bool> isSignInWithEmailLink(Map<String, dynamic> params);
 }
@@ -56,7 +57,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
       "Content-Type": "application/json; charset=UTF-8",
     });
     final response = await client.post(
-        Uri.parse(getUrl(endpoint: Url.signupUrl.endpoint)),
+        getUrl(endpoint: Url.signupUrl.endpoint),
         headers: headers,
         body: {
           "name": params["name"],
@@ -90,7 +91,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
       sharedPref.setString("tokenId", "");
     }
     var tokenResponse = await http.post(
-        Uri.parse(getUrl(endpoint: Url.verifyTokenUrl.endpoint)),
+        getUrl(endpoint: Url.verifyTokenUrl.endpoint),
         headers: <String, String>{
           "Content-Type": "application/json; charset=UTF-8",
           "tokenId": token!,
@@ -114,7 +115,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
       "Content-Type": "application/json; charset=UTF-8",
     });
     final response = await http.get(
-        Uri.parse(getUrl(endpoint: Url.homeUrl.endpoint)),
+        getUrl(endpoint: Url.homeUrl.endpoint),
         headers: <String, String>{
           "Content-Type": "application/json; charset=UTF-8",
           "tokenId": "",
@@ -134,33 +135,39 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
   }
 
   @override
-  Future<UserCredential> createUserWithEmailAndPassword(
+  Future<UserModel> createUserWithEmailAndPassword(
       Map<String, dynamic> params) async {
-    return await firebaseAuth.createUserWithEmailAndPassword(
-        email: params["email"], password: params["password"]);
+    final response = await client.post(getUrl(endpoint: Url.signupUrl.endpoint),
+        body: params);
+    return jsonDecode(response.body);
   }
 
   @override
-  Future<UserCredential> signinWithEmailPassword(
-      Map<String, dynamic> params) async {
-    return await firebaseAuth.signInWithEmailAndPassword(
-      email: params["email"],
-      password: params["password"],
+  Future<UserModel> signinWithEmailPassword(Map<String, dynamic> params) async {
+    final response = await client.get(
+      getUrl(endpoint: Url.signinUrl.endpoint),
     );
+    return jsonDecode(response.body);
   }
 
   @override
   Future<UserCredential> signInWithEmailLink(
       Map<String, dynamic> params) async {
     return await firebaseAuth.signInWithEmailLink(
-        email: params["email"], 
-        emailLink: '');
+        email: params["email"], emailLink: '');
   }
 
   @override
   Future<bool> isSignInWithEmailLink(Map<String, dynamic> params) async {
-    return  firebaseAuth.isSignInWithEmailLink(
-      params["emailLink"]
+    return firebaseAuth.isSignInWithEmailLink(params["emailLink"]);
+  }
+  
+  @override
+  Future<UserModel> getUser(Map<String, dynamic> params)async {
+   
+   final response = await client.get(
+      getUrl(endpoint: Url.homeUrl.endpoint),
     );
+    return jsonDecode(response.body);
   }
 }

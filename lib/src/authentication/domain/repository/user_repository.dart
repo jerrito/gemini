@@ -9,42 +9,19 @@ abstract class UserRepository {
 // signin
   Future<Either<String, User>> signin(Map<String, dynamic> params);
 
-// verify token
-  Future<Either<String, dynamic>> verifyToken(Map<String, dynamic> params);
-
-//get OTP
-  Future<Either<String, dynamic>> getOTP(Map<String, dynamic> params);
 
 //get user from token
   Future<Either<String, User>> getUserFromToken(Map<String, dynamic> params);
 
-//confrm token
-  Future<Either<String, bool>> confirmToken(Map<String, dynamic> params);
-
-  // signup supabase
-  Future<Either<String, auth.UserCredential>> createUserWithEmailAndPassword(
-      Map<String, dynamic> params);
-
-  //signin otp
-  Future<Either<String, auth.UserCredential>> signinWithEmailPassword(
-      Map<String, dynamic> params);
-
-  // signin with password
-  Future<Either<String, void>> signInWithEmailLink(Map<String, dynamic> params);
-
-  //add user
-  Future<Either<String, bool>> isSignInWithEmailLink(
-      Map<String, dynamic> params);
-
   //cache user
-  Future<Either<String, dynamic>> cacheUserData( User userData);
+  Future<Either<String, dynamic>> cacheUserData(Map<String, dynamic> params);
 
   //get User Data
-  Future<Either<String, User>> getUserData();
+  Future<Either<String, User>> getUser(Map<String, dynamic> params);
 
-  //cache token 
+  //cache token
   Future<Either<String, void>> cacheToken(String token);
 
   //get token
-  Future<Either<String,String>> getToken();
+  Future<Either<String, String>> getToken();
 }

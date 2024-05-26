@@ -5,7 +5,6 @@ import 'package:gemini/core/widgets/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/widgets/default_button.dart';
 import 'package:gemini/core/widgets/widgets/default_textfield.dart';
 import 'package:gemini/locator.dart';
-import 'package:gemini/src/authentication/domain/entities/user.dart';
 import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
 import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
 import 'package:go_router/go_router.dart';
@@ -34,7 +33,7 @@ class _SignupPageState extends State<SignupPage> {
           child: BlocConsumer(
             bloc: userBloc,
             listener: (context, state) {
-              if (state is CreateUserWithEmailAndPasswordError) {
+              if (state is SignupError) {
                 if (!context.mounted) return;
                 showErrorSnackbar(context, state.errorMessage);
               }
@@ -46,21 +45,20 @@ class _SignupPageState extends State<SignupPage> {
               if (state is CacheUserDataLoaded) {
                 context.goNamed("searchPage");
               }
-              if (state is CreateUserWithEmailAndPasswordLoaded) {
+              if (state is SignupLoaded) {
                 userBloc.add(
                   CacheUserDataEvent(
-                    userData: User(
-                      userName: nameController.text,
-                      email: emailController.text,
-                      password: null,
-                      phoneNumber: null,
-                    ),
+                    params: {
+                      "userName": nameController.text,
+                      "email": emailController.text,
+                      "password": null,
+                    },
                   ),
                 );
               }
             },
             builder: (context, state) {
-              if (state is CreateUserWithEmailAndPasswordLoading) {
+              if (state is SignupLoading) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );

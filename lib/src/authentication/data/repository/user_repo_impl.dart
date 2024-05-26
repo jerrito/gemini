@@ -20,7 +20,7 @@ class UserRepositoryImpl implements UserRepository {
   Future<Either<String, User>> signin(Map<String, dynamic> params) async {
     if (await networkInfo.isConnected) {
       try {
-        final response = await userRemoteDatasource.signupUser(params);
+        final response = await userRemoteDatasource.signinUser(params);
         return Right(response);
       } catch (e) {
         return Left(e.toString());
@@ -44,40 +44,8 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  @override
-  Future<Either<String, dynamic>> verifyToken(
-      Map<String, dynamic> params) async {
-    // TODO: implement verifyToken
-    throw UnimplementedError();
-  }
 
-  @override
-  Future<Either<String, bool>> confirmToken(Map<String, dynamic> params) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final response = await userRemoteDatasource.confirmToken(params);
-        return Right(response);
-      } catch (e) {
-        return Left(e.toString());
-      }
-    } else {
-      return Left(networkInfo.noNetworkMessage);
-    }
-  }
 
-  @override
-  Future<Either<String, dynamic>> getOTP(Map<String, dynamic> params) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final response = await userRemoteDatasource.getOTP(params);
-        return Right(response);
-      } catch (e) {
-        return Left(e.toString());
-      }
-    } else {
-      return Left(networkInfo.noNetworkMessage);
-    }
-  }
 
   @override
   Future<Either<String, User>> getUserFromToken(
@@ -94,82 +62,6 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  @override
-  Future<Either<String, auth.UserCredential>> createUserWithEmailAndPassword(
-      Map<String, dynamic> params) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final response =
-            await userRemoteDatasource.createUserWithEmailAndPassword(params);
-
-        return Right(response);
-      } catch (e) {
-        return Left(e.toString());
-      }
-    } else {
-      return Left(networkInfo.noNetworkMessage);
-    }
-  }
-
-  @override
-  Future<Either<String, auth.UserCredential>> signinWithEmailPassword(
-      Map<String, dynamic> params) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final response =
-            await userRemoteDatasource.signinWithEmailPassword(params);
-
-        return Right(response);
-      } catch (e) {
-        return Left(e.toString());
-      }
-    } else {
-      return Left(networkInfo.noNetworkMessage);
-    }
-  }
-
-  @override
-  Future<Either<String, void>> signInWithEmailLink(
-      Map<String, dynamic> params) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final response = await userRemoteDatasource.signInWithEmailLink(params);
-
-        return Right(response);
-      } catch (e) {
-        return Left(e.toString());
-      }
-    } else {
-      return Left(networkInfo.noNetworkMessage);
-    }
-  }
-
-  @override
-  Future<Either<String, bool>> isSignInWithEmailLink(
-      Map<String, dynamic> params) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final response =
-            await userRemoteDatasource.isSignInWithEmailLink(params);
-
-        return Right(response);
-      } catch (e) {
-        return Left(e.toString());
-      }
-    } else {
-      return Left(networkInfo.noNetworkMessage);
-    }
-  }
-
-  @override
-  Future<Either<String, dynamic>> cacheUserData(User userData) async {
-    try {
-      final data = await userLocalDatasource.cacheUserData(userData);
-      return Right(data);
-    } catch (e) {
-      return Left(e.toString());
-    }
-  }
 
   @override
   Future<Either<String, User>> getUserData() async {
@@ -201,5 +93,33 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       return Left(e.toString());
     }
+  }
+  
+  @override
+  Future<Either<String,User>> getUser(Map<String, dynamic> params) async{
+     if (await networkInfo.isConnected) {
+      try {
+        final response =
+            await userRemoteDatasource.getUser(params);
+
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      }
+    } else {
+      return Left(networkInfo.noNetworkMessage);
+    }
+  }
+  
+  @override
+  Future<Either<String, dynamic>> cacheUserData(Map<String, dynamic> params)async {
+     try {
+        final response =
+            await userRemoteDatasource.getUser(params);
+
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      }
   }
 }
