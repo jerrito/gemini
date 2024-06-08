@@ -104,9 +104,15 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
 
   @override
   Future<UserModel> getUser(Map<String, dynamic> params) async {
-    final response = await client.get(
-      getUrl(endpoint: Url.homeUrl.endpoint),
-    );
+    Map<String, String>? headers = {};
+
+    headers.addAll({
+      "Content-Type": "application/json; charset=UTF-8",
+      "Authorization": params["token"]
+    });
+
+    final response = await client.get(getUrl(endpoint: Url.homeUrl.endpoint),
+        headers: headers);
     return jsonDecode(response.body);
   }
 }

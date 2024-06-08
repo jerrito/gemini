@@ -8,10 +8,11 @@ import 'package:gemini/src/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/signin.dart';
 import 'package:gemini/src/authentication/domain/usecases/signup.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user_from_token.dart';
-part 'user_event.dart';
-part 'user_state.dart';
+part 'auth_event.dart';
+part 'auth_state.dart';
 
-class UserBloc extends Bloc<UserEvent, UserState> {
+class AuthenticationBloc
+    extends Bloc<AuthenticationEvent, AuthenticationState> {
   final Signup signup;
   final Signin signin;
   final GetUserFromToken getUserFromToken;
@@ -19,7 +20,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   final GetUserData getUserData;
   final CacheToken cacheToken;
   final GetToken getToken;
-  UserBloc({
+
+  AuthenticationBloc({
     required this.signup,
     required this.signin,
     required this.getUserFromToken,
@@ -43,12 +45,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         emit(SigninLoading());
         final response = await signin.call(event.params);
 
-        emit(response.fold(
-            (error) => SigninError(errorMessage: error),
-             (response) => SigninLoaded(data:response)));
+        emit(response.fold((error) => SigninError(errorMessage: error),
+            (response) => SigninLoaded(data: response)));
       },
     );
-
 
     on<GetUserFromTokenEvent>(
       (event, emit) async {
@@ -87,7 +87,20 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     //     );
     //   },
     // );
-
+    on<GetUserEvent>((event, emit) async {
+      emit(GetUserDataLoading());
+      final response = await getUserData.call(event.params);
+      response.fold(
+        (error) => emit(
+          GetUserError(errorMessage: error),
+        ),
+        (response) => emit(
+          GetUserLoaded(
+            user: response,
+          ),
+        ),
+      );
+    });
     on<CacheTokenEvent>((event, emit) async {
       final response = await cacheToken.call(event.token);
       emit(

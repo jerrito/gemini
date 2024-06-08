@@ -5,7 +5,7 @@ import 'package:gemini/core/widgets/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/widgets/default_button.dart';
 import 'package:gemini/core/widgets/widgets/default_textfield.dart';
 import 'package:gemini/locator.dart';
-import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
+import 'package:gemini/src/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
 
 class SigninPage extends StatefulWidget {
@@ -16,7 +16,7 @@ class SigninPage extends StatefulWidget {
 }
 
 class _SigninPageState extends State<SigninPage> {
-  final userBloc = sl<UserBloc>();
+  final userBloc = sl<AuthenticationBloc>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   @override
@@ -43,18 +43,18 @@ class _SigninPageState extends State<SigninPage> {
               listener: (context, state) {
                 if (state is SigninLoaded) {
                   final user = state.data.user;
-                  final token= state.data.token;
-                  userBloc.add(
-                    CacheUserDataEvent(
-                      params: {
+                  final token = state.data.token;
+                  userBloc.add(CacheUserDataEvent(
+                    params: {
                       "userName": user.userName,
                       "email": user.email,
                     },
-                     )
-                    );
-                    userBloc.add(
-                      CacheTokenEvent(token:token,),
-                    );
+                  ));
+                  userBloc.add(
+                    CacheTokenEvent(
+                      token: token,
+                    ),
+                  );
                 }
                 if (state is SigninError) {
                   if (!context.mounted) return;
@@ -68,8 +68,7 @@ class _SigninPageState extends State<SigninPage> {
                         "email": emailController.text,
                         "password": passwordController.text
                       };
-                      userBloc
-                          .add(SigninEvent(params: params));
+                      userBloc.add(SigninEvent(params: params));
                     },
                     label: "Signin");
               },

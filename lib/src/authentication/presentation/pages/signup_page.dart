@@ -5,7 +5,7 @@ import 'package:gemini/core/widgets/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/widgets/default_button.dart';
 import 'package:gemini/core/widgets/widgets/default_textfield.dart';
 import 'package:gemini/locator.dart';
-import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
+import 'package:gemini/src/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,7 +17,7 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  final userBloc = sl<UserBloc>();
+  final userBloc = sl<AuthenticationBloc>();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();

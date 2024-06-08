@@ -11,7 +11,7 @@ import 'package:gemini/src/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user_from_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/signin.dart';
 import 'package:gemini/src/authentication/domain/usecases/signup.dart';
-import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
+import 'package:gemini/src/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:gemini/src/search_text/data/datasource/local_ds.dart';
 import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/src/search_text/data/repository/repository_impl.dart';
@@ -154,7 +154,7 @@ void initAuthentication() {
   //bloc
 
   sl.registerFactory(
-    () => UserBloc(
+    () => AuthenticationBloc(
       signin: sl(),
       signup: sl(),
       getUserFromToken: sl(),
@@ -167,13 +167,13 @@ void initAuthentication() {
 
   //usecases
 
- sl.registerLazySingleton(
+  sl.registerLazySingleton(
     () => CacheToken(
       repository: sl(),
     ),
   );
 
-   sl.registerLazySingleton(
+  sl.registerLazySingleton(
     () => GetToken(
       repository: sl(),
     ),
@@ -196,7 +196,6 @@ void initAuthentication() {
       repository: sl(),
     ),
   );
-
 
   sl.registerLazySingleton(
     () => Signin(

@@ -10,7 +10,7 @@ import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/core/widgets/widgets/bottom_sheet.dart';
 import 'package:gemini/core/widgets/widgets/default_button.dart';
 import 'package:gemini/locator.dart';
-import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
+import 'package:gemini/src/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:gemini/src/search_text/presentation/bloc/search_bloc.dart';
 import 'package:gemini/src/search_text/presentation/widgets/buttons_below.dart';
 import 'package:gemini/src/search_text/presentation/widgets/history_shimmer.dart';
@@ -33,7 +33,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   final searchBloc = sl<SearchBloc>();
   final searchBloc2 = sl<SearchBloc>();
   final searchBloc3 = sl<SearchBloc>();
-  final userBloc = sl<UserBloc>();
+  final userBloc = sl<AuthenticationBloc>();
   final form = GlobalKey<FormState>();
   List<Uint8List> all = [];
   List<String> imageExtensions = [];
@@ -70,8 +70,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   List<TextEntity>? data = [];
 
   @override
-  Widget build(
-    BuildContext context) {
+  Widget build(BuildContext context) {
     userBloc.add(GetUserCacheDataEvent());
     return Scaffold(
       key: scaffoldKey,
@@ -651,8 +650,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                               fontSize: 16,
                               decorationStyle: TextDecorationStyle.solid)),
                       Space().height(context, 0.02),
-                      if (data.imageData != null)
-                       Image.memory(data.imageData!),
+                      if (data.imageData != null) Image.memory(data.imageData!),
                       Space().height(context, 0.02),
                       Text(data.textData),
                       ButtonsBelowResult(
