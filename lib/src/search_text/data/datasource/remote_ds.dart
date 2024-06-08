@@ -16,6 +16,7 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
 
   SearchRemoteDatasourceImpl();
 
+
   @override
   Future searchText(Map<String, dynamic> params) async {
     final content = [ai.Content.text(params["text"])];

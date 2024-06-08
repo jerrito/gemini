@@ -18,9 +18,9 @@ class SignupError extends UserState {
 }
 
 class SigninLoaded extends UserState {
-  final User user;
+  final Data data;
 
-  SigninLoaded({required this.user});
+  SigninLoaded({required this.data});
 }
 
 class SigninLoading extends UserState {}
@@ -41,21 +41,6 @@ class GetUserFromTokenError extends UserState {
   final String errorMessage;
   GetUserFromTokenError({required this.errorMessage});
 }
-
-class SigninWithEmailPasswordLoaded extends UserState {
-  final auth.UserCredential data;
-  SigninWithEmailPasswordLoaded({required this.data});
-}
-
-class SigninWithEmailPasswordLoading extends UserState {}
-
-class SigninWithEmailPasswordError extends UserState {
-  final String errorMessage;
-  SigninWithEmailPasswordError({required this.errorMessage});
-}
-
-
-
 class CacheUserDataLoaded extends UserState {
   CacheUserDataLoaded();
 }
@@ -80,7 +65,8 @@ class GetUserCacheDataError extends UserState {
 }
 
 class CacheTokenLoaded extends UserState {
-  CacheTokenLoaded();
+  final String token;
+  CacheTokenLoaded({required this.token});
 }
 
 class CacheTokenError extends UserState {

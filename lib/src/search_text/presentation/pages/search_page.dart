@@ -70,7 +70,8 @@ class _SearchTextPage extends State<SearchTextPage> {
   List<TextEntity>? data = [];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context) {
     userBloc.add(GetUserCacheDataEvent());
     return Scaffold(
       key: scaffoldKey,
@@ -650,7 +651,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                               fontSize: 16,
                               decorationStyle: TextDecorationStyle.solid)),
                       Space().height(context, 0.02),
-                      if (data.imageData != null) Image.memory(data.imageData!),
+                      if (data.imageData != null)
+                       Image.memory(data.imageData!),
                       Space().height(context, 0.02),
                       Text(data.textData),
                       ButtonsBelowResult(

@@ -39,6 +39,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
           );
         }
         if (state is GetUserCacheDataError) {
+          print("fhf");
           context.goNamed("landing");
         }
 

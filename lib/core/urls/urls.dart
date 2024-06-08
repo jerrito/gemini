@@ -1,8 +1,8 @@
 import 'dart:io';
 
 enum Url {
-  signupUrl(endpoint: "signup"),
-  signinUrl(endpoint: "signin"),
+  signupUrl(endpoint: "/auth/signup"),
+  signinUrl(endpoint: "/auth/signin"),
   verifyOTPUrl(endpoint: "verify_otp"),
   verifyTokenUrl(endpoint: "verify_token"),
   homeUrl(endpoint: "me"),
@@ -20,8 +20,6 @@ Uri getUrl({required String endpoint}) {
   //return ipAddress;
   print(ipAddress);
 
-  String baseUrl = "://192.168.69.128:4000/jerrito_gemini/";
-  return Uri.parse(
-    baseUrl + endpoint);
+  String baseUrl = "https://gemini-server-qpjy.onrender.com";
+  return Uri.parse(baseUrl + endpoint);
 }
-

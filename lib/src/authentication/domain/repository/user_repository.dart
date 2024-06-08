@@ -1,5 +1,4 @@
 import "package:dartz/dartz.dart";
-import "package:firebase_auth/firebase_auth.dart" as auth;
 import "package:gemini/src/authentication/domain/entities/user.dart";
 
 abstract class UserRepository {
@@ -7,7 +6,7 @@ abstract class UserRepository {
   Future<Either<String, User>> signup(Map<String, dynamic> params);
 
 // signin
-  Future<Either<String, User>> signin(Map<String, dynamic> params);
+  Future<Either<String, Data>> signin(Map<String, dynamic> params);
 
 
 //get user from token

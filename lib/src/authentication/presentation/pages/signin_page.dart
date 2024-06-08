@@ -5,7 +5,6 @@ import 'package:gemini/core/widgets/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/widgets/default_button.dart';
 import 'package:gemini/core/widgets/widgets/default_textfield.dart';
 import 'package:gemini/locator.dart';
-import 'package:gemini/src/authentication/domain/entities/user.dart';
 import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
 import 'package:gemini/src/search_text/presentation/widgets/show_error.dart';
 
@@ -43,18 +42,21 @@ class _SigninPageState extends State<SigninPage> {
               bloc: userBloc,
               listener: (context, state) {
                 if (state is SigninLoaded) {
-                  final data = state.user;
+                  final user = state.data.user;
+                  final token= state.data.token;
                   userBloc.add(
                     CacheUserDataEvent(
                       params: {
-                      "userName": data.userName,
-                      "email": data.email,
-                      "password": null,
+                      "userName": user.userName,
+                      "email": user.email,
                     },
                      )
                     );
+                    userBloc.add(
+                      CacheTokenEvent(token:token,),
+                    );
                 }
-                if (state is SigninWithEmailPasswordError) {
+                if (state is SigninError) {
                   if (!context.mounted) return;
                   showErrorSnackbar(context, state.errorMessage);
                 }

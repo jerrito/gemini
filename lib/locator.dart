@@ -6,18 +6,11 @@ import 'package:gemini/src/authentication/data/repository/user_repo_impl.dart';
 import 'package:gemini/src/authentication/domain/repository/user_repository.dart';
 import 'package:gemini/src/authentication/domain/usecases/cache_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/cache_user.dart';
-import 'package:gemini/src/authentication/domain/usecases/confirm_token.dart';
-import 'package:gemini/src/authentication/domain/usecases/get_otp.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_token.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/src/authentication/domain/usecases/get_user_from_token.dart';
-import 'package:gemini/src/authentication/domain/usecases/is_email_link.dart';
-import 'package:gemini/src/authentication/domain/usecases/signin_email_password.dart';
 import 'package:gemini/src/authentication/domain/usecases/signin.dart';
-import 'package:gemini/src/authentication/domain/usecases/signin_with_email_link.dart';
 import 'package:gemini/src/authentication/domain/usecases/signup.dart';
-import 'package:gemini/src/authentication/domain/usecases/create_user.dart';
-import 'package:gemini/src/authentication/domain/usecases/verify_otp.dart';
 import 'package:gemini/src/authentication/presentation/bloc/user_bloc.dart';
 import 'package:gemini/src/search_text/data/datasource/local_ds.dart';
 import 'package:gemini/src/search_text/data/datasource/remote_ds.dart';
@@ -164,14 +157,7 @@ void initAuthentication() {
     () => UserBloc(
       signin: sl(),
       signup: sl(),
-      confirmToken: sl(),
-      getOTP: sl(),
       getUserFromToken: sl(),
-      verifyOTP: sl(),
-      signinWithEmailPassword: sl(),
-      createUserWithEmailAndPassword: sl(),
-      signInWithEmailLink: sl(),
-      isSignInWithEmailLink: sl(),
       getUserData: sl(),
       cacheUserData: sl(),
       cacheToken: sl(),
@@ -206,50 +192,11 @@ void initAuthentication() {
   );
 
   sl.registerLazySingleton(
-    () => CreateUserWithEmailAndPassword(
-      repository: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton(
-    () => IsSignInWithEmailLink(
-      repository: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton(
-    () => SigninWithEmailPassword(
-      repository: sl(),
-    ),
-  );
-  sl.registerLazySingleton(
-    () => SignInWithEmailLink(
-      repository: sl(),
-    ),
-  );
-  sl.registerLazySingleton(
     () => GetUserFromToken(
       repository: sl(),
     ),
   );
 
-  sl.registerLazySingleton(
-    () => GetOTP(
-      repository: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton(
-    () => VerifyOTP(
-      repository: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton(
-    () => ConfirmToken(
-      repository: sl(),
-    ),
-  );
 
   sl.registerLazySingleton(
     () => Signin(

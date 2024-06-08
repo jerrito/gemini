@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
 import 'package:gemini/src/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/src/authentication/data/data_source/remote_ds.dart';
@@ -17,7 +16,7 @@ class UserRepositoryImpl implements UserRepository {
       required this.networkInfo});
 
   @override
-  Future<Either<String, User>> signin(Map<String, dynamic> params) async {
+  Future<Either<String, Data>> signin(Map<String, dynamic> params) async {
     if (await networkInfo.isConnected) {
       try {
         final response = await userRemoteDatasource.signinUser(params);

@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/widgets/usecase/usecase.dart';
 import 'package:gemini/src/authentication/domain/entities/user.dart';
@@ -45,7 +44,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         final response = await signin.call(event.params);
 
         emit(response.fold(
-            (l) => SigninError(errorMessage: l), (r) => SigninLoaded(user: r)));
+            (error) => SigninError(errorMessage: error),
+             (response) => SigninLoaded(data:response)));
       },
     );
 
@@ -93,7 +93,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       emit(
         response.fold(
           (errorMessage) => CacheTokenError(errorMessage: errorMessage),
-          (response) => CacheTokenLoaded(),
+          (response) => CacheTokenLoaded(token: response),
         ),
       );
     });
