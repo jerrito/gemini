@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gemini/core/size/sizes.dart';
-import 'package:gemini/core/widgets/widgets/default_textfield.dart';
+import 'package:gemini/core/widgets/default_textfield.dart';
 
 class BottomSheetTextfield extends StatefulWidget {
   final void Function()? onTap;

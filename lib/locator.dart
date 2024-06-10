@@ -1,5 +1,5 @@
 import 'package:data_connection_checker_nulls/data_connection_checker_nulls.dart';
-import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
+import 'package:gemini/core/network_info.dart/network_info.dart';
 import 'package:gemini/features/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/features/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/features/authentication/data/repository/user_repo_impl.dart';

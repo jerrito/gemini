@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/core/widgets/spacing/whitspacing.dart';
-import 'package:gemini/core/widgets/widgets/bottom_sheet.dart';
+import 'package:gemini/core/widgets/bottom_sheet.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/features/search_text/presentation/bloc/search_bloc.dart';
 
@@ -31,9 +31,9 @@ class _ConfirmImageWithTextPageState extends State<ConfirmImageWithTextPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    //  key: form,
+      //  key: form,
       bottomSheet: Form(
-        key:form,
+        key: form,
         child: BottomSheetTextfield(
             controller: controller,
             hintText: "Add a caption",
