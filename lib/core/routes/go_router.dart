@@ -1,13 +1,13 @@
-import 'package:gemini/src/authentication/presentation/pages/landing_page.dart';
-import 'package:gemini/src/authentication/presentation/pages/signin_page.dart';
-import 'package:gemini/src/authentication/presentation/pages/signup_page.dart';
-import 'package:gemini/src/connection_page.dart';
-import 'package:gemini/src/search_text/presentation/pages/search_page.dart';
+import 'package:gemini/features/authentication/presentation/pages/landing_page.dart';
+import 'package:gemini/features/authentication/presentation/pages/signin_page.dart';
+import 'package:gemini/features/authentication/presentation/pages/signup_page.dart';
+import 'package:gemini/features/connection_page.dart';
+import 'package:gemini/features/search_text/presentation/pages/search_page.dart';
 import 'package:go_router/go_router.dart';
 
 final goRouter = GoRouter(
   
-  initialLocation: "/",
+  initialLocation: "/searchPage",
   routes: [
  
  GoRoute(path: "/searchPage",
