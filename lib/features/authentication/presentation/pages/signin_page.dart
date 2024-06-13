@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/size/sizes.dart';
-import 'package:gemini/core/widgets/spacing/whitspacing.dart';
+import 'package:gemini/core/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/default_button.dart';
 import 'package:gemini/core/widgets/default_textfield.dart';
 import 'package:gemini/locator.dart';

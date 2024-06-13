@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gemini/core/network_info.dart/network_info.dart';
+import 'package:gemini/core/network/networkinfo.dart';
 import 'package:gemini/core/usecase/usecase.dart';
 import 'package:gemini/features/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/features/search_text/domain/usecase/add_multi_images.dart';

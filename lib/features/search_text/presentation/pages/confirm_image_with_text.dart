@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:gemini/core/size/sizes.dart';
-import 'package:gemini/core/widgets/spacing/whitspacing.dart';
+import 'package:gemini/core/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/bottom_sheet.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/features/search_text/presentation/bloc/search_bloc.dart';

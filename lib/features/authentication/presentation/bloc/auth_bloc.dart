@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gemini/core/widgets/usecase/usecase.dart';
+import 'package:gemini/core/usecase/usecase.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
 import 'package:gemini/features/authentication/domain/usecases/cache_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_token.dart';

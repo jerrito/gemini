@@ -36,7 +36,7 @@ class _BottomSheetTextFieldState extends State<BottomSheetTextfield> {
           : Colors.black,
       padding: EdgeInsets.symmetric(
         horizontal: Sizes().width(context, 0.02),
-        vertical: Sizes().height(context, 0.025),
+        vertical: Sizes().height(context, 0.01),
       ),
       child: SizedBox(
         width: double.infinity,

@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
-import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
+import 'package:gemini/core/network/networkinfo.dart';
 import 'package:gemini/features/search_text/data/datasource/local_ds.dart';
 import 'package:gemini/features/search_text/data/datasource/remote_ds.dart';
 import 'package:gemini/features/search_text/domain/repository/search_repository.dart';

@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:gemini/core/widgets/network_info.dart/network_info.dart';
+import 'package:gemini/core/network/networkinfo.dart';
 import 'package:gemini/features/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/features/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';

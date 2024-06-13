@@ -1,7 +1,7 @@
 
 
 import 'package:dartz/dartz.dart';
-import 'package:gemini/core/widgets/usecase/usecase.dart';
+import 'package:gemini/core/usecase/usecase.dart';
 import 'package:gemini/features/search_text/domain/repository/search_repository.dart';
 
 class SpeechTextEnabled extends UseCases<bool, NoParams> {
