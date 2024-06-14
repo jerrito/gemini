@@ -33,10 +33,11 @@ final class ChatError extends SearchState {
   const ChatError({required this.errorMessage});
 }
 
+final class ReadAll extends SearchState{}
 final class SearchTextAndImageLoading extends SearchState {}
 
 final class SearchTextAndImageLoaded extends SearchState {
-  final dynamic data;
+  final String data;
   const SearchTextAndImageLoaded({required this.data});
 }
 

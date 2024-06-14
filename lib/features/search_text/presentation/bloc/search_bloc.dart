@@ -72,7 +72,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
       emit(response.fold(
           (error) => SearchTextAndImageError(errorMessage: error),
-          (response) => SearchTextAndImageLoaded(data: response)));
+          (response) => SearchTextAndImageLoaded(data: response.toString())));
     });
 
     on<AddMultipleImageEvent>((event, emit) async {
@@ -86,6 +86,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           data: response,
         ),
       ));
+    });
+    on<ReadAllEvent>((event,emit){
+      emit(ReadAll());
     });
 
     on<GenerateContentEvent>((event, emit) async {

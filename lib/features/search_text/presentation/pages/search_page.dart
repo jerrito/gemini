@@ -69,6 +69,29 @@ class _SearchTextPage extends State<SearchTextPage> {
   }
 
   List<TextEntity>? data = [];
+ 
+
+  void execute({required String data,required int eventType})async{
+          
+          all.clear();
+
+                final newId = await searchBloc.readData();
+                datas.add(DataAdd(
+                  data: data,
+                  title: question!.isNotEmpty ? question! : repeatQuestion,
+                  searchBloc: searchBloc,
+                ));
+                final params = {
+                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
+                  "textTopic":
+                      (question!.isNotEmpty ? question! : repeatQuestion),
+                  "textData": data,
+                  "dateTime": DateTime.now().toString(),
+                  "eventType": eventType,
+                };
+                searchBloc.addData(params);
+                searchBloc.add(ReadAllEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +106,9 @@ class _SearchTextPage extends State<SearchTextPage> {
           leading: IconButton(
               onPressed: () async {
                 scaffoldKey.currentState?.openDrawer();
+                 searchBloc2.add(ReadSQLDataEvent());
                 userBloc.add(GetUserCacheDataEvent());
-                searchBloc2.add(ReadSQLDataEvent());
-                // getIPAddress();
+               
               },
               icon: const Icon(Icons.menu)),
           centerTitle: true,
@@ -287,41 +310,14 @@ class _SearchTextPage extends State<SearchTextPage> {
             bloc: searchBloc,
             listener: (context, state) async {
               if (state is SearchTextLoaded) {
-                all.clear();
-
-                final newId = await searchBloc.readData();
                 final data = state.data;
-                final params = {
-                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                  "textTopic":
-                      (question!.isNotEmpty ? question! : repeatQuestion),
-                  "textData": data,
-                  "dateTime": DateTime.now().toString(),
-                  "eventType": 4,
-                };
-                searchBloc.addData(params);
+                execute(data: data, eventType: 4);
               }
-              // form.currentState?.validate();
 
-              if (state is ChatLoaded) {
-                all.clear();
-
-                final newId = await searchBloc.readData();
+              if (state is ChatLoaded ) {
                 final data = state.data;
-                datas.add(DataAdd(
-                  data: data,
-                  title: question!.isNotEmpty ? question! : repeatQuestion,
-                  searchBloc: searchBloc,
-                ));
-                final params = {
-                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                  "textTopic":
-                      (question!.isNotEmpty ? question! : repeatQuestion),
-                  "textData": data,
-                  "dateTime": DateTime.now().toString(),
-                  "eventType": 3,
-                };
-                searchBloc.addData(params);
+                execute(data: data, eventType: 3);
+                
               }
 
               if (state is GenerateStreamStop) {
@@ -343,18 +339,8 @@ class _SearchTextPage extends State<SearchTextPage> {
               }
 
               if (state is SearchTextAndImageLoaded) {
-                final newId = await searchBloc.readData();
                 final data = state.data;
-                final params = {
-                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                  "textTopic":
-                      (question!.isNotEmpty ? question! : repeatQuestion),
-                  "textData": data,
-                  "imageData": all[0],
-                  "dateTime": DateTime.now().toString(),
-                  "eventType": 2,
-                };
-                searchBloc.addData(params);
+                execute(data: data, eventType: 2);
               }
 
               if (state is GenerateContentError) {
@@ -479,8 +465,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                   "text": copyTextData,
                 };
                 if (snapInfo.isEmpty) {
-                  //TODO: seperate error from no internet
-                  // GenerativeAIException(); 10ff.net edclub keybr
 
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -538,15 +522,72 @@ class _SearchTextPage extends State<SearchTextPage> {
                   );
                 }
               }
-              // if (state is ChatLoaded) {
+              if (state is ReadAll) {
+                // final data = state.data;
+                return SingleChildScrollView(
+                  // dragStartBehavior: DragStartBehavior().down,
+                  controller: ScrollController(),
+                  child: Column(
+                      children: [
+                       ListView.builder(
+                         shrinkWrap: true,
+                           itemCount: datas.length,
+                           physics: const NeverScrollableScrollPhysics(),
+                           itemBuilder: (context, index) {
+                             final da = datas[index];
+                             return DataAdd(
+                               title: da.title,
+                               images: da.images,
+                               data: da.data,
+                               searchBloc: searchBloc,
+                             );
+                           },
+                         ),
+                      ],
+                    ),
+                );
+              }
+
+              // if (state is SearchTextAndImageLoaded) {
               //   final data = state.data;
-              //   datas.add(
-              //     DataAdd(
-              //       data: data,
-              //     title:question!.isNotEmpty ? question! : repeatQuestion,
-              //     searchBloc: searchBloc,
-              //     )
+              //   String copyTextData = data.toString() +
+              //       (question!.isNotEmpty ? question! : repeatQuestion);
+
+              //   final params = {
+              //     "text": copyTextData,
+              //   };
+              //   return SingleChildScrollView(
+              //     child: Column(
+              //       children: [
+              //         Text((question!.isNotEmpty ? question! : repeatQuestion),
+              //             style: const TextStyle(
+              //                 fontSize: 16,
+              //                 decorationStyle: TextDecorationStyle.solid)),
+              //         if (all.isNotEmpty)
+              //           Column(
+              //               children: List.generate(all.length, (index) {
+              //             return Image.memory(all[index]);
+              //           })),
+              //         Space().height(context, 0.02),
+              //         Text(data.toString()),
+              //         ButtonsBelowResult(
+              //             onCopy: () async {
+              //               searchBloc.copyText(params);
+              //             },
+              //             onRetry: null,
+              //             onShare: () async {
+              //               await Share.share((question!.isNotEmpty
+              //                       ? question!
+              //                       : repeatQuestion) +
+              //                   data);
+              //             }),
+              //         Space().height(context, 0.1),
+              //       ],
+              //     ),
               //   );
+              // }
+              // if (state is SearchTextLoaded) {
+              //   final data = state.data;
               //   String copyTextData =
               //       (question!.isNotEmpty ? question! : repeatQuestion) +
               //           data.toString();
@@ -562,97 +603,23 @@ class _SearchTextPage extends State<SearchTextPage> {
               //                 fontSize: 16,
               //                 decorationStyle: TextDecorationStyle.solid)),
               //         Space().height(context, 0.02),
-              //         Text(data),
+              //         Text(
+              //           data,
+              //         ),
               //         ButtonsBelowResult(onCopy: () async {
               //           searchBloc.copyText(params);
               //         }, onRetry: () {
               //           repeatQuestion = question!;
-              //           searchBloc
-              //               .add(ChatEvent(params: {"text": repeatQuestion}));
+              //           searchBloc.add(
+              //               SearchTextEvent(params: {"text": repeatQuestion}));
               //         }, onShare: () async {
-              //           await Share.share((question!.isNotEmpty
-              //                   ? question!
-              //                   : repeatQuestion) +
-              //               data);
+              //           await Share.share(copyTextData);
               //         }),
               //         Space().height(context, 0.1),
               //       ],
               //     ),
               //   );
               // }
-
-              if (state is SearchTextAndImageLoaded) {
-                final data = state.data;
-                String copyTextData = data.toString() +
-                    (question!.isNotEmpty ? question! : repeatQuestion);
-
-                final params = {
-                  "text": copyTextData,
-                };
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Text((question!.isNotEmpty ? question! : repeatQuestion),
-                          style: const TextStyle(
-                              fontSize: 16,
-                              decorationStyle: TextDecorationStyle.solid)),
-                      if (all.isNotEmpty)
-                        Column(
-                            children: List.generate(all.length, (index) {
-                          return Image.memory(all[index]);
-                        })),
-                      Space().height(context, 0.02),
-                      Text(data.toString()),
-                      ButtonsBelowResult(
-                          onCopy: () async {
-                            searchBloc.copyText(params);
-                          },
-                          onRetry: null,
-                          onShare: () async {
-                            await Share.share((question!.isNotEmpty
-                                    ? question!
-                                    : repeatQuestion) +
-                                data);
-                          }),
-                      Space().height(context, 0.1),
-                    ],
-                  ),
-                );
-              }
-              if (state is SearchTextLoaded) {
-                final data = state.data;
-                String copyTextData =
-                    (question!.isNotEmpty ? question! : repeatQuestion) +
-                        data.toString();
-
-                final params = {
-                  "text": copyTextData,
-                };
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Text(question!.isNotEmpty ? question! : repeatQuestion,
-                          style: const TextStyle(
-                              fontSize: 16,
-                              decorationStyle: TextDecorationStyle.solid)),
-                      Space().height(context, 0.02),
-                      Text(
-                        data,
-                      ),
-                      ButtonsBelowResult(onCopy: () async {
-                        searchBloc.copyText(params);
-                      }, onRetry: () {
-                        repeatQuestion = question!;
-                        searchBloc.add(
-                            SearchTextEvent(params: {"text": repeatQuestion}));
-                      }, onShare: () async {
-                        await Share.share(copyTextData);
-                      }),
-                      Space().height(context, 0.1),
-                    ],
-                  ),
-                );
-              }
               if (state is ReadDataDetailsLoaded) {
                 final data = state.textEntity;
                 return SingleChildScrollView(
@@ -716,38 +683,14 @@ class _SearchTextPage extends State<SearchTextPage> {
                   ],
                 );
               } else {
-                return SingleChildScrollView(
-                  child: datas.isEmpty
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                              Space().height(context, 0.1),
-                              Center(child: Lottie.asset(ai2Json)),
-                            ])
-                      : ListView.builder(
-                          itemCount: snapInfo.length,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            final da = datas[index];
-                            return DataAdd(
-                              title: da.title,
-                              images: da.title,
-                              data: da.title,
-                              searchBloc: searchBloc,
-                            );
-                          },
-                        ),
-
-                  // Center(
-                  //   child: Text(info, style: const TextStyle(fontSize: 16)),
-                  // ),
-                  // if (all.isNotEmpty)
-                  //   Column(
-                  //       children: List.generate(all.length, (index) {
-                  //     return Image.memory(all[index]);
-                  //   })),
-                );
+               return Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                            // Space().height(context, 0.1),
+                            Center(child: Lottie.asset(ai2Json)),
+                          ]);
+                    
               }
             },
           ),

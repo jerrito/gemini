@@ -11,6 +11,7 @@ final class SearchTextEvent extends SearchEvent {
   final Map<String, dynamic> params;
   const SearchTextEvent({required this.params});
 }
+final class ReadAllEvent extends SearchEvent{}
 
 final class SearchTextAndImageEvent extends SearchEvent {
   final Map<String, dynamic> params;

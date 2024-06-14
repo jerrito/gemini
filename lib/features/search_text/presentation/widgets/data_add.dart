@@ -17,7 +17,11 @@ class DataAdd extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(title ?? ""),
+        Container(
+          decoration: BoxDecoration(
+            // color: Color( Colors.)
+          ),
+          child: Text(title ?? "")),
         if (images != null) Image.asset(images!),
         Text(data ?? ""),
         ButtonsBelowResult(
