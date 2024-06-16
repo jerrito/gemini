@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/core/widgets/default_textfield.dart';
@@ -11,6 +13,8 @@ class BottomSheetTextfield extends StatefulWidget {
   final String? hintText;
   final String? errorText;
   final bool isTextAndImage;
+  final bool? isTextEmpty, isAdded;
+  final Uint8List? byte;
   const BottomSheetTextfield({
     super.key,
     this.onTap,
@@ -21,6 +25,9 @@ class BottomSheetTextfield extends StatefulWidget {
     this.hintText,
     this.errorText,
     required this.isTextAndImage,
+     this.isTextEmpty,
+     this.isAdded, 
+     this.byte,
   });
 
   @override
@@ -41,6 +48,9 @@ class _BottomSheetTextFieldState extends State<BottomSheetTextfield> {
       child: SizedBox(
         width: double.infinity,
         child: DefaultTextfield(
+          byte:widget.byte,
+          enabled:widget.isTextEmpty,
+          isAdded:widget.isAdded,
           validator: widget.validator,
           errorText: widget.errorText,
           onChanged: widget.onChanged,

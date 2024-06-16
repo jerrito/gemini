@@ -1,4 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:ffi';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import 'package:gemini/core/size/sizes.dart';
@@ -12,7 +15,8 @@ class DefaultTextfield extends StatefulWidget {
   final TextEditingController? controller;
   final String? hintText, initialValue, errorText, label;
   final double? height;
-  final bool? enabled;
+  final Uint8List? byte; 
+  final bool? enabled,  isAdded;
   final bool isTextAndImage;
   final TextInputType? textInputType;
   const DefaultTextfield({
@@ -26,10 +30,12 @@ class DefaultTextfield extends StatefulWidget {
     this.label,
     this.initialValue,
     this.enabled,
+    this.isAdded,
     required this.isTextAndImage,
     this.onTap,
     this.onPressed,
-    this.validator,
+    this.validator, 
+     this.byte,
   });
 
   @override
@@ -39,56 +45,73 @@ class DefaultTextfield extends StatefulWidget {
 class _DefaultTextfieldState extends State<DefaultTextfield> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child:
-      TextFormField(
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: widget.validator,
-        enabled: widget.enabled,
-        initialValue: widget.initialValue,
-        keyboardType: widget.textInputType,
-        controller: widget.controller,
-        onChanged: widget.onChanged,
-        decoration: InputDecoration(
-          prefixIcon:widget.isTextAndImage? GestureDetector(
-            onTap:widget.onTap,
-            child:  Icon(Icons.file_upload,size: Sizes().height(context,0.03))):const SizedBox() ,
-          suffixIcon:GestureDetector(
-            onTap:widget.onPressed,
-            child:  Icon(Icons.send,size: Sizes().height(context,0.03))),
-                errorStyle:null,
-          isDense: true,
-          errorText: widget.errorText,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          hintText: widget.hintText,
-          hintStyle: const TextStyle(color: Colors.grey),
-          //label: Text(label!),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-            borderSide: BorderSide(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Color.fromARGB(255, 233, 225, 225)
-                  : Color.fromARGB(255, 18, 17, 17),
+    return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: widget.validator,
+      initialValue: widget.initialValue,
+      keyboardType: widget.textInputType,
+      controller: widget.controller,
+      onChanged: widget.onChanged,
+      decoration: InputDecoration(
+        prefixIcon:widget.isTextAndImage? GestureDetector(
+          onTap:widget.onTap,
+          child:  Icon(Icons.file_upload,size: Sizes().height(context,0.03))):(widget.isAdded ?? false) ? 
+         Padding(
+           padding:  EdgeInsets.symmetric(
+            horizontal:Sizes().width(context, 0.01),
+            vertical:Sizes().height(context, 0.007)),
+           child: Container(
+            width: Sizes().width(context,0.09),
+            height: Sizes().height(context,0.045),
+            padding: EdgeInsets.symmetric(
+              horizontal: Sizes().width(context, 0.005),
+              vertical: Sizes().height(context, 0.05),
             ),
+            // width: Sizes().width(context,0.09),
+            // height: Sizes().height(context,0.045),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              image: DecorationImage(image:Image.memory(widget.byte!).image,fit: BoxFit.cover ),
+           
+              borderRadius: BorderRadius.circular(10),
+              ),
+           ),
+         ) :const SizedBox() ,
+        suffixIcon:GestureDetector(
+          onTap:widget.onPressed,
+          child: (widget.enabled ?? true) ?  Icon(Icons.send,size: Sizes().height(context,0.03)):const SizedBox()),
+        isDense: true,
+        errorText: widget.errorText,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        hintText: widget.hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
+        //label: Text(label!),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
+          borderSide: BorderSide(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Color.fromARGB(255, 233, 225, 225)
+                : Color.fromARGB(255, 18, 17, 17),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-            borderSide: BorderSide(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black,
-            ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
+          borderSide: BorderSide(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black,
           ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-            borderSide:  BorderSide(color:Theme.of(context).brightness==Brightness.dark?Colors.white: Colors.black),
-          ),
-        focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-            borderSide:  BorderSide(color:Theme.of(context).brightness==Brightness.dark?Colors.white: Colors.black),
-          ),
-        )));
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
+          borderSide:  BorderSide(color:Theme.of(context).brightness==Brightness.dark?Colors.white: Colors.black),
+        ),
+      focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
+          borderSide:  BorderSide(color:Theme.of(context).brightness==Brightness.dark?Colors.white: Colors.black),
+        ),
+      ));
   }
 }
 

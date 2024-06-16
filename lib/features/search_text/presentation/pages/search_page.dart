@@ -15,7 +15,6 @@ import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart'
 import 'package:gemini/features/search_text/presentation/bloc/search_bloc.dart';
 import 'package:gemini/features/search_text/presentation/widgets/buttons_below.dart';
 import 'package:gemini/features/search_text/presentation/widgets/history_shimmer.dart';
-import 'package:gemini/features/search_text/presentation/pages/confirm_image_with_text.dart';
 import 'package:gemini/features/search_text/presentation/widgets/search_type.dart';
 import 'package:gemini/features/search_text/presentation/widgets/show_error.dart';
 import 'package:gemini/features/search_text/presentation/widgets/slidable_action.dart';
@@ -23,6 +22,9 @@ import 'package:gemini/features/sql_database/entities/text.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:lottie/lottie.dart';
+
+
+
 
 class SearchTextPage extends StatefulWidget {
   const SearchTextPage({super.key});
@@ -35,15 +37,19 @@ class _SearchTextPage extends State<SearchTextPage> {
   final searchBloc2 = sl<SearchBloc>();
   final searchBloc3 = sl<SearchBloc>();
   final userBloc = sl<AuthenticationBloc>();
+  final ScrollController _scrollController=ScrollController();
+
   final form = GlobalKey<FormState>();
   List<Uint8List> all = [];
+  List<Uint8List> newAll = [];
   List<String> imageExtensions = [];
   int imageLength = 0;
 
   List<String> snapInfo = [];
   String info = "How can I help you today?";
-  int type = 1;
+  int type = RequestType.stream.value;
   bool isTextImage = false;
+  bool isAdded = false;
   String? question;
   String repeatQuestion = "";
   String name = "";
@@ -53,8 +59,10 @@ class _SearchTextPage extends State<SearchTextPage> {
   String initText = "";
   final controller = TextEditingController();
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  bool isAvailble = false;
+   Uint8List? byte;
+  bool isAvailable = false;
   bool isSpeechTextEnabled = false;
+  
 
   getTime() {
     Timer.periodic(const Duration(seconds: 90), (timer) {
@@ -70,13 +78,21 @@ class _SearchTextPage extends State<SearchTextPage> {
 
   List<TextEntity>? data = [];
  
-
+    void _scrollDown() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(
+          milliseconds: 750,
+        ),
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
   void execute({required String data,required int eventType})async{
-          
-          all.clear();
-
                 final newId = await searchBloc.readData();
                 datas.add(DataAdd(
+                  images: all,
                   data: data,
                   title: question!.isNotEmpty ? question! : repeatQuestion,
                   searchBloc: searchBloc,
@@ -91,6 +107,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                 };
                 searchBloc.addData(params);
                 searchBloc.add(ReadAllEvent());
+                _scrollDown();
   }
 
   @override
@@ -107,7 +124,7 @@ class _SearchTextPage extends State<SearchTextPage> {
               onPressed: () async {
                 scaffoldKey.currentState?.openDrawer();
                  searchBloc2.add(ReadSQLDataEvent());
-                userBloc.add(GetUserCacheDataEvent());
+                // userBloc.add(GetUserCacheDataEvent());
                
               },
               icon: const Icon(Icons.menu)),
@@ -163,6 +180,7 @@ class _SearchTextPage extends State<SearchTextPage> {
               ? Colors.white
               : Colors.black,
           child: BottomSheetTextfield(
+            byte: byte,
             validator: (value) {
               if (value?.isEmpty ?? true) {
                 return "";
@@ -175,13 +193,19 @@ class _SearchTextPage extends State<SearchTextPage> {
               return null;
             },
             onChanged: (value) {
-              if (value!.isNotEmpty) {
-                isAvailble = false;
+
+              if (value!.isEmpty) {
+                isAvailable = false;
+                setState((){});
+              }
+              if (value.isNotEmpty) {
+                isAvailable = true;
+                setState((){});
               }
               initText = value;
             },
             controller: controller,
-            onPressed: isAvailble
+            onPressed: !isAvailable
                 ? null
                 : () {
                     if (form.currentState?.validate() == true &&
@@ -191,7 +215,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                       };
                       Map<String, dynamic> paramsWithImage = {
                         "text": controller.text,
-                        "images": all
+                         "ext": imageExtensions,
+                        "image": all,
+                        "images": imageLength,
                       };
                       switch (type) {
                         case 4:
@@ -202,7 +228,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           );
                           break;
 
-                        case 2:
+                        case 3:
                           searchBloc.add(
                             ChatEvent(
                               params: params,
@@ -210,7 +236,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                           );
                           break;
 
-                        case 3:
+                        case 2:
                           searchBloc.add(
                             SearchTextAndImageEvent(
                               params: paramsWithImage,
@@ -246,6 +272,9 @@ class _SearchTextPage extends State<SearchTextPage> {
               ));
             },
             isTextAndImage: isTextImage,
+            isTextEmpty: isAvailable,
+            isAdded:isAdded
+           
           ),
         ),
       ),
@@ -275,32 +304,27 @@ class _SearchTextPage extends State<SearchTextPage> {
                 imageExtensions.addAll(state.data.values.elementAt(i));
               }
               imageLength = all.length;
+              byte=all[0];
+              setState((){});
 
-              final dataGet = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return ConfirmImageWithTextPage(
-                    all: all,
-                    textData: controller.text,
-                  );
-                }),
-              );
+              isTextImage = false;
+              isAdded=true;
 
-              if (dataGet != null) {
-                controller.text = dataGet["text"];
-                if (form.currentState?.validate() == true) {
-                  searchBloc.add(
-                    SearchTextAndImageEvent(
-                      params: {
-                        "text": controller.text,
-                        "ext": imageExtensions,
-                        "image": all,
-                        "images": imageLength,
-                      },
-                    ),
-                  );
-                }
-              }
+
+              // final dataGet = await Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) {
+              //     return ConfirmImageWithTextPage(
+              //       all: all,
+              //       textData: controller.text,
+              //     );
+              //   }),
+              // );
+
+              // if (dataGet != null) {
+                // controller.text = dataGet["text"];
+                
+              // }
             }
             if (state is AddMultipleImageLoading) {
               //all.clear();
@@ -341,6 +365,8 @@ class _SearchTextPage extends State<SearchTextPage> {
               if (state is SearchTextAndImageLoaded) {
                 final data = state.data;
                 execute(data: data, eventType: 2);
+                isAdded=false;
+                setState((){});
               }
 
               if (state is GenerateContentError) {
@@ -371,6 +397,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   state is GenerateStreamLoading) {
                 question = controller.text;
                 controller.text = "";
+                isAvailable=false;
               }
             },
             builder: (context, state) {
@@ -378,11 +405,16 @@ class _SearchTextPage extends State<SearchTextPage> {
                   state is SearchTextLoading ||
                   state is ChatLoading ||
                   state is GenerateStreamLoading) {
-                return Center(
-                  child: Lottie.asset(
-                    aiJson,
-                  ),
+                return Column(
+                  children: [
+                    Center(
+                      child: Lottie.asset(
+                        aiJson,
+                      ),
+                    ),
+                  ],
                 );
+                
               }
               if (state is GenerateStream) {
                 final params = {"text": question};
@@ -425,7 +457,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                         snapInfo.add(data!);
                         return Column(
                           children: [
-                            // Text(question!.isNotEmpty? question! : repeatQuestion),
                             Flexible(
                               child: ListView.builder(
                                 itemCount: snapInfo.length,
@@ -524,15 +555,14 @@ class _SearchTextPage extends State<SearchTextPage> {
               }
               if (state is ReadAll) {
                 // final data = state.data;
-                return SingleChildScrollView(
-                  // dragStartBehavior: DragStartBehavior().down,
-                  controller: ScrollController(),
-                  child: Column(
-                      children: [
-                       ListView.builder(
+                return Column(
+                    children: [
+                     Expanded(
+                       child: ListView.builder(
+                          controller: _scrollController,
                          shrinkWrap: true,
                            itemCount: datas.length,
-                           physics: const NeverScrollableScrollPhysics(),
+                          //  physics: const NeverScrollableScrollPhysics(),
                            itemBuilder: (context, index) {
                              final da = datas[index];
                              return DataAdd(
@@ -543,83 +573,12 @@ class _SearchTextPage extends State<SearchTextPage> {
                              );
                            },
                          ),
-                      ],
-                    ),
-                );
+                     ),
+                       Space().height(context, 0.09)
+                    ],
+                  );
               }
-
-              // if (state is SearchTextAndImageLoaded) {
-              //   final data = state.data;
-              //   String copyTextData = data.toString() +
-              //       (question!.isNotEmpty ? question! : repeatQuestion);
-
-              //   final params = {
-              //     "text": copyTextData,
-              //   };
-              //   return SingleChildScrollView(
-              //     child: Column(
-              //       children: [
-              //         Text((question!.isNotEmpty ? question! : repeatQuestion),
-              //             style: const TextStyle(
-              //                 fontSize: 16,
-              //                 decorationStyle: TextDecorationStyle.solid)),
-              //         if (all.isNotEmpty)
-              //           Column(
-              //               children: List.generate(all.length, (index) {
-              //             return Image.memory(all[index]);
-              //           })),
-              //         Space().height(context, 0.02),
-              //         Text(data.toString()),
-              //         ButtonsBelowResult(
-              //             onCopy: () async {
-              //               searchBloc.copyText(params);
-              //             },
-              //             onRetry: null,
-              //             onShare: () async {
-              //               await Share.share((question!.isNotEmpty
-              //                       ? question!
-              //                       : repeatQuestion) +
-              //                   data);
-              //             }),
-              //         Space().height(context, 0.1),
-              //       ],
-              //     ),
-              //   );
-              // }
-              // if (state is SearchTextLoaded) {
-              //   final data = state.data;
-              //   String copyTextData =
-              //       (question!.isNotEmpty ? question! : repeatQuestion) +
-              //           data.toString();
-
-              //   final params = {
-              //     "text": copyTextData,
-              //   };
-              //   return SingleChildScrollView(
-              //     child: Column(
-              //       children: [
-              //         Text(question!.isNotEmpty ? question! : repeatQuestion,
-              //             style: const TextStyle(
-              //                 fontSize: 16,
-              //                 decorationStyle: TextDecorationStyle.solid)),
-              //         Space().height(context, 0.02),
-              //         Text(
-              //           data,
-              //         ),
-              //         ButtonsBelowResult(onCopy: () async {
-              //           searchBloc.copyText(params);
-              //         }, onRetry: () {
-              //           repeatQuestion = question!;
-              //           searchBloc.add(
-              //               SearchTextEvent(params: {"text": repeatQuestion}));
-              //         }, onShare: () async {
-              //           await Share.share(copyTextData);
-              //         }),
-              //         Space().height(context, 0.1),
-              //       ],
-              //     ),
-              //   );
-              // }
+          
               if (state is ReadDataDetailsLoaded) {
                 final data = state.textEntity;
                 return SingleChildScrollView(
@@ -683,13 +642,15 @@ class _SearchTextPage extends State<SearchTextPage> {
                   ],
                 );
               } else {
-               return Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                            // Space().height(context, 0.1),
-                            Center(child: Lottie.asset(ai2Json)),
-                          ]);
+               return SingleChildScrollView(
+                 child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                              Space().height(context, 0.1),
+                              Center(child: Lottie.asset(ai2Json)),
+                            ]),
+               );
                     
               }
             },
@@ -725,65 +686,51 @@ class _SearchTextPage extends State<SearchTextPage> {
                     ]),
               ),
               SearchTypeWidget(
-                color: type == 1
-                    ? Colors.lightBlueAccent
-                    : Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                icon: Icons.stream,
-                onPressed: () {
-                  type = 1;
+                value:type ,
+                type: RequestType.stream,
+                onTap: () {
+                  type=RequestType.stream.value;
+                  RequestType.stream;
                   isTextImage = false;
+                  isAdded=false;
                   Navigator.pop(context);
                   setState(() {});
                 },
-                label: "Stream content",
               ),
               SearchTypeWidget(
-                color: type == 3
-                    ? Colors.lightBlueAccent
-                    : Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                icon: Icons.image_search,
-                onPressed: () {
-                  type = 3;
+                value:type,
+                type:RequestType.textImage,
+                onTap: () {
+                  type=RequestType.textImage.value;
+                   RequestType.textImage;
                   isTextImage = true;
+                  isAdded=false;
                   Navigator.pop(context);
                   setState(() {});
                 },
-                label: "Search text with image",
               ),
               SearchTypeWidget(
-                color: type == 2
-                    ? Colors.lightBlueAccent
-                    : Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                icon: Icons.chat,
-                onPressed: () async {
-                  type = 2;
+                value:type ,
+               type: RequestType.chat,
+                onTap: () async {
+                  type=RequestType.chat.value;
+                  RequestType.chat;
                   isTextImage = false;
+                  isAdded=false;
                   Navigator.pop(context);
                   setState(() {});
                 },
-                label: "Chat with bot",
               ),
               SearchTypeWidget(
-                color: type == 4
-                    ? Colors.lightBlueAccent
-                    : Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : const Color.fromRGBO(0, 0, 0, 1),
-                icon: Icons.text_format,
-                onPressed: () {
-                  // Provider.
-                  type = 4;
+                value:type ,
+                onTap: () {
+                type=RequestType.future.value;
                   isTextImage = false;
+                  isAdded=false;
                   Navigator.pop(context);
                   setState(() {});
                 },
-                label: "Await content",
+                type:RequestType.future
               ),
               const Divider(
                 thickness: 2,
@@ -937,5 +884,22 @@ class _SearchTextPage extends State<SearchTextPage> {
     );
   }
 
+  
+
   List<DataAdd> datas = [];
+}
+
+enum RequestType{
+  stream(label:"Stream content",icon:Icons.stream,color:Colors.green,value:1),
+  textImage(label:"Search text with image",icon:Icons.stream,color:Colors.green,value:2),
+  chat(label:"Chat with bot",icon:Icons.chat,color:Colors.green,value:3),
+  future(label:"Await content",icon:Icons.text_format,color:Colors.green,value:4);
+  final String label;
+  final IconData? icon;
+  final Color? color;
+  final int value;
+ 
+
+  const RequestType({required this.value, required this.label,
+  required this.icon,required this.color});
 }

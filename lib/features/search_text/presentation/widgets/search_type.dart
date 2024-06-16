@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gemini/core/size/sizes.dart';
+import 'package:gemini/features/search_text/presentation/pages/search_page.dart';
 
 class SearchTypeWidget extends StatelessWidget {
-  final String? label;
-  final IconData? icon;
-  final Color? color;
-  final void Function()? onPressed;
+  final RequestType type;
+  final int value;
+  final void Function()? onTap;
   const SearchTypeWidget({
     super.key,
-    this.label,
-    this.onPressed,
-    this.icon,
-    this.color,
+    this.onTap,
+    required this.type,
+    required this.value,
   });
 
   @override
@@ -20,11 +19,16 @@ class SearchTypeWidget extends StatelessWidget {
       padding:  EdgeInsets.symmetric(
         horizontal: Sizes().width(context, 0.02),),
       child: ListTile(
-        iconColor: color,
-        textColor: color,
-        leading:Icon(icon) ,
-        onTap: onPressed,
-        title:  Text(label ?? ""),
+        iconColor:type.value==value ? type.color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+        textColor: value==type.value ? type.color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+        leading:Icon(type.icon) ,
+        onTap: onTap,
+        title:  Text(type.label),
+        // subtitle:  Text(subLabel ?? ""),
         
       ),
     );

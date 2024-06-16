@@ -16,6 +16,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:gemini/main.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import "package:google_generative_ai/google_generative_ai.dart" as ai;
 part "search_event.dart";
 part 'search_state.dart';
 
@@ -35,6 +36,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   StreamController<SpeechRecognitionResult> words =
       StreamController<SpeechRecognitionResult>();
+
+     StreamController<ai.GenerateContentResponse> streamContent=StreamController<ai.GenerateContentResponse>();
 
   SearchBloc({
     // required this.onSpeechResult,
@@ -216,7 +219,35 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
     });
   }
+  final model = ai.GenerativeModel(model: "gemini-1.5-flash-latest", apiKey: apiKey);
 
+  Stream<ai.GenerateContentResponse> generateContents(
+      Map<String, dynamic> params) async* {
+    final content = [ai.Content.text(params["text"])];
+
+    final response = model.generateContentStream(content, safetySettings: [
+      ai.SafetySetting(
+          ai.HarmCategory.dangerousContent, ai.HarmBlockThreshold.none)
+    ]);
+
+    yield* response.asBroadcastStream(
+      onListen: (subscription) => {
+        subscription.onData((event) {
+          print(event.text);
+          })
+      },
+    );
+  }
+  Future<dynamic> generateStreams(Map<String, dynamic> params){
+    final content = [ai.Content.text(params["text"])];
+
+    final response = model.generateContentStream(content, safetySettings: [
+      ai.SafetySetting(
+          ai.HarmCategory.dangerousContent, ai.HarmBlockThreshold.none)
+    ]);
+
+    return  streamContent.addStream(response);
+  }
   final _speechToText = SpeechToText();
 
   /// This has to happen only once per app

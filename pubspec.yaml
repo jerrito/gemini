@@ -42,7 +42,7 @@ dependencies:
   flutter_bloc: ^8.1.4
   get_it: ^7.6.7
   file_picker: ^6.1.1
-  google_generative_ai: ^0.2.2
+  google_generative_ai: ^0.4.3
   floor: ^1.4.2
   sqflite: ^2.3.2
   shimmer: ^3.0.0

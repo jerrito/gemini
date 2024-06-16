@@ -12,7 +12,7 @@ abstract class SearchRemoteDatasource {
 
 class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
  // final NetworkInfo networkInfo;
-  final model = ai.GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
+  final model = ai.GenerativeModel(model: "gemini-1.5-flash-latest", apiKey: apiKey);
 
   SearchRemoteDatasourceImpl();
 
@@ -29,16 +29,13 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
 
   @override
   Future<dynamic> searchTextAndImage(Map<String, dynamic> params) async {
-    final model =
-        ai.GenerativeModel(model: 'gemini-pro-vision', apiKey: apiKey);
+    // final model = ai.GenerativeModel(model: 'gemini-pro-vision', apiKey: apiKey);
     final prompt = ai.TextPart(params["text"]);
-    final imageParts =
+    final imageParts =[];
         // params["images"].map(
         //   (e)=>ai.DataPart('image/${params["ext"][e]}', params["image"][e])
         // ).toList();
-        [
       // ai.DataPart('image/${params["ext"]}', params["image"]),
-    ];
     for (int i = 0; i < params["images"]; i++) {
       imageParts
           .add(ai.DataPart('image/${params["ext"][i]}', params["image"][i]));
@@ -59,13 +56,13 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
           ai.HarmCategory.dangerousContent, ai.HarmBlockThreshold.none)
     ]);
 
-    yield* response.asBroadcastStream();
-
-    // else{
-    // throw ai.GenerativeAIException(
-    //    await response.first.then((value) => value.promptFeedback!.blockReasonMessage);
-    // );
-    // }
+    yield* response.asBroadcastStream(
+      onListen: (subscription) => {
+        subscription.onData((event) {
+          print(event.text);
+          })
+      },
+    );
   }
 
   @override
