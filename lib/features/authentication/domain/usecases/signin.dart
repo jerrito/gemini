@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:gemini/core/usecase/usecase.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
-import 'package:gemini/features/authentication/domain/repository/user_repository.dart';
+import 'package:gemini/features/authentication/domain/repository/auth_repo.dart';
 
 class Signin extends UseCases<Data, Map<String, dynamic>> {
-  final UserRepository repository;
+  final AuthenticationRepository repository;
 
   Signin({required this.repository});
   @override

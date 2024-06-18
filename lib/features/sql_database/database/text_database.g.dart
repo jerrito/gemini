@@ -1,7 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// ignore_for_file: library_private_types_in_public_api
-
 part of 'text_database.dart';
 
 // **************************************************************************
@@ -87,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TextEntity` (`textId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `textTopic` TEXT NOT NULL, `textData` TEXT NOT NULL, `eventType` INTEGER, `dateTime` TEXT, `imageData` BLOB)');
+            'CREATE TABLE IF NOT EXISTS `TextEntity` (`textId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `textTopic` TEXT NOT NULL, `textData` TEXT NOT NULL, `eventType` INTEGER, `dateTime` TEXT, `hasImage` INTEGER, `imageData` BLOB)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -115,6 +113,8 @@ class _$TextDao extends TextDao {
                   'textData': item.textData,
                   'eventType': item.eventType,
                   'dateTime': item.dateTime,
+                  'hasImage':
+                      item.hasImage == null ? null : (item.hasImage! ? 1 : 0),
                   'imageData': item.imageData
                 }),
         _textEntityDeletionAdapter = DeletionAdapter(
@@ -127,6 +127,8 @@ class _$TextDao extends TextDao {
                   'textData': item.textData,
                   'eventType': item.eventType,
                   'dateTime': item.dateTime,
+                  'hasImage':
+                      item.hasImage == null ? null : (item.hasImage! ? 1 : 0),
                   'imageData': item.imageData
                 });
 
@@ -144,6 +146,8 @@ class _$TextDao extends TextDao {
   Future<List<TextEntity>> getAllTextData() async {
     return _queryAdapter.queryList('SELECT * FROM TextEntity',
         mapper: (Map<String, Object?> row) => TextEntity(
+            hasImage:
+                row['hasImage'] == null ? null : (row['hasImage'] as int) != 0,
             textId: row['textId'] as int,
             textTopic: row['textTopic'] as String,
             textData: row['textData'] as String,

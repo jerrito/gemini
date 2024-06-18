@@ -3,9 +3,9 @@ import 'package:gemini/core/network/networkinfo.dart';
 import 'package:gemini/features/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/features/authentication/data/data_source/remote_ds.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
-import 'package:gemini/features/authentication/domain/repository/user_repository.dart';
+import 'package:gemini/features/authentication/domain/repository/auth_repo.dart';
 
-class UserRepositoryImpl implements UserRepository {
+class UserRepositoryImpl implements AuthenticationRepository {
   final NetworkInfo networkInfo;
   final UserRemoteDatasource userRemoteDatasource;
   final UserLocalDatasource userLocalDatasource;
@@ -107,11 +107,36 @@ class UserRepositoryImpl implements UserRepository {
   Future<Either<String, dynamic>> cacheUserData(Map<String, dynamic> params)async {
      try {
         final response =
-            await userRemoteDatasource.getUser(params);
+            await userLocalDatasource.cacheUserData(params);
 
         return Right(response);
       } catch (e) {
         return Left(e.toString());
       }
+  }
+  
+  @override
+  Future<Either<String, Map<String, dynamic>>> getCachedUser() async{
+    try {
+        final response =
+            await userLocalDatasource.getCachedUser();
+
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      }
+  }
+  
+  @override
+  Future<Either<String, String>> logout(Map<String, dynamic> params) async{
+
+  try {
+        final response =
+            await userRemoteDatasource.logout(params);
+
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      }    
   }
 }

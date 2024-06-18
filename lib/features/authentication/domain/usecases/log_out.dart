@@ -1,13 +1,17 @@
+
+
 import 'package:dartz/dartz.dart';
 import 'package:gemini/core/usecase/usecase.dart';
 import 'package:gemini/features/authentication/domain/repository/auth_repo.dart';
 
-class CacheToken extends UseCases<dynamic, String> {
+class LogOut extends UseCases<String,Map<String, dynamic>>{
   final AuthenticationRepository repository;
 
-  CacheToken({required this.repository});
+  LogOut({required this.repository});
   @override
-  Future<Either<String, dynamic>> call(String params) async {
-    return await repository.cacheToken(params);
+  Future<Either<String, String>> call(Map<String, dynamic> params) async{
+    
+    return await repository.logout(params);
   }
+
 }

@@ -13,7 +13,7 @@ class DefaultTextfield extends StatefulWidget {
   final void Function()? onTap;
   final void Function()? onPressed;
   final TextEditingController? controller;
-  final String? hintText, initialValue, errorText, label;
+  final String? hintText, initialValue, errorText;
   final double? height;
   final Uint8List? byte; 
   final bool? enabled,  isAdded;
@@ -27,7 +27,6 @@ class DefaultTextfield extends StatefulWidget {
     this.textInputType,
     this.errorText,
     this.height,
-    this.label,
     this.initialValue,
     this.enabled,
     this.isAdded,
@@ -45,6 +44,7 @@ class DefaultTextfield extends StatefulWidget {
 class _DefaultTextfieldState extends State<DefaultTextfield> {
   @override
   Widget build(BuildContext context) {
+    final theme=Theme.of(context);
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: widget.validator,
@@ -67,8 +67,6 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
               horizontal: Sizes().width(context, 0.005),
               vertical: Sizes().height(context, 0.05),
             ),
-            // width: Sizes().width(context,0.09),
-            // height: Sizes().height(context,0.045),
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
               image: DecorationImage(image:Image.memory(widget.byte!).image,fit: BoxFit.cover ),
@@ -86,13 +84,12 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
             const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         hintText: widget.hintText,
         hintStyle: const TextStyle(color: Colors.grey),
-        //label: Text(label!),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
           borderSide: BorderSide(
             color: Theme.of(context).brightness == Brightness.dark
-                ? Color.fromARGB(255, 233, 225, 225)
-                : Color.fromARGB(255, 18, 17, 17),
+                ?const Color.fromARGB(255, 233, 225, 225)
+                :const Color.fromARGB(255, 18, 17, 17),
           ),
         ),
         enabledBorder: OutlineInputBorder(
@@ -105,11 +102,11 @@ class _DefaultTextfieldState extends State<DefaultTextfield> {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-          borderSide:  BorderSide(color:Theme.of(context).brightness==Brightness.dark?Colors.white: Colors.black),
+          borderSide:  BorderSide(color:theme.brightness==Brightness.dark?Colors.white: Colors.black),
         ),
       focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(Sizes().height(context, 0.04)),
-          borderSide:  BorderSide(color:Theme.of(context).brightness==Brightness.dark?Colors.white: Colors.black),
+          borderSide:  BorderSide(color:theme.brightness==Brightness.dark?Colors.white: Colors.black),
         ),
       ));
   }
@@ -139,47 +136,41 @@ class DefaultTextArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme=Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label ?? ""),
         Space().height(context, 0.004),
-        SizedBox(
-          height: 100,
-          width: double.infinity,
-          child: TextFormField(
-            focusNode: focusNode,
-            initialValue: initialValue,
-            expands: true,
-            maxLines: null,
-            minLines: null,
-            keyboardType: textInputType,
-            controller: controller,
-            onChanged: onChanged,
-            onTapOutside: onTapOutSide,
-            decoration: InputDecoration(
-              isDense: true,
-              errorText: errorText,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-              hintText: hintText,
-              hintStyle: const TextStyle(color: Colors.grey),
-              //label: Text(label!),
-              border: OutlineInputBorder(
-                borderRadius:
-                    BorderRadius.circular(Sizes().height(context, 0.01)),
-                borderSide: const BorderSide(color: Colors.black26),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius:
-                    BorderRadius.circular(Sizes().height(context, 0.01)),
-                borderSide: const BorderSide(color: Colors.black26),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius:
-                    BorderRadius.circular(Sizes().height(context, 0.01)),
-                borderSide: const BorderSide(color: Colors.red),
-              ),
+        TextFormField(
+          focusNode: focusNode,
+          initialValue: initialValue,
+          keyboardType: textInputType,
+          controller: controller,
+          onChanged: onChanged,
+          onTapOutside: onTapOutSide,
+          decoration: InputDecoration(
+            // isDense: true,
+            errorText: errorText,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+            hintText: hintText,
+            hintStyle: const TextStyle(color: Colors.grey),
+            //label: Text(label!),
+            border: OutlineInputBorder(
+              borderRadius:
+                  BorderRadius.circular(Sizes().height(context, 0.04)),
+              borderSide: BorderSide(color:theme.brightness==Brightness.dark?Colors.white: Colors.black26),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius:
+                  BorderRadius.circular(Sizes().height(context, 0.04)),
+              borderSide:  BorderSide(color:theme.brightness==Brightness.dark?Colors.white: Colors.black26),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius:
+                  BorderRadius.circular(Sizes().height(context, 0.04)),
+              borderSide: const BorderSide(color: Colors.red),
             ),
           ),
         ),

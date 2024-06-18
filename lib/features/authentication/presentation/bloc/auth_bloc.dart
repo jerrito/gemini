@@ -2,9 +2,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/usecase/usecase.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
 import 'package:gemini/features/authentication/domain/usecases/cache_token.dart';
+import 'package:gemini/features/authentication/domain/usecases/get_cache_user.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/cache_user.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_user.dart';
+import 'package:gemini/features/authentication/domain/usecases/log_out.dart';
 import 'package:gemini/features/authentication/domain/usecases/signin.dart';
 import 'package:gemini/features/authentication/domain/usecases/signup.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_user_from_token.dart';
@@ -20,8 +22,11 @@ class AuthenticationBloc
   final GetUserData getUserData;
   final CacheToken cacheToken;
   final GetToken getToken;
+   final GetCacheUser getCacheUser;
+   final LogOut logout;
 
-  AuthenticationBloc({
+  AuthenticationBloc( {
+    required this.getCacheUser,
     required this.signup,
     required this.signin,
     required this.getUserFromToken,
@@ -29,6 +34,7 @@ class AuthenticationBloc
     required this.cacheUserData,
     required this.cacheToken,
     required this.getToken,
+    required this.logout,
   }) : super(InitState()) {
     on<SignupEvent>(
       (event, emit) async {
@@ -72,7 +78,7 @@ class AuthenticationBloc
     //! CACHE DATA
     on<CacheUserDataEvent>((event, emit) async {
       //  emit(CacheUserDataLoading());
-      final response = await cacheUserData.cacheUserData(event.params);
+      final response = await cacheUserData.call(event.params);
 
       emit(
         response.fold(
@@ -82,20 +88,20 @@ class AuthenticationBloc
       );
     });
 
-    //! GET CACHED DATA
-    // on<GetUserCacheDataEvent>(
-    //   (event, emit) async {
-    //     //emit(GetUserDataLoading());
-    //     final response = await get.call();
+   // ! GET CACHED DATA
+    on<GetUserCacheDataEvent>(
+      (event, emit) async {
+        //emit(GetUserDataLoading());
+        final response = await getCacheUser.getCachedUser();
 
-    //     emit(
-    //       response.fold(
-    //         (l) => GetUserCacheDataError(errorMessage: l),
-    //         (r) => GetUserCachedDataLoaded(user: r),
-    //       ),
-    //     );
-    //   },
-    // );
+        emit(
+          response.fold(
+            (l) => GetUserCacheDataError(errorMessage: l),
+            (r) => GetUserCachedDataLoaded(data: r),
+          ),
+        );
+      },
+    );
     on<GetUserEvent>((event, emit) async {
       emit(GetUserDataLoading());
       final response = await getUserData.call(event.params);
@@ -131,5 +137,15 @@ class AuthenticationBloc
         ),
       );
     });
+
+    on<LogoutEvent>((event, emit) async{
+      
+      emit(LogoutLoading());
+      final response=await logout.call(event.params);
+      emit(
+        response.fold((e)=>LogoutError(errorMessage: e),
+         (response)=>LogoutLoaded(successMessage: response))
+      );
+    },);
   }
 }

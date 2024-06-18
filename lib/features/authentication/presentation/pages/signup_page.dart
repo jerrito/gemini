@@ -46,13 +46,15 @@ class _SignupPageState extends State<SignupPage> {
                 context.goNamed("searchPage");
               }
               if (state is SignupLoaded) {
+                final data=state.user;
                 userBloc.add(
                   CacheUserDataEvent(
                     params: {
-                      "userName": nameController.text,
-                      "email": emailController.text,
-                      // "password": null,
+                      "userName": data.userName,
+                      "email": data.email,
+                      "profile": data.profile
                     },
+                      // "password": null,
                   ),
                 );
               }
@@ -66,10 +68,9 @@ class _SignupPageState extends State<SignupPage> {
               return DefaultButton(
                   onTap: () {
                     final Map<String, dynamic> params = {
-                       "userName": nameController.text.toString(),
-                      "email": emailController.text.toString(),
-                      "password": passwordController.text.toString(),
-                     
+                       "userName": nameController.text,
+                      "email": emailController.text,
+                      "password": passwordController.text,
                     };
                     userBloc.add(
                         SignupEvent(params: params));
@@ -85,23 +86,20 @@ class _SignupPageState extends State<SignupPage> {
               //mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Space().height(context, 0.03),
-                DefaultTextfield(
+                DefaultTextArea(
                   controller: nameController,
-                  isTextAndImage: false,
                   hintText: "Enter Username",
                   label: "UserName",
                 ),
                 Space().height(context, 0.02),
-                DefaultTextfield(
+                DefaultTextArea(
                   controller: emailController,
-                  isTextAndImage: false,
                   hintText: "Enter Email",
                   label: "Email",
                 ),
                 Space().height(context, 0.02),
-                DefaultTextfield(
+                DefaultTextArea(
                   controller: passwordController,
-                  isTextAndImage: false,
                   hintText: "Enter Password",
                   label: "Password",
                 ),

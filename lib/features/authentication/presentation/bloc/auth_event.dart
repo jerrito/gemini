@@ -46,3 +46,10 @@ class GetUserEvent extends AuthenticationEvent {
 
   GetUserEvent({required this.params});
 }
+
+
+class LogoutEvent extends AuthenticationEvent{
+final  Map<String, dynamic> params;
+
+  LogoutEvent({required this.params});
+}

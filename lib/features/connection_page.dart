@@ -32,41 +32,31 @@ class _ConnectionPageState extends State<ConnectionPage> {
       bloc: userBloc,
       listener: (context, state) {
         if (state is GetTokenLoaded) {
-          print(state.token);
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const SearchTextPage()),
-          // );
           final Map<String, dynamic> params = {"token": state.token};
           userBloc.add(
             GetUserEvent(params: params),
           );
         }
         if (state is GetUserLoaded) {
-          final Map<String, dynamic> params = {"user": state.user};
+          final user=state.user;
+
+          final Map<String, dynamic> params = {
+            "userName": user.userName,
+            "email":user.email};
           userBloc.add(CacheUserDataEvent(params: params));
         }
         if (state is CacheUserDataLoaded) {
-          context.goNamed("home");
+          context.goNamed("searchPage");
+        }
+        if(state is GetUserError){
+          context.goNamed("signin"); 
         }
         if ( state is GetTokenError) {
-          print(state.errorMessage);
           context.goNamed("landing");
         }
         if (state is GetUserCacheDataError) {
-          print(state.errorMessage);
           context.goNamed("signin");
         }
-
-        // if (state is GetUserFromTokenLoaded) {
-        //   if (!context.mounted) return;
-        //   var userProvider = Provider.of<UserProvider>(context, listen: false);
-        //   userProvider.setUser(state.user);
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => const SearchTextPage()),
-        //   );
-        // }
       },
       builder: (BuildContext context, Object? state) {
         return const Center(

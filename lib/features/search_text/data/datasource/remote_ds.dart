@@ -56,13 +56,7 @@ class SearchRemoteDatasourceImpl implements SearchRemoteDatasource {
           ai.HarmCategory.dangerousContent, ai.HarmBlockThreshold.none)
     ]);
 
-    yield* response.asBroadcastStream(
-      onListen: (subscription) => {
-        subscription.onData((event) {
-          print(event.text);
-          })
-      },
-    );
+    yield* response;
   }
 
   @override

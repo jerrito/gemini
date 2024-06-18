@@ -5,14 +5,14 @@ class UserModel extends User {
     required super.userName,
     required super.email,
     required super.password,
-    required super.phoneNumber,
+    required super.profile,
   });
 
   factory UserModel.fromJson(Map<String, dynamic>? json) => UserModel(
         userName: json?["userName"],
         email: json?["email"],
         password: json?["password"],
-        phoneNumber: json?["phoneNumber"],
+        profile: json?["profile"],
       );
 
   @override
@@ -20,7 +20,7 @@ class UserModel extends User {
         "user_name": userName,
         "email": email,
         "password": password,
-        "phone_number": phoneNumber,
+        "profile": profile,
       };
 }
 

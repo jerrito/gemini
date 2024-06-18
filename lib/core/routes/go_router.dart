@@ -3,16 +3,25 @@ import 'package:gemini/features/authentication/presentation/pages/signin_page.da
 import 'package:gemini/features/authentication/presentation/pages/signup_page.dart';
 import 'package:gemini/features/connection_page.dart';
 import 'package:gemini/features/search_text/presentation/pages/search_page.dart';
+import 'package:gemini/features/search_text/presentation/pages/user_profile.dart';
 import 'package:go_router/go_router.dart';
 
 final goRouter = GoRouter(
   
-  initialLocation: "/searchPage",
+  initialLocation: "/",
   routes: [
  
  GoRoute(path: "/searchPage",
   name: "searchPage",
-  builder: (context, state) =>const SearchTextPage(),),
+  builder: (context, state) =>const SearchTextPage(),
+  routes: [
+  GoRoute(path:"user",
+  name:"user",
+  builder: (context, state) => const  UserProfile(
+
+  ))
+  ]
+  ),
   GoRoute(path: "/",
   name:"connection",
   builder: (context, state) => const ConnectionPage(),),

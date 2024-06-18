@@ -33,7 +33,9 @@ final class ChatError extends SearchState {
   const ChatError({required this.errorMessage});
 }
 
-final class ReadAll extends SearchState{}
+final class ReadAll extends SearchState{
+const  ReadAll();
+}
 final class SearchTextAndImageLoading extends SearchState {}
 
 final class SearchTextAndImageLoaded extends SearchState {

@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'package:gemini/features/authentication/data/models/user_model.dart';
-import 'package:gemini/features/authentication/domain/entities/user.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 abstract class UserLocalDatasource {
-  cacheUserData(User userData);
+  cacheUserData(Map<String,dynamic> userData);
   cacheToken(String token);
-  Future<UserModel> getUserData();
+  Future<Map<String,dynamic>> getCachedUser();
   Future<String> getToken();
 }
 
@@ -21,18 +20,17 @@ class UserLocalDatasourceImpl implements UserLocalDatasource {
   final tokenKey = "tokenKey";
   SharedPreferences? sharedPreferences;
   @override
-  cacheUserData(User userData) async {
+  cacheUserData(Map<String,dynamic> userData) async {
 
     final data = await storage.write(
-       key: userCacheKey, value: jsonEncode(userData.toMap()));
+       key: userCacheKey, value: jsonEncode(userData));
     return data;
   }
 
   @override
-  Future<UserModel> getUserData() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    final data = sharedPreferences.getString(userCacheKey)!;
-    return UserModel.fromJson(json.decode(data));
+  Future<Map<String,dynamic>> getCachedUser() async {
+    final data = await storage.read(key:userCacheKey);
+    return json.decode(data!);
   }
 
   @override

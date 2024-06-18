@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gemini/core/api/api_key.dart' as key;
 import 'package:gemini/core/network/networkinfo.dart';
 import 'package:gemini/core/usecase/usecase.dart';
 import 'package:gemini/features/search_text/data/datasource/remote_ds.dart';
@@ -36,6 +37,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   StreamController<SpeechRecognitionResult> words =
       StreamController<SpeechRecognitionResult>();
+      List<String> all=[];
+      String s="";
 
      StreamController<ai.GenerateContentResponse> streamContent=StreamController<ai.GenerateContentResponse>();
 
@@ -91,39 +94,46 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       ));
     });
     on<ReadAllEvent>((event,emit){
-      emit(ReadAll());
+      emit(const ReadAll());
+    });
+
+ on<ListenSpeechTextEvent>((event, emit) async {
+      // emit(OnSpeechResultLoading());
+
+      listenToSpeechText();
+
+      await emit.forEach(words.stream, onData: (data) {
+        emit(OnSpeechResultLoading());
+
+        return OnSpeechResultLoaded(
+          result: data.recognizedWords,
+        );
+      });
     });
 
     on<GenerateContentEvent>((event, emit) async {
-      // StreamController s;
+      
+    await  generateStreams(event.params);
+    //  emit(GenerateContentLoading());
       await emit.forEach(
-        generateContent.generateContent(event.params),
+        streamContent.stream,
+        // generateContent.generateContent(event.params),
         onData: (data) {
-          // String name="";
-          final controller = StreamController<String>.broadcast();
-
-          emit(GenerateContentLoading());
-          // Stream<dynamic>  dataGet;
-
-          return data.fold(
-            (error) => GenerateContentError(
-              errorMessage: error,
-            ),
-            (response) {
-              //              await for (final chunk in response) {
-              // controller.add(response.text!);
-              //     print(chunk.text);
-              //   }
-              response.listen((event) {
-                // print(event.text);
-                controller.add(event.text!);
-              });
+            emit(GenerateContentLoading());
+          print(data.text);
+        //  all.add(data.text!);
               return GenerateContentLoaded(
-                  data: response.first.then((value) => value.text));
-            },
-          );
+                  data: data.text); 
         },
+        onError:(error,_) {
+           print(error);
+          return GenerateContentError(
+         
+              errorMessage: error.toString(),
+            );
+            }
       );
+      
     });
 
     on<GenerateStreamEvent>((event, emit) async {
@@ -191,20 +201,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
     });
 
-    on<ListenSpeechTextEvent>((event, emit) async {
-      // emit(OnSpeechResultLoading());
-
-      listenToSpeechText();
-
-      await emit.forEach(words.stream, onData: (data) {
-        emit(OnSpeechResultLoading());
-
-        return OnSpeechResultLoaded(
-          result: data.recognizedWords,
-        );
-      });
-    });
-
+   
     on<IsSpeechTextEnabledEvent>((event, emit) async {
       try {
         await _speechToText.initialize();
@@ -219,7 +216,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
     });
   }
-  final model = ai.GenerativeModel(model: "gemini-1.5-flash-latest", apiKey: apiKey);
+  final model = ai.GenerativeModel(model: "gemini-1.5-flash-latest", apiKey: key.apiKey);
 
   Stream<ai.GenerateContentResponse> generateContents(
       Map<String, dynamic> params) async* {
@@ -230,15 +227,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           ai.HarmCategory.dangerousContent, ai.HarmBlockThreshold.none)
     ]);
 
-    yield* response.asBroadcastStream(
-      onListen: (subscription) => {
-        subscription.onData((event) {
-          print(event.text);
-          })
-      },
-    );
+  //   yield response.asBroadcastStream(
+  //     onListen:(response){}
+  //    onData:(onData){
+  //   // print(onData.text);
+  //   streamContent.add(onData);
+  //  }
+  //   );
   }
-  Future<dynamic> generateStreams(Map<String, dynamic> params){
+  Future<dynamic> generateStreams(Map<String, dynamic> params)async{
     final content = [ai.Content.text(params["text"])];
 
     final response = model.generateContentStream(content, safetySettings: [
@@ -246,7 +243,18 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           ai.HarmCategory.dangerousContent, ai.HarmBlockThreshold.none)
     ]);
 
-    return  streamContent.addStream(response);
+  return   response.listen((onData){
+    // print(onData.text);
+    streamContent.add(onData);
+   });
+    // return  streamContent.addStream(response);
+  }
+  /// Each time to start a speech recognition session
+  Future<dynamic> listenToSpeechText() async {
+    return await _speechToText.listen(
+      onResult: (result) => words.add(result),
+      listenOptions: SpeechListenOptions(listenMode: ListenMode.search),
+    );
   }
   final _speechToText = SpeechToText();
 
@@ -267,13 +275,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   //   return speechEnabled;
   // }
 
-  /// Each time to start a speech recognition session
-  Future<dynamic> listenToSpeechText() async {
-    return await _speechToText.listen(
-      onResult: (result) => words.add(result),
-      listenOptions: SpeechListenOptions(listenMode: ListenMode.search),
-    );
-  }
+  
+
+
 
   /// Manually stop the active speech recognition session
   /// Note that there are also timeouts that each platform enforces
@@ -296,6 +300,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       imageData: params["imageData"],
       dateTime: params["dateTime"],
       eventType: params["eventType"],
+      hasImage: params["hasImage"] ?? false
     );
 
     return await personDao?.insertData(textEntity);
@@ -311,6 +316,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       imageData: params["imageData"],
       dateTime: params["dateTime"],
       eventType: params["eventType"],
+      hasImage: params["hasImage"] ?? false
     );
 
     return await textDao?.deleteData(textEntity);
@@ -329,6 +335,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       imageData: params["imageData"],
       dateTime: params["dateTime"],
       eventType: params["eventType"],
+      hasImage: params["hasImage"] ?? false
     );
     return textData;
   }

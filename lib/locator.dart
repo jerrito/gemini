@@ -2,13 +2,15 @@ import 'package:data_connection_checker_nulls/data_connection_checker_nulls.dart
 import 'package:gemini/core/network/networkinfo.dart';
 import 'package:gemini/features/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/features/authentication/data/data_source/remote_ds.dart';
-import 'package:gemini/features/authentication/data/repository/user_repo_impl.dart';
-import 'package:gemini/features/authentication/domain/repository/user_repository.dart';
+import 'package:gemini/features/authentication/data/repository/auth_repo_impl.dart';
+import 'package:gemini/features/authentication/domain/repository/auth_repo.dart';
 import 'package:gemini/features/authentication/domain/usecases/cache_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/cache_user.dart';
+import 'package:gemini/features/authentication/domain/usecases/get_cache_user.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_user_from_token.dart';
+import 'package:gemini/features/authentication/domain/usecases/log_out.dart';
 import 'package:gemini/features/authentication/domain/usecases/signin.dart';
 import 'package:gemini/features/authentication/domain/usecases/signup.dart';
 import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart';
@@ -162,10 +164,24 @@ void initAuthentication() {
       cacheUserData: sl(),
       cacheToken: sl(),
       getToken: sl(),
+      getCacheUser: sl(),
+      logout: sl()
     ),
   );
 
   //usecases
+
+  sl.registerLazySingleton(
+    () => LogOut(
+      repository: sl(),
+    ),
+  );
+
+   sl.registerLazySingleton(
+    () => GetCacheUser(
+      repository: sl(),
+    ),
+  );
 
   sl.registerLazySingleton(
     () => CacheToken(
@@ -211,7 +227,7 @@ void initAuthentication() {
 
   //repository
 
-  sl.registerLazySingleton<UserRepository>(
+  sl.registerLazySingleton<AuthenticationRepository>(
     () => UserRepositoryImpl(
       userLocalDatasource: sl(),
       userRemoteDatasource: sl(),

@@ -46,7 +46,6 @@ class CacheUserDataLoaded extends AuthenticationState {
   CacheUserDataLoaded();
 }
 
-class CacheUserDataLoading extends AuthenticationState {}
 
 class CacheUserDataError extends AuthenticationState {
   final String errorMessage;
@@ -54,8 +53,8 @@ class CacheUserDataError extends AuthenticationState {
 }
 
 class GetUserCachedDataLoaded extends AuthenticationState {
-  final User user;
-  GetUserCachedDataLoaded({required this.user});
+  final  Map<String, dynamic> data;
+  GetUserCachedDataLoaded({required this.data});
 }
 
 class GetUserDataLoading extends AuthenticationState {}
@@ -97,4 +96,15 @@ class GetUserLoading extends AuthenticationState {}
 class GetUserError extends AuthenticationState {
   final String errorMessage;
   GetUserError({required this.errorMessage});
+}
+
+class LogoutLoaded extends AuthenticationState{
+  final String successMessage;
+  LogoutLoaded({required this.successMessage});
+}
+
+class LogoutLoading extends AuthenticationState{}
+class LogoutError extends AuthenticationState{
+  final String errorMessage;
+  LogoutError({required this.errorMessage});
 }

@@ -5,7 +5,8 @@ enum Url {
   signinUrl(endpoint: "api/auth/signin"),
   verifyOTPUrl(endpoint: "api/verify_otp"),
   verifyTokenUrl(endpoint: "verify_token"),
-  homeUrl(endpoint: "api/me"),
+  homeUrl(endpoint: "api/auth/me"),
+  logoutUrl(endpoint: "api/auth/logout"),
   fUrl(endpoint: "verify_otp");
 
   final String endpoint;

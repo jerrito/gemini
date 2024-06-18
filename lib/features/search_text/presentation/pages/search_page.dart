@@ -8,7 +8,6 @@ import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/core/spacing/whitspacing.dart';
 import 'package:gemini/core/usecase/usecase.dart';
 import 'package:gemini/core/widgets/bottom_sheet.dart';
-import 'package:gemini/core/widgets/default_button.dart';
 import 'package:gemini/features/search_text/presentation/widgets/data_add.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart';
@@ -36,7 +35,7 @@ class _SearchTextPage extends State<SearchTextPage> {
   final searchBloc = sl<SearchBloc>();
   final searchBloc2 = sl<SearchBloc>();
   final searchBloc3 = sl<SearchBloc>();
-  final userBloc = sl<AuthenticationBloc>();
+  final authBloc = sl<AuthenticationBloc>();
   final ScrollController _scrollController=ScrollController();
 
   final form = GlobalKey<FormState>();
@@ -89,30 +88,19 @@ class _SearchTextPage extends State<SearchTextPage> {
       ),
     );
   }
-  void execute({required String data,required int eventType})async{
-                final newId = await searchBloc.readData();
+  void execute({required TextEntity textEntity,required int eventType,bool? isTextImage})async{
+               
                 datas.add(DataAdd(
-                  images: all,
-                  data: data,
-                  title: question!.isNotEmpty ? question! : repeatQuestion,
+                 textEntity:textEntity,
                   searchBloc: searchBloc,
+                  isTextImage:isTextImage
                 ));
-                final params = {
-                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                  "textTopic":
-                      (question!.isNotEmpty ? question! : repeatQuestion),
-                  "textData": data,
-                  "dateTime": DateTime.now().toString(),
-                  "eventType": eventType,
-                };
-                searchBloc.addData(params);
                 searchBloc.add(ReadAllEvent());
                 _scrollDown();
   }
 
   @override
   Widget build(BuildContext context) {
-    // userBloc.add(GetUserCacheDataEvent());
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -124,7 +112,7 @@ class _SearchTextPage extends State<SearchTextPage> {
               onPressed: () async {
                 scaffoldKey.currentState?.openDrawer();
                  searchBloc2.add(ReadSQLDataEvent());
-                // userBloc.add(GetUserCacheDataEvent());
+                authBloc.add(GetUserCacheDataEvent());
                
               },
               icon: const Icon(Icons.menu)),
@@ -220,6 +208,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                         "images": imageLength,
                       };
                       switch (type) {
+                       
                         case 4:
                           searchBloc.add(
                             SearchTextEvent(
@@ -245,20 +234,14 @@ class _SearchTextPage extends State<SearchTextPage> {
                           break;
                         case 1:
                           searchBloc.add(
-                            GenerateStreamEvent(
-                              params: params,
-                            ),
-                          );
-                          break;
-                        case 5:
-                          searchBloc.add(
                             GenerateContentEvent(
                               params: params,
                             ),
                           );
+                          break;
                         default:
                           searchBloc.add(
-                            GenerateStreamEvent(
+                            GenerateContentEvent(
                               params: params,
                             ),
                           );
@@ -282,7 +265,7 @@ class _SearchTextPage extends State<SearchTextPage> {
         padding: EdgeInsets.symmetric(
           horizontal: Sizes().width(
             context,
-            0.02,
+            0.04,
           ),
           vertical: Sizes().height(
             context,
@@ -296,9 +279,7 @@ class _SearchTextPage extends State<SearchTextPage> {
               all.clear();
               imageExtensions.clear();
               imageLength = 0;
-              //  info = "";
               question = "";
-
               for (int i = 0; i < state.data.length; i++) {
                 all.addAll(state.data.keys.elementAt(i));
                 imageExtensions.addAll(state.data.values.elementAt(i));
@@ -306,67 +287,74 @@ class _SearchTextPage extends State<SearchTextPage> {
               imageLength = all.length;
               byte=all[0];
               setState((){});
-
               isTextImage = false;
               isAdded=true;
-
-
-              // final dataGet = await Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) {
-              //     return ConfirmImageWithTextPage(
-              //       all: all,
-              //       textData: controller.text,
-              //     );
-              //   }),
-              // );
-
-              // if (dataGet != null) {
-                // controller.text = dataGet["text"];
-                
-              // }
             }
             if (state is AddMultipleImageLoading) {
-              //all.clear();
             }
           },
           child: BlocConsumer(
             bloc: searchBloc,
             listener: (context, state) async {
               if (state is SearchTextLoaded) {
+                 final newId = await searchBloc.readData();
                 final data = state.data;
-                execute(data: data, eventType: 4);
+                Map<String, dynamic> params={
+
+                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
+                  "textTopic":
+                      (question!.isNotEmpty ? question! : repeatQuestion),
+                  "textData": data,
+                  "dateTime": DateTime.now().toString(),
+                  "eventType": 4,
+                };
+                await searchBloc.addData(params).whenComplete((){
+                    final textEntity= searchBloc.readDataDetails(params);
+                   execute(textEntity: textEntity!, eventType: 4);
+                });
+              
               }
 
               if (state is ChatLoaded ) {
+                 final newId = await searchBloc.readData();
                 final data = state.data;
-                execute(data: data, eventType: 3);
+                Map<String, dynamic> params={
+
+                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
+                  "textTopic":
+                      (question!.isNotEmpty ? question! : repeatQuestion),
+                  "textData": data,
+                  "dateTime": DateTime.now().toString(),
+                  "eventType": 3,
+                };
+                await searchBloc.addData(params).whenComplete((){
+                    final textEntity= searchBloc.readDataDetails(params);
+                   execute(textEntity: textEntity!, eventType: 3);
+                });
                 
               }
-
-              if (state is GenerateStreamStop) {
-                all.clear();
-                if (snapInfo.isNotEmpty) {
-                  final newId = await searchBloc.readData();
-                  joinedSnapInfo = snapInfo.join("");
-
-                  final params = {
-                    "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
-                    "textTopic":
-                        (question!.isNotEmpty ? question! : repeatQuestion),
-                    "textData": joinedSnapInfo,
-                    "dateTime": DateTime.now().toString(),
-                    "eventType": 1,
-                  };
-                  searchBloc.addData(params);
-                }
-              }
-
               if (state is SearchTextAndImageLoaded) {
+                 final newId = await searchBloc.readData();
                 final data = state.data;
-                execute(data: data, eventType: 2);
+                Map<String, dynamic> params={
+
+                  "textId": newId!.isNotEmpty ? newId.last.textId + 1 : 0 + 1,
+                  "textTopic":
+                      (question!.isNotEmpty ? question! : repeatQuestion),
+                  "textData": data,
+                  "dateTime": DateTime.now().toString(),
+                  "eventType": 2,
+                  "hasImage": true,
+                  "imageData":byte
+                };
                 isAdded=false;
+                isTextImage=true;
                 setState((){});
+                await searchBloc.addData(params).whenComplete((){
+                    final textEntity= searchBloc.readDataDetails(params);
+                   execute(textEntity: textEntity!, eventType: 2, isTextImage:isTextImage);
+                });
+                
               }
 
               if (state is GenerateContentError) {
@@ -381,12 +369,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                 if (!context.mounted) return;
                 showErrorSnackbar(context, state.errorMessage);
               }
-
-              if (state is GenerateStreamError) {
-                controller.text = "";
-                if (!context.mounted) return;
-                showErrorSnackbar(context, state.errorMessage);
-              }
               if (state is ChatError) {
                 if (!context.mounted) return;
                 showErrorSnackbar(context, state.errorMessage);
@@ -394,7 +376,7 @@ class _SearchTextPage extends State<SearchTextPage> {
               if (state is SearchTextAndImageLoading ||
                   state is SearchTextLoading ||
                   state is ChatLoading ||
-                  state is GenerateStreamLoading) {
+                  state is GenerateContentLoading) {
                 question = controller.text;
                 controller.text = "";
                 isAvailable=false;
@@ -403,8 +385,7 @@ class _SearchTextPage extends State<SearchTextPage> {
             builder: (context, state) {
               if (state is SearchTextAndImageLoading ||
                   state is SearchTextLoading ||
-                  state is ChatLoading ||
-                  state is GenerateStreamLoading) {
+                  state is ChatLoading ) {
                 return Column(
                   children: [
                     Center(
@@ -416,145 +397,33 @@ class _SearchTextPage extends State<SearchTextPage> {
                 );
                 
               }
-              if (state is GenerateStream) {
-                final params = {"text": question};
-
-                return StreamBuilder(
-                    stream: searchBloc.generateStream(params),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        snapInfo.clear();
-                        return Center(
-                          child: Lottie.asset(
-                            aiJson,
-                          ),
-                        );
-                      }
-
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        searchBloc.add(GenerateStreamStopEvent());
-                      }
-                      if (snapshot.hasError) {
-                        // final data = snapshot.error;
-
-                        // return SingleChildScrollView(
-                        //   child: Column(
-                        //     crossAxisAlignment: CrossAxisAlignment.start,
-                        //     children: [
-                        //       Text(question!.isNotEmpty
-                        //           ? question!
-                        //           : repeatQuestion),
-                        //       Space().height(context, 0.02),
-                        //       Text(data.toString()),
-                        //       Space().height(context, 0.03),
-                        //     ],
-                        //   ),
-                        // );
-                      }
-                      if (snapshot.hasData) {
-                        final data = snapshot.data?.text ??
-                            snapshot.data?.promptFeedback?.blockReasonMessage;
-                        snapInfo.add(data!);
-                        return Column(
-                          children: [
-                            Flexible(
-                              child: ListView.builder(
-                                itemCount: snapInfo.length,
-                                itemBuilder: (context, index) {
-                                  final dataFromSnap = snapInfo[index];
-                                  return Text(dataFromSnap);
-                                },
-                              ),
-                            ),
-                            Space().height(context, 0.1),
-                          ],
-                        );
-                      }
-                      return const SizedBox();
-                    });
-              }
-              // if(state is GenerateStreamError){
-              //   final error=state.errorMessage;
-
-              //    return Column(
-              //     mainAxisAlignment: MainAxisAlignment.center,
-              //       children: [
-              //         Lottie.asset(noJson),
-              //         Space().height(context, 0.02),
-              //         Text(error,
-              //             style:
-              //              const   TextStyle(fontSize: 18, color: Colors.red,),),
-              //       ]);
-              //       }
-
-              if (state is GenerateStreamStop) {
-                String copyTextData =
-                    (question!.isNotEmpty ? question! : repeatQuestion) +
-                        joinedSnapInfo;
-
-                final params = {
-                  "text": copyTextData,
-                };
-                if (snapInfo.isEmpty) {
-
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Lottie.asset(noJson),
-                      Space().height(context, 0.02),
-                      const Text("Invalid request",
-                          style: TextStyle(fontSize: 18, color: Colors.red)),
-                      Space().height(context, 0.05),
-                      DefaultButton(
-                          label: "Retry",
-                          onTap: () {
-                            final param = {
-                              "text": (question!.isNotEmpty
-                                  ? question!
-                                  : repeatQuestion),
-                            };
-                            searchBloc.add(
-                              GenerateStreamEvent(
-                                params: param,
-                              ),
-                            );
-                          })
-                    ],
-                  );
-                } else {
-                  return Column(
-                    children: [
-                      Text(question!.isNotEmpty ? question! : repeatQuestion,
-                          style: const TextStyle(
-                              fontSize: 16,
-                              decorationStyle: TextDecorationStyle.solid)),
-                      Flexible(
-                        child: ListView.builder(
-                          itemCount: snapInfo.length,
-                          itemBuilder: (context, index) {
-                            final dataFromSnap = snapInfo[index];
-                            return Text(dataFromSnap);
-                          },
-                        ),
-                      ),
-                      ButtonsBelowResult(
-                          onCopy: () async {
-                            searchBloc.copyText(params);
-                          },
-                          onRetry: null,
-                          onShare: () async {
-                            await Share.share((question!.isNotEmpty
-                                    ? question!
-                                    : repeatQuestion) +
-                                joinedSnapInfo);
-                          }),
-                      Space().height(context, 0.1),
-                    ],
-                  );
-                }
+             
+              if(state is GenerateContentLoaded){
+                final data = state.data;
+                snapInfo.add(data.toString());
+                print("d");
+                _scrollDown();
+                return Column(
+                  children: [
+                   Expanded(
+                       child: ListView.builder(
+                          controller: _scrollController,
+                          shrinkWrap: true,
+                           itemCount: snapInfo.length,
+                          //  physics: const NeverScrollableScrollPhysics(),
+                           itemBuilder: (context, index) {
+                             final da = snapInfo[index];
+                             return Text(
+                                da
+                             );
+                           },
+                         ),
+                     ),
+                     Space().height(context, 0.09)
+                  ]);
               }
               if (state is ReadAll) {
-                // final data = state.data;
+                
                 return Column(
                     children: [
                      Expanded(
@@ -566,10 +435,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                            itemBuilder: (context, index) {
                              final da = datas[index];
                              return DataAdd(
-                               title: da.title,
-                               images: da.images,
-                               data: da.data,
+                              textEntity: da.textEntity,
                                searchBloc: searchBloc,
+                               isTextImage:true
                              );
                            },
                          ),
@@ -657,16 +525,19 @@ class _SearchTextPage extends State<SearchTextPage> {
           ),
         ),
       ),
-      drawer: SafeArea(
-        child: Drawer(
+      drawer: Drawer(
+        child: SafeArea(
           child: Column(
             children: [
               BlocListener(
-                bloc: userBloc,
+                bloc: authBloc,
                 listener: (context, state) async {
                   if (state is GetUserCachedDataLoaded) {
-                    email = state.user.email;
-                    userName = state.user.userName;
+                    final data=state.data;
+                
+                    email = data["email"];
+                    userName = data["userName"];
+                    setState((){});
                   }
                   if (state is GetUserCacheDataError) {}
                 },
@@ -749,7 +620,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                     //  print("dd");
                     return const HistoryShimmer();
                   }
-
+                
                   if (state is ReadDataLoaded) {
                     final response = state.data;
                     return response!.isEmpty
@@ -768,6 +639,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                                   "imageData": datas.imageData,
                                   "eventType": datas.eventType,
                                   "dateTime": datas.dateTime,
+                                  "hasImage":datas.hasImage
                                 };
                                 return Slidable(
                                   // Specify a key if the Slidable is dismissible.
@@ -775,11 +647,6 @@ class _SearchTextPage extends State<SearchTextPage> {
                                   startActionPane: ActionPane(
                                     // A motion is a widget used to control how the pane animates.
                                     motion: const ScrollMotion(),
-
-                                    // A pane can dismiss the Slidable.
-                                    // dismissible: DismissiblePane(onDismissed: () {}),
-
-                                    // All actions are defined in the children parameter.
                                     children: [
                                       // A SlidableAction can have an icon and/or a label.
                                       SlidableActionWidget(
@@ -791,7 +658,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                                         },
                                         isDeleteButton: false,
                                       ),
-
+                
                                       SlidableActionWidget(
                                         onPressed: (context) async {
                                           await searchBloc2.deleteData(params);
@@ -802,7 +669,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                                       ),
                                     ],
                                   ),
-
+                
                                   // The end action pane is the one at the right or the bottom side.
                                   endActionPane: ActionPane(
                                     motion: const ScrollMotion(),

@@ -1,23 +1,19 @@
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/core/spacing/whitspacing.dart';
 import 'package:gemini/features/search_text/presentation/bloc/search_bloc.dart';
 import 'package:gemini/features/search_text/presentation/widgets/buttons_below.dart';
+import 'package:gemini/features/sql_database/entities/text.dart';
 import 'package:share_plus/share_plus.dart';
 
 class DataAdd extends StatelessWidget {
-  final String? title, data;
-  final List <Uint8List>? images;
+  final bool? isTextImage;
+  final TextEntity textEntity;
   final SearchBloc searchBloc;
   const DataAdd(
       {super.key,
-      this.title,
-      this.data,
-      this.images,
-      required this.searchBloc});
+      required this.searchBloc, required this.textEntity, this.isTextImage});
 
   @override
   Widget build(BuildContext context) {
@@ -36,27 +32,25 @@ class DataAdd extends StatelessWidget {
            const Color.fromRGBO(44, 43, 43, 0.694): 
            const Color.fromRGBO(241, 217, 217, 0.678)
           ),
-          child: Text(title ?? "",style:const TextStyle(
+          child: Text(textEntity.textTopic,style:const TextStyle(
              fontSize:17,),)),
              Space().height(context, 0.04),
-        if (images?.isNotEmpty  ?? false) 
-        Column(
-          children: List.generate(images!.length, (index) {
-                          return Image.memory(images![index]);
-                        }),
-        ),
-        Text(data ?? ""),
+        if (isTextImage  ?? false) 
+         Image.memory(textEntity.imageData!,
+         fit:BoxFit.cover,
+         width:double.infinity,height:Sizes().height(context,0.01)) ,
+        Text(textEntity.textData),
         ButtonsBelowResult(
             onCopy: () async {
               final Map<String, dynamic> params = {
-                "text": ((title ?? "") + (data ?? "")),
+                "text": ((textEntity.textTopic ) + (textEntity.textData)),
               };
               searchBloc.copyText(params);
             },
             onRetry: null,
             onShare: () async {
               await Share.share(
-                  ((title ?? "") + (data ?? "")));
+                  ((textEntity.textTopic ) + (textEntity.textData)));
             }),
       ],
     );

@@ -12,11 +12,16 @@ class TextEntity {
   final int? eventType;
 
   final String? dateTime;
+   
+   
+   final bool? hasImage;
+   
 
   final Uint8List? imageData;
 
-  const TextEntity(
-      {required this.textId,
+  const TextEntity({
+      required this.hasImage, 
+      required this.textId,
       required this.textTopic,
       required this.textData,
       required this.imageData,
