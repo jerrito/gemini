@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:gemini/core/network/networkinfo.dart';
 import 'package:gemini/features/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/features/authentication/data/data_source/remote_ds.dart';
+import 'package:gemini/features/authentication/data/models/authorization_model.dart';
+import 'package:gemini/features/authentication/domain/entities/authorization.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
 import 'package:gemini/features/authentication/domain/repository/auth_repo.dart';
 
@@ -16,7 +18,7 @@ class UserRepositoryImpl implements AuthenticationRepository {
       required this.networkInfo});
 
   @override
-  Future<Either<String, Data>> signin(Map<String, dynamic> params) async {
+  Future<Either<String, SigninResponse>> signin(Map<String, dynamic> params) async {
     if (await networkInfo.isConnected) {
       try {
         final response = await userRemoteDatasource.signinUser(params);
@@ -30,7 +32,7 @@ class UserRepositoryImpl implements AuthenticationRepository {
   }
 
   @override
-  Future<Either<String, User>> signup(Map<String, dynamic> params) async {
+  Future<Either<String, SignupResponse>> signup(Map<String, dynamic> params) async {
     if (await networkInfo.isConnected) {
       try {
         final response = await userRemoteDatasource.signupUser(params);
@@ -66,9 +68,9 @@ class UserRepositoryImpl implements AuthenticationRepository {
  
 
   @override
-  Future<Either<String, dynamic>> cacheToken(String token) async {
+  Future<Either<String, dynamic>> cacheToken(AuthorizationModel authorization) async {
     try {
-      final response = await userLocalDatasource.cacheToken(token);
+      final response = await userLocalDatasource.cacheToken( authorization);
 
       return Right(response);
     } catch (e) {
@@ -77,7 +79,7 @@ class UserRepositoryImpl implements AuthenticationRepository {
   }
 
   @override
-  Future<Either<String, String>> getToken()async {
+  Future<Either<String,Authorization >> getToken()async {
    try {
       final response = await userLocalDatasource.getToken();
 
@@ -138,5 +140,18 @@ class UserRepositoryImpl implements AuthenticationRepository {
       } catch (e) {
         return Left(e.toString());
       }    
+  }
+  
+  @override
+  Future<Either<String, String>> refreshToken(Map<String, dynamic> params) async{
+    
+    try {
+        final response =
+            await userRemoteDatasource.refreshToken(params);
+
+        return Right(response);
+      } catch (e) {
+        return Left(e.toString());
+      } 
   }
 }

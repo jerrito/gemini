@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:gemini/features/authentication/domain/entities/authorization.dart';
+import 'package:gemini/features/authentication/domain/usecases/refresh_token.dart';
 
 class User extends Equatable {
   final String? userName, email, password, profile;
@@ -21,16 +23,33 @@ class User extends Equatable {
         "userName": userName,
         "email": email,
         "password": password,
-        "phoneNumber": profile,
+        "profile": profile,
       };
 }
 
-class Data extends Equatable {
-  final User user;
-  final String token;
 
- const Data({required this.user, required this.token});
+
+class SigninResponse extends Equatable {
+  final User user;
+  final Authorization authorization;
+
+ const SigninResponse({required this.user, required this.authorization});
  
   @override
-  List<Object?> get props => [user, token];
+  List<Object?> get props => [user, authorization];
 }
+
+class SignupResponse extends Equatable {
+
+  final User user;
+  final RefreshToken refreshToken;
+
+  const SignupResponse({required this.user, required this.refreshToken});
+
+  
+
+  @override
+  List<Object?> get props => throw UnimplementedError();
+
+}
+

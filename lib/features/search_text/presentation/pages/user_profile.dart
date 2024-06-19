@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:gemini/locator.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +29,7 @@ class _UserProfileState extends State<UserProfile> {
             context.goNamed("landing");
             }
             if(state is GetTokenLoaded){
-              token=state.token;
+              token=state.token.accessToken;
               setState((){});
             }
             if(state is GetTokenError){
@@ -42,6 +43,11 @@ class _UserProfileState extends State<UserProfile> {
         },
         child: Column(
               children: [
+
+                CircleAvatar(
+                  backgroundImage:Image.network("").image ,
+                  radius: Sizes().height(context, 0.08),
+                ),
             
                 GestureDetector(
                   onTap:(){

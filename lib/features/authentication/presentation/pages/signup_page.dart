@@ -4,6 +4,7 @@ import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/core/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/default_button.dart';
 import 'package:gemini/core/widgets/default_textfield.dart';
+import 'package:gemini/features/authentication/data/models/authorization_model.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:gemini/features/search_text/presentation/widgets/show_error.dart';
@@ -46,15 +47,23 @@ class _SignupPageState extends State<SignupPage> {
                 context.goNamed("searchPage");
               }
               if (state is SignupLoaded) {
-                final data=state.user;
-                userBloc.add(
-                  CacheUserDataEvent(
-                    params: {
+                final data=state.response.user;
+                final author=state.response.refreshToken;
+                final authorization={
+                  "refreshToken":author,
+                  "token":null
+                };
+                final params= {
                       "userName": data.userName,
                       "email": data.email,
                       "profile": data.profile
-                    },
-                      // "password": null,
+                    };
+                userBloc.add(CacheTokenEvent(
+                  authorization: AuthorizationModel.fromJson(
+                    authorization),),);
+                userBloc.add(
+                  CacheUserDataEvent(
+                    params:params,
                   ),
                 );
               }

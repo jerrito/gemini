@@ -32,7 +32,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
       bloc: userBloc,
       listener: (context, state) {
         if (state is GetTokenLoaded) {
-          final Map<String, dynamic> params = {"token": state.token};
+          final Map<String, dynamic> params = {"token": state.token.accessToken};
           userBloc.add(
             GetUserEvent(params: params),
           );

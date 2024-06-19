@@ -8,9 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class UserRemoteDatasource {
   //s
-  Future<UserModel> signupUser(Map<String, dynamic> params);
+  Future<SignupResponseModel> signupUser(Map<String, dynamic> params);
 
-  Future<DataModel> signinUser(Map<String, dynamic> params);
+  Future<SigninResponseModel> signinUser(Map<String, dynamic> params);
 
   //confrm token
   Future<bool> confirmToken(Map<String, dynamic> params);
@@ -22,6 +22,8 @@ abstract class UserRemoteDatasource {
   Future<UserModel> getUser(Map<String, dynamic> params);
 
   Future<String> logout(Map<String, dynamic> params);
+
+  Future<String> refreshToken(Map<String, dynamic> params);
 }
 
 class UserRemoteDatasourceImpl implements UserRemoteDatasource {
@@ -29,7 +31,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
 
   UserRemoteDatasourceImpl({required this.client});
   @override
-  Future<UserModel> signupUser(Map<String, dynamic> params) async {
+  Future<SignupResponseModel> signupUser(Map<String, dynamic> params) async {
     Map<String, String>? headers = {};
     headers.addAll(<String, String>{
       "Content-Type": "application/json; charset=UTF-8",
@@ -49,7 +51,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
     final data = jsonDecode(response.body);
     print(data);
     if (response.statusCode == 200) {
-      return UserModel.fromJson(data);
+      return SignupResponseModel.fromJson(data);
     } else {
       throw CustomException(
         error: data["error"],
@@ -60,7 +62,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
   }
 
   @override
-  Future<DataModel> signinUser(Map<String, dynamic> params) async {
+  Future<SigninResponseModel> signinUser(Map<String, dynamic> params) async {
      Map<String, String>? headers = {};
     headers.addAll(<String, String>{
       "Content-Type": "application/json; charset=UTF-8",
@@ -76,7 +78,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
     );
     print(response.body);
     if (response.statusCode == 200) {
-      return DataModel.fromJson(jsonDecode(response.body));
+      return SigninResponseModel.fromJson(jsonDecode(response.body));
     } else {
       throw Exception(response.reasonPhrase);
     }
@@ -143,7 +145,22 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
       "Authorization": params["token"]
     });
 
-    final response = await client.post(getUri(endpoint: Url.homeUrl.endpoint),
+    final response = await client.post(getUri(endpoint: Url.logoutUrl.endpoint),
+        headers: headers);
+    return jsonDecode(response.body);
+  }
+  
+  @override
+  Future<String> refreshToken(Map<String, dynamic> params) async{
+    
+    Map<String, String>? headers = {};
+
+    headers.addAll({
+      "Content-Type": "application/json; charset=UTF-8",
+      "Authorization": params["token"]
+    });
+
+    final response = await client.post(getUri(endpoint: Url.refreshUrl.endpoint),
         headers: headers);
     return jsonDecode(response.body);
   }

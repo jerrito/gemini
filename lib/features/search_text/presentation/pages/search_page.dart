@@ -19,6 +19,7 @@ import 'package:gemini/features/search_text/presentation/widgets/show_error.dart
 import 'package:gemini/features/search_text/presentation/widgets/slidable_action.dart';
 import 'package:gemini/features/sql_database/entities/text.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:lottie/lottie.dart';
 
@@ -34,9 +35,9 @@ class SearchTextPage extends StatefulWidget {
 class _SearchTextPage extends State<SearchTextPage> {
   final searchBloc = sl<SearchBloc>();
   final searchBloc2 = sl<SearchBloc>();
+  final ScrollController _scrollController=ScrollController();
   final searchBloc3 = sl<SearchBloc>();
   final authBloc = sl<AuthenticationBloc>();
-  final ScrollController _scrollController=ScrollController();
 
   final form = GlobalKey<FormState>();
   List<Uint8List> all = [];
@@ -307,6 +308,8 @@ class _SearchTextPage extends State<SearchTextPage> {
                   "textData": data,
                   "dateTime": DateTime.now().toString(),
                   "eventType": 4,
+                  "hasImage":false
+                  
                 };
                 await searchBloc.addData(params).whenComplete((){
                     final textEntity= searchBloc.readDataDetails(params);
@@ -326,6 +329,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                   "textData": data,
                   "dateTime": DateTime.now().toString(),
                   "eventType": 3,
+                  "hasImage":false
                 };
                 await searchBloc.addData(params).whenComplete((){
                     final textEntity= searchBloc.readDataDetails(params);
@@ -352,7 +356,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                 setState((){});
                 await searchBloc.addData(params).whenComplete((){
                     final textEntity= searchBloc.readDataDetails(params);
-                   execute(textEntity: textEntity!, eventType: 2, isTextImage:isTextImage);
+                   execute(textEntity: textEntity!, eventType: 2,
+                    isTextImage:true
+                   );
                 });
                 
               }
@@ -544,11 +550,17 @@ class _SearchTextPage extends State<SearchTextPage> {
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      CircleAvatar(
-                        child: Text(
-                          userName?.substring(0, 1).toUpperCase() ??
-                              email?.substring(0, 1).toUpperCase() ??
-                              "",
+                      GestureDetector(
+                        onTap:()async{
+                          print("ddjd");
+                         await context.pushNamed("user");
+                        },
+                        child: CircleAvatar(
+                          child: Text(
+                            userName?.substring(0, 1).toUpperCase() ??
+                                email?.substring(0, 1).toUpperCase() ??
+                                "",
+                          ),
                         ),
                       ),
                       Text(
@@ -593,8 +605,9 @@ class _SearchTextPage extends State<SearchTextPage> {
                 },
               ),
               SearchTypeWidget(
+                
                 value:type ,
-                onTap: () {
+                onTap: () async{
                 type=RequestType.future.value;
                   isTextImage = false;
                   isAdded=false;

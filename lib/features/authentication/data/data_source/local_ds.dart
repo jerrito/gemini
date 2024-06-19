@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:gemini/features/authentication/data/models/authorization_model.dart';
 import 'package:gemini/features/authentication/data/models/user_model.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,9 +7,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 abstract class UserLocalDatasource {
   cacheUserData(Map<String,dynamic> userData);
-  cacheToken(String token);
+  cacheToken(AuthorizationModel authorization);
   Future<Map<String,dynamic>> getCachedUser();
-  Future<String> getToken();
+  Future<AuthorizationModel> getToken();
 }
 
 class UserLocalDatasourceImpl implements UserLocalDatasource {
@@ -34,14 +35,14 @@ class UserLocalDatasourceImpl implements UserLocalDatasource {
   }
 
   @override
-  cacheToken(String token) async {
+  cacheToken(AuthorizationModel authorization) async {
     // Read value
-    await storage.write(key: tokenKey, value: token);
+    await storage.write(key: tokenKey, value:jsonEncode( authorization));
   }
 
   @override
-  Future<String> getToken() async {
-    final token = await storage.read(key: tokenKey);
-    return token!;
+  Future<AuthorizationModel> getToken() async {
+    final authorization = await storage.read(key: tokenKey);
+    return AuthorizationModel.fromJson(jsonDecode(authorization!));
   }
 }

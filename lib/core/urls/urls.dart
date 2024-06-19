@@ -7,6 +7,7 @@ enum Url {
   verifyTokenUrl(endpoint: "verify_token"),
   homeUrl(endpoint: "api/auth/me"),
   logoutUrl(endpoint: "api/auth/logout"),
+  refreshUrl(endpoint: "api/auth/refresh"),
   fUrl(endpoint: "verify_otp");
 
   final String endpoint;
@@ -15,12 +16,6 @@ enum Url {
 }
 
 Uri getUri({required String endpoint}) {
-  //192.168.9.140  154.160.9.66 154.160.23.34 192.168.187.239
-  final ipAddress = InternetAddress.anyIPv4.address;
-
-  //return ipAddress;
-  print(ipAddress);
-
   String baseUrl = "https://gemini-server-qpjy.onrender.com/";
   return Uri.parse(baseUrl + endpoint);
 }

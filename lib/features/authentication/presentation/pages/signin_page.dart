@@ -9,6 +9,8 @@ import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart'
 import 'package:gemini/features/search_text/presentation/widgets/show_error.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/models/authorization_model.dart';
+
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key});
 
@@ -33,7 +35,7 @@ class _SigninPageState extends State<SigninPage> {
                 listener: (context, state) {
                   if (state is SigninLoaded) {
                     final user = state.data.user;
-                    final token = state.data.token;
+                    final authorization = state.data.authorization;
                     userBloc.add(CacheUserDataEvent(
                       params: {
                         "userName": user.userName,
@@ -42,7 +44,7 @@ class _SigninPageState extends State<SigninPage> {
                     ));
                     userBloc.add(
                       CacheTokenEvent(
-                        token: token,
+                        authorization: AuthorizationModel.fromJson(authorization.toMap()),
                       ),
                     );
                   }

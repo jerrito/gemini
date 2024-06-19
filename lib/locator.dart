@@ -165,12 +165,19 @@ void initAuthentication() {
       cacheToken: sl(),
       getToken: sl(),
       getCacheUser: sl(),
-      logout: sl()
+      logout: sl(),
+      refreshToken: sl()
     ),
   );
 
   //usecases
 
+  sl.registerLazySingleton(
+    () => LogOut(
+      repository: sl(),
+    ),
+  );
+  
   sl.registerLazySingleton(
     () => LogOut(
       repository: sl(),

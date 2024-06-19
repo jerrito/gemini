@@ -5,9 +5,9 @@ abstract class AuthenticationState {}
 class InitState extends AuthenticationState {}
 
 class SignupLoaded extends AuthenticationState {
-  final User user;
+  final SignupResponse response;
 
-  SignupLoaded({required this.user});
+  SignupLoaded({required this.response});
 }
 
 class SignupLoading extends AuthenticationState {}
@@ -18,7 +18,7 @@ class SignupError extends AuthenticationState {
 }
 
 class SigninLoaded extends AuthenticationState {
-  final Data data;
+  final SigninResponse data;
 
   SigninLoaded({required this.data});
 }
@@ -64,10 +64,7 @@ class GetUserCacheDataError extends AuthenticationState {
   GetUserCacheDataError({required this.errorMessage});
 }
 
-class CacheTokenLoaded extends AuthenticationState {
-  final String token;
-  CacheTokenLoaded({required this.token});
-}
+class CacheTokenLoaded extends AuthenticationState {}
 
 class CacheTokenError extends AuthenticationState {
   final String errorMessage;
@@ -76,7 +73,7 @@ class CacheTokenError extends AuthenticationState {
 }
 
 class GetTokenLoaded extends AuthenticationState {
-  final String token;
+  final Authorization token;
   GetTokenLoaded({required this.token});
 }
 
@@ -107,4 +104,15 @@ class LogoutLoading extends AuthenticationState{}
 class LogoutError extends AuthenticationState{
   final String errorMessage;
   LogoutError({required this.errorMessage});
+}
+
+class RefreshTokenLoaded extends AuthenticationState {
+  final String token;
+  RefreshTokenLoaded({required this.token});
+}
+class RefreshTokenLoading extends AuthenticationState{}
+
+class RefeshTokenError extends AuthenticationState {
+  final String errorMessage;
+  RefeshTokenError({required this.errorMessage});
 }

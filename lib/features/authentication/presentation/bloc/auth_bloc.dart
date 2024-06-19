@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/usecase/usecase.dart';
+import 'package:gemini/features/authentication/data/models/authorization_model.dart';
+import 'package:gemini/features/authentication/domain/entities/authorization.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
 import 'package:gemini/features/authentication/domain/usecases/cache_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_cache_user.dart';
@@ -7,6 +9,7 @@ import 'package:gemini/features/authentication/domain/usecases/get_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/cache_user.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/features/authentication/domain/usecases/log_out.dart';
+import 'package:gemini/features/authentication/domain/usecases/refresh_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/signin.dart';
 import 'package:gemini/features/authentication/domain/usecases/signup.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_user_from_token.dart';
@@ -24,9 +27,11 @@ class AuthenticationBloc
   final GetToken getToken;
    final GetCacheUser getCacheUser;
    final LogOut logout;
+   final RefreshToken refreshToken;
 
   AuthenticationBloc( {
     required this.getCacheUser,
+    required this.refreshToken,
     required this.signup,
     required this.signin,
     required this.getUserFromToken,
@@ -43,7 +48,7 @@ class AuthenticationBloc
 
         emit(response.fold(
             (error) => SignupError(errorMessage: error), 
-            (response) => SignupLoaded(user: response)));
+            (response) => SignupLoaded(response: response)));
       },
     );
 
@@ -117,11 +122,11 @@ class AuthenticationBloc
       );
     });
     on<CacheTokenEvent>((event, emit) async {
-      final response = await cacheToken.call(event.token);
+      final response = await cacheToken.call(event.authorization);
       emit(
         response.fold(
           (errorMessage) => CacheTokenError(errorMessage: errorMessage),
-          (response) => CacheTokenLoaded(token: response),
+          (response) => CacheTokenLoaded(),
         ),
       );
     });
@@ -145,6 +150,17 @@ class AuthenticationBloc
       emit(
         response.fold((e)=>LogoutError(errorMessage: e),
          (response)=>LogoutLoaded(successMessage: response))
+      );
+    },);
+
+
+    on<RefreshTokenEvent>((event, emit) async{
+      
+      emit(RefreshTokenLoading());
+      final response=await refreshToken.call(event.params);
+      emit(
+        response.fold((e)=>RefeshTokenError(errorMessage: e),
+         (response)=>RefreshTokenLoaded(token: response))
       );
     },);
   }
