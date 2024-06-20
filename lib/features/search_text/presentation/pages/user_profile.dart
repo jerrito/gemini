@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart';
+import 'package:gemini/features/search_text/presentation/widgets/show_error.dart';
 import 'package:gemini/locator.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,10 +29,14 @@ class _UserProfileState extends State<UserProfile> {
         bloc:authBloc,
         listener: (context, state) {
           if(state is LogoutLoaded){
+            final data=jsonDecode(state.successMessage);
+
+             if(!context.mounted)return;
+              showSnackbar(isSuccessMessage: true, context: context,message: data["message"]);
             context.goNamed("landing");
             }
             if(state is GetTokenLoaded){
-              token=state.token.accessToken;
+              token=state.authorization["token"];
               setState((){});
             }
             if(state is GetTokenError){
@@ -37,8 +44,7 @@ class _UserProfileState extends State<UserProfile> {
             }
             if(state is LogoutError){
               if(!context.mounted)return;
-              // showSna
-
+              showSnackbar(context: context,message: state.errorMessage);
             }
         },
         child: Column(
@@ -56,7 +62,7 @@ class _UserProfileState extends State<UserProfile> {
                     };
                  authBloc.add(LogoutEvent(params: params));
                   },
-                  child: Text("Logout"),
+                  child: const Text("Logout"),
                 )
               ],
             ),

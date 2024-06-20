@@ -1,4 +1,3 @@
-import 'package:gemini/features/authentication/data/models/authorization_model.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
 
 class UserModel extends User {
@@ -26,11 +25,12 @@ class UserModel extends User {
 }
 
 class SigninResponseModel extends SigninResponse {
-  const SigninResponseModel({required super.user, required super.authorization});
+  const SigninResponseModel({required super.user, required super.refreshToken, required super.token});
 
   factory SigninResponseModel.fromJson(Map<String, dynamic> json) =>
       SigninResponseModel(user: UserModel.fromJson(json["user"]),
-        authorization:AuthorizationModel.fromJson(json["token"]));
+        token:json["token"],
+        refreshToken: json["refreshToken"]);
 }
 
 

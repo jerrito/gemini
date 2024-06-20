@@ -1,12 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart';
-import 'package:gemini/features/authentication/presentation/pages/landing_page.dart';
-import 'package:gemini/features/authentication/presentation/provider/user_provider.dart';
-import 'package:gemini/features/search_text/presentation/pages/search_page.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class ConnectionPage extends StatefulWidget {
   const ConnectionPage({super.key});
@@ -17,6 +15,8 @@ class ConnectionPage extends StatefulWidget {
 
 class _ConnectionPageState extends State<ConnectionPage> {
   final userBloc = sl<AuthenticationBloc>();
+  String? refreshToken;
+  String? token;
   @override
   void initState() {
     super.initState();
@@ -32,11 +32,46 @@ class _ConnectionPageState extends State<ConnectionPage> {
       bloc: userBloc,
       listener: (context, state) {
         if (state is GetTokenLoaded) {
-          final Map<String, dynamic> params = {"token": state.token.accessToken};
+          refreshToken=state.authorization["refreshToken"];
+          // print(refreshToken);
+          setState((){});
           userBloc.add(
-            GetUserEvent(params: params),
+            RefreshTokenEvent(refreshToken: refreshToken!),
           );
         }
+        if(state is RefreshTokenError){
+          // print("sgs${state.errorMessage}");
+          if(state.errorMessage== "No internet connection"){
+         context.goNamed("noInternet");   
+          }
+          else{
+         context.goNamed("signin");
+          }
+          }
+        if(state is RefreshTokenLoaded){
+          //: TODO use provider to store both tokens
+          // token=state.token;
+         final tokenGet=jsonDecode(state.token);
+         token=tokenGet["token"];
+         setState((){});
+          final Map<String,dynamic> params={
+            "token":token,
+            "refreshToken":refreshToken
+          };
+          userBloc.add(
+            CacheTokenEvent(authorization: params),
+        );
+        }
+        if(state is CacheTokenLoaded){
+          final params={
+            "token":token
+          };
+          userBloc.add(GetUserEvent(params: params,),);
+              }
+              if(state is CacheTokenError){
+           context.goNamed("signin");
+                        }
+        
         if (state is GetUserLoaded) {
           final user=state.user;
 

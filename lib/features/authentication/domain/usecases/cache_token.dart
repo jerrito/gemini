@@ -1,15 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:gemini/core/usecase/usecase.dart';
-import 'package:gemini/features/authentication/data/models/authorization_model.dart';
-import 'package:gemini/features/authentication/domain/entities/authorization.dart';
 import 'package:gemini/features/authentication/domain/repository/auth_repo.dart';
 
-class CacheToken extends UseCases<dynamic, AuthorizationModel> {
+class CacheToken extends UseCases<dynamic, Map<String,dynamic> > {
   final AuthenticationRepository repository;
 
   CacheToken({required this.repository});
   @override
-  Future<Either<String, dynamic>> call(AuthorizationModel params) async {
+  Future<Either<String, dynamic>> call(Map<String,dynamic>  params) async {
     return await repository.cacheToken(params);
   }
 }

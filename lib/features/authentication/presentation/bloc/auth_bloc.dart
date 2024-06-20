@@ -1,7 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini/core/usecase/usecase.dart';
-import 'package:gemini/features/authentication/data/models/authorization_model.dart';
-import 'package:gemini/features/authentication/domain/entities/authorization.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
 import 'package:gemini/features/authentication/domain/usecases/cache_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_cache_user.dart';
@@ -137,7 +135,7 @@ class AuthenticationBloc
         response.fold(
           (errorMessage) => GetTokenError(errorMessage: errorMessage),
           (response) => GetTokenLoaded(
-            token: response,
+            authorization: response,
           ),
         ),
       );
@@ -156,10 +154,10 @@ class AuthenticationBloc
 
     on<RefreshTokenEvent>((event, emit) async{
       
-      emit(RefreshTokenLoading());
-      final response=await refreshToken.call(event.params);
+      // emit(RefreshTokenLoading());
+      final response=await refreshToken.call(event.refreshToken);
       emit(
-        response.fold((e)=>RefeshTokenError(errorMessage: e),
+        response.fold((e)=>RefreshTokenError(errorMessage: e),
          (response)=>RefreshTokenLoaded(token: response))
       );
     },);

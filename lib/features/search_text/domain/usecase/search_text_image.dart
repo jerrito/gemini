@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:gemini/core/usecase/usecase.dart';
-import 'package:gemini/core/usecase/usecase.dart';
 import 'package:gemini/features/search_text/domain/repository/search_repository.dart';
 
 class SearchTextAndImage extends UseCases<dynamic, Map<String, dynamic>> {

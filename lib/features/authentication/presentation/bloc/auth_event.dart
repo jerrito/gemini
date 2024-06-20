@@ -33,7 +33,7 @@ class GetUserCacheDataEvent extends AuthenticationEvent {
 }
 
 class CacheTokenEvent extends AuthenticationEvent {
-  final AuthorizationModel authorization;
+  final Map<String,dynamic>  authorization;
   CacheTokenEvent({required this.authorization});
 }
 
@@ -55,8 +55,8 @@ final  Map<String, dynamic> params;
 }
 
 class RefreshTokenEvent extends AuthenticationEvent{
-  final  Map<String, dynamic> params;
+  final  String refreshToken;
 
-  RefreshTokenEvent({required this.params});
+  RefreshTokenEvent({required this.refreshToken});
 
 }

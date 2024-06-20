@@ -11,6 +11,7 @@ import 'package:gemini/features/authentication/domain/usecases/get_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_user.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_user_from_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/log_out.dart';
+import 'package:gemini/features/authentication/domain/usecases/refresh_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/signin.dart';
 import 'package:gemini/features/authentication/domain/usecases/signup.dart';
 import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart';
@@ -173,7 +174,7 @@ void initAuthentication() {
   //usecases
 
   sl.registerLazySingleton(
-    () => LogOut(
+    () => RefreshToken(
       repository: sl(),
     ),
   );

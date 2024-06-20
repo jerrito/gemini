@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:gemini/core/size/sizes.dart';
 
-showErrorSnackbar(
-  BuildContext context,
-  String message,
+showSnackbar(
+{  bool? isSuccessMessage, 
+   required BuildContext context,
+  required String message,
+    
+      }  
 ) {
   return ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      backgroundColor: const Color.fromRGBO(205, 6, 16, 0.894),
+      showCloseIcon: true,
+      elevation: Sizes().height(context, 1)-100,
+      backgroundColor:(isSuccessMessage ?? false)? 
+      const Color.fromRGBO(7, 158, 7, 1): 
+      const Color.fromRGBO(205, 6, 16, 0.894),
       content: Text(
         message.length<=100?
         message : "${message.substring(0,100)} ...",

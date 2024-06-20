@@ -120,13 +120,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         // generateContent.generateContent(event.params),
         onData: (data) {
             emit(GenerateContentLoading());
-          print(data.text);
         //  all.add(data.text!);
               return GenerateContentLoaded(
                   data: data.text); 
         },
         onError:(error,_) {
-           print(error);
           return GenerateContentError(
          
               errorMessage: error.toString(),

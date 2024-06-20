@@ -4,16 +4,12 @@ import 'package:gemini/core/error/error_handler.dart';
 import 'package:gemini/core/urls/urls.dart';
 import 'package:gemini/features/authentication/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-
 abstract class UserRemoteDatasource {
   //s
   Future<SignupResponseModel> signupUser(Map<String, dynamic> params);
 
   Future<SigninResponseModel> signinUser(Map<String, dynamic> params);
 
-  //confrm token
-  Future<bool> confirmToken(Map<String, dynamic> params);
 
   //get user from token
   Future<UserModel> getUserFromToken(Map<String, dynamic> params);
@@ -23,7 +19,7 @@ abstract class UserRemoteDatasource {
 
   Future<String> logout(Map<String, dynamic> params);
 
-  Future<String> refreshToken(Map<String, dynamic> params);
+  Future<String> refreshToken(String refreshToken);
 }
 
 class UserRemoteDatasourceImpl implements UserRemoteDatasource {
@@ -49,7 +45,6 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
         headers: headers,
         body:jsonEncode(body,),);
     final data = jsonDecode(response.body);
-    print(data);
     if (response.statusCode == 200) {
       return SignupResponseModel.fromJson(data);
     } else {
@@ -76,7 +71,6 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
         headers: headers,
         body:jsonEncode(body,),
     );
-    print(response.body);
     if (response.statusCode == 200) {
       return SigninResponseModel.fromJson(jsonDecode(response.body));
     } else {
@@ -84,24 +78,6 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
     }
   }
 
-  @override
-  Future<bool> confirmToken(Map<String, dynamic> params) async {
-    SharedPreferences sharedPref = await SharedPreferences.getInstance();
-    String? token = sharedPref.getString("tokenId");
-    if (token == null) {
-      sharedPref.setString("tokenId", "");
-    }
-    var tokenResponse = await http.post(
-        getUri(endpoint: Url.verifyTokenUrl.endpoint),
-        headers: <String, String>{
-          "Content-Type": "application/json; charset=UTF-8",
-          "tokenId": token!,
-        });
-
-    var response = jsonDecode(tokenResponse.body);
-    print(response);
-    return response;
-  }
 
   @override
   Future<UserModel> getUserFromToken(Map<String, dynamic> params) async {
@@ -133,7 +109,12 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
 
     final response = await client.get(getUri(endpoint: Url.homeUrl.endpoint),
         headers: headers);
+        if(response.statusCode==200){
     return UserModel.fromJson(jsonDecode(response.body));
+  }
+    else{
+      throw Exception("");
+    }
   }
   
   @override
@@ -145,23 +126,23 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
       "Authorization": params["token"]
     });
 
-    final response = await client.post(getUri(endpoint: Url.logoutUrl.endpoint),
-        headers: headers);
-    return jsonDecode(response.body);
+    final response = await client.post(getUri(endpoint: Url.logoutUrl.endpoint,),
+        headers: headers,);
+    return response.body;
   }
   
   @override
-  Future<String> refreshToken(Map<String, dynamic> params) async{
+  Future<String> refreshToken(String refreshToken) async{
     
     Map<String, String>? headers = {};
 
     headers.addAll({
       "Content-Type": "application/json; charset=UTF-8",
-      "Authorization": params["token"]
+      "Authorization":refreshToken
     });
 
     final response = await client.post(getUri(endpoint: Url.refreshUrl.endpoint),
         headers: headers);
-    return jsonDecode(response.body);
+    return (response.body);
   }
 }

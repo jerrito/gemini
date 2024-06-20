@@ -2,8 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:gemini/core/network/networkinfo.dart';
 import 'package:gemini/features/authentication/data/data_source/local_ds.dart';
 import 'package:gemini/features/authentication/data/data_source/remote_ds.dart';
-import 'package:gemini/features/authentication/data/models/authorization_model.dart';
-import 'package:gemini/features/authentication/domain/entities/authorization.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
 import 'package:gemini/features/authentication/domain/repository/auth_repo.dart';
 
@@ -68,7 +66,7 @@ class UserRepositoryImpl implements AuthenticationRepository {
  
 
   @override
-  Future<Either<String, dynamic>> cacheToken(AuthorizationModel authorization) async {
+  Future<Either<String, dynamic>> cacheToken(Map<String,dynamic>  authorization) async {
     try {
       final response = await userLocalDatasource.cacheToken( authorization);
 
@@ -79,7 +77,7 @@ class UserRepositoryImpl implements AuthenticationRepository {
   }
 
   @override
-  Future<Either<String,Authorization >> getToken()async {
+  Future<Either<String,Map<String,dynamic> >> getToken()async {
    try {
       final response = await userLocalDatasource.getToken();
 
@@ -131,7 +129,7 @@ class UserRepositoryImpl implements AuthenticationRepository {
   
   @override
   Future<Either<String, String>> logout(Map<String, dynamic> params) async{
-
+if(await networkInfo.isConnected){
   try {
         final response =
             await userRemoteDatasource.logout(params);
@@ -139,19 +137,27 @@ class UserRepositoryImpl implements AuthenticationRepository {
         return Right(response);
       } catch (e) {
         return Left(e.toString());
-      }    
-  }
+       } }
+    else{
+      return Left(networkInfo.noNetworkMessage);
+  }   
+  }    
+  
   
   @override
-  Future<Either<String, String>> refreshToken(Map<String, dynamic> params) async{
-    
+  Future<Either<String, String>> refreshToken(String refreshToken) async{
+    if(await networkInfo.isConnected){
     try {
         final response =
-            await userRemoteDatasource.refreshToken(params);
+            await userRemoteDatasource.refreshToken(refreshToken);
 
         return Right(response);
       } catch (e) {
         return Left(e.toString());
       } 
+    }
+    else{
+      return Left(networkInfo.noNetworkMessage);
+  }
   }
 }

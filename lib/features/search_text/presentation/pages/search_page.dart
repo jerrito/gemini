@@ -66,7 +66,7 @@ class _SearchTextPage extends State<SearchTextPage> {
 
   getTime() {
     Timer.periodic(const Duration(seconds: 90), (timer) {
-      print(timer.tick);
+      // print(timer.tick);
     });
   }
 
@@ -128,7 +128,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                 }
                 if (state is IsSpeechTextEnabledError) {
                   if (!context.mounted) return;
-                  showErrorSnackbar(context, state.errorMessage);
+                   showSnackbar(context: context,message: state.errorMessage);
                 }
                 if (state is IsSpeechTextEnabledLoaded) {
                   searchBloc3.add(
@@ -365,19 +365,19 @@ class _SearchTextPage extends State<SearchTextPage> {
 
               if (state is GenerateContentError) {
                 if (!context.mounted) return;
-                showErrorSnackbar(context, state.errorMessage);
+                 showSnackbar(context: context,message: state.errorMessage);
               }
               if (state is SearchTextAndImageError) {
                 if (!context.mounted) return;
-                showErrorSnackbar(context, state.errorMessage);
+                 showSnackbar(context: context,message: state.errorMessage);
               }
               if (state is SearchTextError) {
                 if (!context.mounted) return;
-                showErrorSnackbar(context, state.errorMessage);
+                 showSnackbar(context: context,message: state.errorMessage);
               }
               if (state is ChatError) {
                 if (!context.mounted) return;
-                showErrorSnackbar(context, state.errorMessage);
+                showSnackbar(context:context, message: state.errorMessage );
               }
               if (state is SearchTextAndImageLoading ||
                   state is SearchTextLoading ||
@@ -407,7 +407,6 @@ class _SearchTextPage extends State<SearchTextPage> {
               if(state is GenerateContentLoaded){
                 final data = state.data;
                 snapInfo.add(data.toString());
-                print("d");
                 _scrollDown();
                 return Column(
                   children: [
@@ -540,19 +539,18 @@ class _SearchTextPage extends State<SearchTextPage> {
                 listener: (context, state) async {
                   if (state is GetUserCachedDataLoaded) {
                     final data=state.data;
-                
                     email = data["email"];
                     userName = data["userName"];
                     setState((){});
                   }
-                  if (state is GetUserCacheDataError) {}
+                  if (state is GetUserCacheDataError) {
+                  }
                 },
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       GestureDetector(
                         onTap:()async{
-                          print("ddjd");
                          await context.pushNamed("user");
                         },
                         child: CircleAvatar(
@@ -753,7 +751,7 @@ class _SearchTextPage extends State<SearchTextPage> {
                 },
                 listener: (BuildContext context, Object? state) {
                   if (state is ReadDataError) {
-                    showErrorSnackbar(context, state.errorMessage);
+                     showSnackbar(context: context,message: state.errorMessage);
                   }
                 },
               )

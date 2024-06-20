@@ -73,8 +73,8 @@ class CacheTokenError extends AuthenticationState {
 }
 
 class GetTokenLoaded extends AuthenticationState {
-  final Authorization token;
-  GetTokenLoaded({required this.token});
+  final Map<String,dynamic>  authorization;
+  GetTokenLoaded({required this.authorization});
 }
 
 class GetTokenError extends AuthenticationState {
@@ -112,7 +112,7 @@ class RefreshTokenLoaded extends AuthenticationState {
 }
 class RefreshTokenLoading extends AuthenticationState{}
 
-class RefeshTokenError extends AuthenticationState {
+class RefreshTokenError extends AuthenticationState {
   final String errorMessage;
-  RefeshTokenError({required this.errorMessage});
+  RefreshTokenError({required this.errorMessage});
 }

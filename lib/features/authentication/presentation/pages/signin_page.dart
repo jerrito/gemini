@@ -4,12 +4,12 @@ import 'package:gemini/core/size/sizes.dart';
 import 'package:gemini/core/spacing/whitspacing.dart';
 import 'package:gemini/core/widgets/default_button.dart';
 import 'package:gemini/core/widgets/default_textfield.dart';
+import 'package:gemini/features/authentication/domain/entities/user.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:gemini/features/search_text/presentation/widgets/show_error.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../data/models/authorization_model.dart';
 
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key});
@@ -22,6 +22,8 @@ class _SigninPageState extends State<SigninPage> {
   final userBloc = sl<AuthenticationBloc>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  User? user;
+  String? accessToken, refreshToken;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,30 +36,44 @@ class _SigninPageState extends State<SigninPage> {
                 bloc: userBloc,
                 listener: (context, state) {
                   if (state is SigninLoaded) {
-                    final user = state.data.user;
-                    final authorization = state.data.authorization;
-                    userBloc.add(CacheUserDataEvent(
-                      params: {
-                        "userName": user.userName,
-                        "email": user.email,
-                      },
-                    ));
+                    final userData = state.data.user;
+                    user=userData;
+                    refreshToken=state.data.refreshToken;
+                    accessToken=state.data.token;
+                    setState((){});
+                    final authorization = {
+                      "token":accessToken,
+                      "refreshToken":refreshToken
+                    };
                     userBloc.add(
                       CacheTokenEvent(
-                        authorization: AuthorizationModel.fromJson(authorization.toMap()),
+                        authorization:(authorization),
                       ),
                     );
                   }
-                  if(state is CacheTokenLoaded){
+                  if(state is CacheUserDataLoaded){
+
                     context.goNamed("searchPage");
+                  }
+                  if(state is CacheUserDataError){
+                    if(!context.mounted) return;
+                    showSnackbar(context:context,message: state.errorMessage);
+                  }
+                  if(state is CacheTokenLoaded){
+                     userBloc.add(CacheUserDataEvent(
+                      params: {
+                        "userName": user?.userName,
+                        "email": user?.email,
+                      },
+                    ));
                   }
                   if(state is CacheTokenError){
                     if(!context.mounted) return;
-                    showErrorSnackbar(context, state.errorMessage);
+                    showSnackbar(context:context,message: state.errorMessage);
                   }
                   if (state is SigninError) {
                     if (!context.mounted) return;
-                    showErrorSnackbar(context, state.errorMessage);
+                    showSnackbar(context:context,message: state.errorMessage);
                   }
                 },
                 builder: (context, state) {
@@ -72,7 +88,6 @@ class _SigninPageState extends State<SigninPage> {
                           "email": emailController.text,
                           "password": passwordController.text
                         };
-                        print(params);
                         userBloc.add(SigninEvent(params: params));
                       },
                       label: "Signin");
@@ -82,9 +97,10 @@ class _SigninPageState extends State<SigninPage> {
         body: Padding(
       padding: EdgeInsets.symmetric(horizontal: Sizes().width(context, 0.04)),
       child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          // mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Space().height(context, 0.1),
              DefaultTextArea(
               controller:emailController,
                 hintText: "Enter Name or Email",
