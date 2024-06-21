@@ -7,7 +7,7 @@ import 'package:gemini/core/widgets/default_textfield.dart';
 import 'package:gemini/features/authentication/domain/entities/user.dart';
 import 'package:gemini/locator.dart';
 import 'package:gemini/features/authentication/presentation/bloc/auth_bloc.dart';
-import 'package:gemini/features/search_text/presentation/widgets/show_error.dart';
+import 'package:gemini/features/search_text/presentation/widgets/show_snack.dart';
 import 'package:go_router/go_router.dart';
 
 

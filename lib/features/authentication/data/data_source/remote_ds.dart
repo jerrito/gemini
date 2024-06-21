@@ -1,6 +1,7 @@
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:gemini/core/error/error_handler.dart';
+import 'package:gemini/core/error/error_model.dart';
 import 'package:gemini/core/urls/urls.dart';
 import 'package:gemini/features/authentication/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
@@ -9,10 +10,6 @@ abstract class UserRemoteDatasource {
   Future<SignupResponseModel> signupUser(Map<String, dynamic> params);
 
   Future<SigninResponseModel> signinUser(Map<String, dynamic> params);
-
-
-  //get user from token
-  Future<UserModel> getUserFromToken(Map<String, dynamic> params);
 
   // get user
   Future<UserModel> getUser(Map<String, dynamic> params);
@@ -45,14 +42,11 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
         headers: headers,
         body:jsonEncode(body,),);
     final data = jsonDecode(response.body);
+    print(data);
     if (response.statusCode == 200) {
       return SignupResponseModel.fromJson(data);
-    } else {
-      throw CustomException(
-        error: data["error"],
-        message: data["message"],
-        errorCode: data["errorCode"],
-      );
+    } else{
+      throw Exception(ErrorModel.fromJson(data).toMap());
     }
   }
 
@@ -71,32 +65,15 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
         headers: headers,
         body:jsonEncode(body,),
     );
+    final decodedResponse=jsonDecode(response.body);
     if (response.statusCode == 200) {
-      return SigninResponseModel.fromJson(jsonDecode(response.body));
+      return SigninResponseModel.fromJson(decodedResponse);
     } else {
-      throw Exception(response.reasonPhrase);
+      throw Exception(ErrorModel.fromJson(decodedResponse).toMap());
     }
   }
 
 
-  @override
-  Future<UserModel> getUserFromToken(Map<String, dynamic> params) async {
-    Map<String, String>? headers = {};
-    headers.addAll(<String, String>{
-      "Content-Type": "application/json; charset=UTF-8",
-    });
-    final response = await http
-        .get(getUri(endpoint: Url.homeUrl.endpoint), headers: <String, String>{
-      "Content-Type": "application/json; charset=UTF-8",
-      "tokenId": "",
-    });
-
-    if (response.statusCode == 200) {
-      return UserModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception([response.reasonPhrase]);
-    }
-  }
 
   @override
   Future<UserModel> getUser(Map<String, dynamic> params) async {
@@ -109,11 +86,12 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
 
     final response = await client.get(getUri(endpoint: Url.homeUrl.endpoint),
         headers: headers);
+        final decodedResponse=jsonDecode(response.body);
         if(response.statusCode==200){
-    return UserModel.fromJson(jsonDecode(response.body));
+    return UserModel.fromJson(decodedResponse);
   }
     else{
-      throw Exception("");
+      throw Exception(ErrorModel.fromJson(decodedResponse).toMap());
     }
   }
   
@@ -128,7 +106,14 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
 
     final response = await client.post(getUri(endpoint: Url.logoutUrl.endpoint,),
         headers: headers,);
-    return response.body;
+      final data=jsonDecode(response.body);
+    if(response.statusCode==HttpStatus.ok){
+    return data["success"];
+    }
+    else{
+      throw Exception(ErrorModel.fromJson(data).toMap(),);
+    }
+
   }
   
   @override
@@ -143,6 +128,12 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
 
     final response = await client.post(getUri(endpoint: Url.refreshUrl.endpoint),
         headers: headers);
-    return (response.body);
+     final data=jsonDecode(response.body);
+    if(response.statusCode==HttpStatus.ok){
+    return data["token"];
+    }
+    else{
+      throw Exception(ErrorModel.fromJson(data).toMap(),);
+    }
   }
 }

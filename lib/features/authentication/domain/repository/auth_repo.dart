@@ -8,10 +8,6 @@ abstract class AuthenticationRepository {
 // signin
   Future<Either<String, SigninResponse>> signin(Map<String, dynamic> params);
 
-
-//get user from token
-  Future<Either<String, User>> getUserFromToken(Map<String, dynamic> params);
-
   //cache user
   Future<Either<String, dynamic>> cacheUserData(Map<String, dynamic> params);
 

@@ -10,7 +10,6 @@ import 'package:gemini/features/authentication/domain/usecases/log_out.dart';
 import 'package:gemini/features/authentication/domain/usecases/refresh_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/signin.dart';
 import 'package:gemini/features/authentication/domain/usecases/signup.dart';
-import 'package:gemini/features/authentication/domain/usecases/get_user_from_token.dart';
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -18,7 +17,6 @@ class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
   final Signup signup;
   final Signin signin;
-  final GetUserFromToken getUserFromToken;
   final CacheUserData cacheUserData;
   final GetUserData getUserData;
   final CacheToken cacheToken;
@@ -32,7 +30,6 @@ class AuthenticationBloc
     required this.refreshToken,
     required this.signup,
     required this.signin,
-    required this.getUserFromToken,
     required this.getUserData,
     required this.cacheUserData,
     required this.cacheToken,
@@ -45,7 +42,9 @@ class AuthenticationBloc
         final response = await signup.call(event.params);
 
         emit(response.fold(
-            (error) => SignupError(errorMessage: error), 
+            (error) {
+            return   SignupError(errorMessage: error);
+            }, 
             (response) => SignupLoaded(response: response)));
       },
     );
@@ -68,15 +67,7 @@ class AuthenticationBloc
       },
     );
 
-    on<GetUserFromTokenEvent>(
-      (event, emit) async {
-        emit(GetUserFromTokenLoading());
-        final response = await getUserFromToken.call(event.params);
-
-        emit(response.fold((l) => GetUserFromTokenError(errorMessage: l),
-            (r) => GetUserFromTokenLoaded(user: r)));
-      },
-    );
+    
 
     //! CACHE DATA
     on<CacheUserDataEvent>((event, emit) async {

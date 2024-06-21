@@ -51,8 +51,8 @@ class _ConnectionPageState extends State<ConnectionPage> {
         if(state is RefreshTokenLoaded){
           //: TODO use provider to store both tokens
           // token=state.token;
-         final tokenGet=jsonDecode(state.token);
-         token=tokenGet["token"];
+         final tokenGet=state.token;
+         token=tokenGet;
          setState((){});
           final Map<String,dynamic> params={
             "token":token,

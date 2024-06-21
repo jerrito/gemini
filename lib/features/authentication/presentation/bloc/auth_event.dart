@@ -12,10 +12,6 @@ class SigninEvent extends AuthenticationEvent {
   SigninEvent({required this.params});
 }
 
-class GetUserFromTokenEvent extends AuthenticationEvent {
-  final Map<String, dynamic> params;
-  GetUserFromTokenEvent({required this.params});
-}
 
 class CreateUserWithEmailAndPasswordEvent extends AuthenticationEvent {
   final Map<String, dynamic> params;

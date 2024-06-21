@@ -1,16 +1,17 @@
 
-class ErroHandler implements Exception {
-  final String error, message;
-  final String errorCode;
+import 'package:gemini/core/error/error_model.dart';
 
-  ErroHandler({
-    required this.error,
-    required this.message,
-    required this.errorCode,
-  });
-}
+class ErrorModel extends Errors{
+  const ErrorModel({required super.errorMessage, required super.error, required super.errorCode});
 
-class CustomException extends ErroHandler{
-  CustomException({required super.error, required super.message, required super.errorCode});
+factory ErrorModel.fromJson(Map<String, dynamic>? json)=>
+  ErrorModel(errorMessage: json?["message"],
+   error: json?["error"], errorCode: json?["errorCode"],);
 
+  Map<String, dynamic> toMap ()=>
+   {
+    "message":errorMessage,
+    "error":error,
+    "errorCode":errorCode
+   };
 }

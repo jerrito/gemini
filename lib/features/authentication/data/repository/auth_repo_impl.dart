@@ -36,6 +36,7 @@ class UserRepositoryImpl implements AuthenticationRepository {
         final response = await userRemoteDatasource.signupUser(params);
         return Right(response);
       } catch (e) {
+        print(e);
         return Left(e.toString());
       }
     } else {
@@ -46,21 +47,6 @@ class UserRepositoryImpl implements AuthenticationRepository {
 
 
 
-  @override
-  Future<Either<String, User>> getUserFromToken(
-      Map<String, dynamic> params) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final response = await userRemoteDatasource.getUserFromToken(params);
-        return Right(response);
-      } catch (e) {
-        
-        return Left(e.toString());
-      }
-    } else {
-      return Left(networkInfo.noNetworkMessage);
-    }
-  }
 
 
  

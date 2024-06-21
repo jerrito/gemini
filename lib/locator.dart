@@ -9,7 +9,6 @@ import 'package:gemini/features/authentication/domain/usecases/cache_user.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_cache_user.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/get_user.dart';
-import 'package:gemini/features/authentication/domain/usecases/get_user_from_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/log_out.dart';
 import 'package:gemini/features/authentication/domain/usecases/refresh_token.dart';
 import 'package:gemini/features/authentication/domain/usecases/signin.dart';
@@ -160,7 +159,6 @@ void initAuthentication() {
     () => AuthenticationBloc(
       signin: sl(),
       signup: sl(),
-      getUserFromToken: sl(),
       getUserData: sl(),
       cacheUserData: sl(),
       cacheToken: sl(),
@@ -215,11 +213,6 @@ void initAuthentication() {
     ),
   );
 
-  sl.registerLazySingleton(
-    () => GetUserFromToken(
-      repository: sl(),
-    ),
-  );
 
   sl.registerLazySingleton(
     () => Signin(

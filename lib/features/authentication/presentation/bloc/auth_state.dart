@@ -30,18 +30,6 @@ class SigninError extends AuthenticationState {
   SigninError({required this.errorMessage});
 }
 
-class GetUserFromTokenLoaded extends AuthenticationState {
-  final User user;
-  GetUserFromTokenLoaded({required this.user});
-}
-
-class GetUserFromTokenLoading extends AuthenticationState {}
-
-class GetUserFromTokenError extends AuthenticationState {
-  final String errorMessage;
-  GetUserFromTokenError({required this.errorMessage});
-}
-
 class CacheUserDataLoaded extends AuthenticationState {
   CacheUserDataLoaded();
 }

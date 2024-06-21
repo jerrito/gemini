@@ -15,7 +15,7 @@ import 'package:gemini/features/search_text/presentation/bloc/search_bloc.dart';
 import 'package:gemini/features/search_text/presentation/widgets/buttons_below.dart';
 import 'package:gemini/features/search_text/presentation/widgets/history_shimmer.dart';
 import 'package:gemini/features/search_text/presentation/widgets/search_type.dart';
-import 'package:gemini/features/search_text/presentation/widgets/show_error.dart';
+import 'package:gemini/features/search_text/presentation/widgets/show_snack.dart';
 import 'package:gemini/features/search_text/presentation/widgets/slidable_action.dart';
 import 'package:gemini/features/sql_database/entities/text.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
